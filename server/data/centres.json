@@ -1,0 +1,535 @@
+{
+  "centres": [
+    {
+      "id": "centre-westfield",
+      "name": "Westfield London",
+      "logo": "#7c3aed",
+      "description": "One of Europe's largest urban shopping centres, located in White City. Home to over 300 stores across fashion, beauty, dining, and entertainment.",
+      "address": "Ariel Way",
+      "city": "London",
+      "postcode": "W12 7GF",
+      "country": "United Kingdom",
+      "coordinates": {
+        "lat": 51.5074,
+        "lng": -0.2218
+      },
+      "status": "Listed",
+      "teamId": "team-one",
+      "totalSqm": 150000,
+      "numberOfStores": 300,
+      "avgVisitTimeMinutes": 95,
+      "footfallPerWeek": 500000,
+      "amenities": [
+        "Free Wi-Fi",
+        "Parking",
+        "Food court",
+        "Cinema",
+        "Accessible facilities",
+        "Baby changing",
+        "ATM",
+        "Click & collect"
+      ],
+      "images": [
+        "blob:http://localhost:3000/b3b109cd-92a9-49a1-a0e4-37d7ab990131"
+      ],
+      "contactName": "James Wilson",
+      "contactEmail": "legal@westfield.com",
+      "userSignatories": [
+        "sam@fillit.com"
+      ],
+      "externalSignatories": [
+        "legal@westfield.com"
+      ],
+      "logoUrl": "blob:http://localhost:3000/f9b14259-5def-41de-9a3e-5a667a4a253b"
+    },
+    {
+      "id": "centre-bluewater",
+      "name": "Bluewater",
+      "logo": "#059669",
+      "description": "A flagship retail and leisure destination in Kent, set within a 240-acre park. Renowned for its distinctive architecture and premium brand mix.",
+      "address": "Greenhithe",
+      "city": "Bluewater",
+      "postcode": "DA9 9ST",
+      "country": "United Kingdom",
+      "coordinates": {
+        "lat": 51.4434,
+        "lng": 0.2718
+      },
+      "status": "Unlisted",
+      "teamId": "team-one",
+      "totalSqm": 155000,
+      "numberOfStores": 260,
+      "avgVisitTimeMinutes": 110,
+      "footfallPerWeek": 350000,
+      "amenities": [
+        "Free Wi-Fi",
+        "Parking",
+        "Food court",
+        "Cinema",
+        "Accessible facilities",
+        "Baby changing",
+        "ATM",
+        "Electric vehicle charging"
+      ],
+      "images": [],
+      "contactName": "Claire Murphy",
+      "contactEmail": "contracts@bluewater.com",
+      "userSignatories": [
+        "sam@fillit.com"
+      ],
+      "externalSignatories": [
+        "contracts@bluewater.com"
+      ]
+    },
+    {
+      "id": "centre-lakeside",
+      "name": "Lakeside",
+      "logo": "#2563eb",
+      "description": "A major retail and leisure destination in Thurrock, Essex, with extensive waterfront dining and over 250 stores.",
+      "address": "Heron Way",
+      "city": "Thurrock",
+      "postcode": "RM20 2ZP",
+      "country": "United Kingdom",
+      "coordinates": {
+        "lat": 51.4812,
+        "lng": 0.2945
+      },
+      "status": "Listed",
+      "teamId": "team-two",
+      "totalSqm": 120000,
+      "numberOfStores": 250,
+      "avgVisitTimeMinutes": 85,
+      "footfallPerWeek": 280000,
+      "amenities": [
+        "Free Wi-Fi",
+        "Parking",
+        "Food court",
+        "Accessible facilities",
+        "Baby changing",
+        "ATM",
+        "Click & collect"
+      ],
+      "images": [],
+      "contactName": "Alice Chen",
+      "contactEmail": "alice@company.com",
+      "userSignatories": [
+        "sam@fillit.com"
+      ],
+      "externalSignatories": []
+    },
+    {
+      "id": "centre-meadowhall",
+      "name": "Meadowhall",
+      "logo": "#d97706",
+      "description": "Sheffield's premier shopping and leisure destination, featuring over 280 stores and a dedicated cinema and dining quarter.",
+      "address": "Meadowhall Way",
+      "city": "Sheffield",
+      "postcode": "S9 1EP",
+      "country": "United Kingdom",
+      "coordinates": {
+        "lat": 53.4139,
+        "lng": -1.4128
+      },
+      "status": "Listed",
+      "teamId": "team-two",
+      "totalSqm": 140000,
+      "numberOfStores": 280,
+      "avgVisitTimeMinutes": 90,
+      "footfallPerWeek": 300000,
+      "amenities": [
+        "Free Wi-Fi",
+        "Parking",
+        "Food court",
+        "Cinema",
+        "Accessible facilities",
+        "Baby changing",
+        "ATM",
+        "Information desk"
+      ],
+      "images": [],
+      "contactName": "Sam O'Brien",
+      "contactEmail": "sam@fillit.com",
+      "userSignatories": [
+        "sam@fillit.com"
+      ],
+      "externalSignatories": []
+    },
+    {
+      "id": "centre-trafford",
+      "name": "Trafford Centre",
+      "logo": "#dc2626",
+      "description": "One of the UK's largest out-of-town shopping centres, featuring ornate architecture, a giant food court, and a 20-screen cinema.",
+      "address": "The Trafford Centre",
+      "city": "Trafford",
+      "postcode": "M17 8AA",
+      "country": "United Kingdom",
+      "coordinates": {
+        "lat": 53.4666,
+        "lng": -2.3427
+      },
+      "status": "Unlisted",
+      "teamId": "team-two",
+      "totalSqm": 186000,
+      "numberOfStores": 200,
+      "avgVisitTimeMinutes": 120,
+      "footfallPerWeek": 420000,
+      "amenities": [
+        "Free Wi-Fi",
+        "Parking",
+        "Food court",
+        "Cinema",
+        "Accessible facilities",
+        "Baby changing",
+        "ATM",
+        "Electric vehicle charging",
+        "Left luggage"
+      ],
+      "images": [],
+      "contactName": "Sam O'Brien",
+      "contactEmail": "sam@fillit.com",
+      "userSignatories": [
+        "sam@fillit.com"
+      ],
+      "externalSignatories": []
+    },
+    {
+      "id": "centre-bullring",
+      "name": "Bullring",
+      "logo": "#0891b2",
+      "description": "Birmingham's iconic city-centre shopping destination, anchored by a flagship Selfridges with its distinctive disc facade. Home to over 160 stores across fashion, beauty, and dining.",
+      "address": "Bullring",
+      "city": "Birmingham",
+      "postcode": "B5 4BU",
+      "country": "United Kingdom",
+      "coordinates": {
+        "lat": 52.4775,
+        "lng": -1.8936
+      },
+      "status": "Listed",
+      "teamId": "team-one",
+      "totalSqm": 111000,
+      "numberOfStores": 160,
+      "avgVisitTimeMinutes": 80,
+      "footfallPerWeek": 380000,
+      "amenities": [
+        "Free Wi-Fi",
+        "Parking",
+        "Food court",
+        "Accessible facilities",
+        "Baby changing",
+        "ATM",
+        "Click & collect"
+      ],
+      "images": [],
+      "contactName": "",
+      "contactEmail": "",
+      "userSignatories": [],
+      "externalSignatories": []
+    },
+    {
+      "id": "centre-arndale",
+      "name": "Manchester Arndale",
+      "logo": "#9333ea",
+      "description": "The UK's largest city-centre shopping mall, sitting at the heart of Manchester with direct links to the Metrolink network and over 200 retailers.",
+      "address": "48 Market Street",
+      "city": "Manchester",
+      "postcode": "M1 1PW",
+      "country": "United Kingdom",
+      "coordinates": {
+        "lat": 53.4808,
+        "lng": -2.2426
+      },
+      "status": "Listed",
+      "teamId": "team-two",
+      "totalSqm": 130000,
+      "numberOfStores": 210,
+      "avgVisitTimeMinutes": 75,
+      "footfallPerWeek": 410000,
+      "amenities": [
+        "Free Wi-Fi",
+        "Food court",
+        "Accessible facilities",
+        "Baby changing",
+        "ATM",
+        "Click & collect",
+        "Information desk"
+      ],
+      "images": [],
+      "contactName": "",
+      "contactEmail": "",
+      "userSignatories": [],
+      "externalSignatories": []
+    },
+    {
+      "id": "centre-brent-cross",
+      "name": "Brent Cross",
+      "logo": "#0d9488",
+      "description": "North London's established shopping centre, recently expanded and refurbished, offering a curated mix of high street and premium brands in a relaxed environment.",
+      "address": "Prince Charles Drive",
+      "city": "London",
+      "postcode": "NW4 3FP",
+      "country": "United Kingdom",
+      "coordinates": {
+        "lat": 51.5768,
+        "lng": -0.2197
+      },
+      "status": "Listed",
+      "teamId": "team-one",
+      "totalSqm": 79000,
+      "numberOfStores": 120,
+      "avgVisitTimeMinutes": 70,
+      "footfallPerWeek": 220000,
+      "amenities": [
+        "Free Wi-Fi",
+        "Parking",
+        "Food court",
+        "Accessible facilities",
+        "Baby changing",
+        "ATM"
+      ],
+      "images": [],
+      "contactName": "",
+      "contactEmail": "",
+      "userSignatories": [],
+      "externalSignatories": []
+    },
+    {
+      "id": "centre-white-rose",
+      "name": "White Rose",
+      "logo": "#b45309",
+      "description": "A major retail and leisure park in south Leeds, anchored by an M&S and Primark, with a strong food and beverage offer and free parking for over 3,000 vehicles.",
+      "address": "Dewsbury Road",
+      "city": "Leeds",
+      "postcode": "LS11 8LU",
+      "country": "United Kingdom",
+      "coordinates": {
+        "lat": 53.7707,
+        "lng": -1.561
+      },
+      "status": "Unlisted",
+      "teamId": "team-two",
+      "totalSqm": 95000,
+      "numberOfStores": 130,
+      "avgVisitTimeMinutes": 65,
+      "footfallPerWeek": 190000,
+      "amenities": [
+        "Free Wi-Fi",
+        "Parking",
+        "Food court",
+        "Accessible facilities",
+        "Baby changing",
+        "ATM",
+        "Electric vehicle charging"
+      ],
+      "images": [],
+      "contactName": "",
+      "contactEmail": "",
+      "userSignatories": [],
+      "externalSignatories": []
+    },
+    {
+      "id": "centre-cribbs-causeway",
+      "name": "Cribbs Causeway",
+      "logo": "#be185d",
+      "description": "Bristol's premier out-of-town shopping destination, with a strong anchor line-up, popular restaurants, and excellent transport links from across the South West.",
+      "address": "The Mall",
+      "city": "Bristol",
+      "postcode": "BS34 5DG",
+      "country": "United Kingdom",
+      "coordinates": {
+        "lat": 51.527,
+        "lng": -2.582
+      },
+      "status": "Listed",
+      "teamId": "team-one",
+      "totalSqm": 87000,
+      "numberOfStores": 140,
+      "avgVisitTimeMinutes": 85,
+      "footfallPerWeek": 240000,
+      "amenities": [
+        "Free Wi-Fi",
+        "Parking",
+        "Food court",
+        "Cinema",
+        "Accessible facilities",
+        "Baby changing",
+        "ATM"
+      ],
+      "images": [],
+      "contactName": "",
+      "contactEmail": "",
+      "userSignatories": [],
+      "externalSignatories": []
+    },
+    {
+      "id": "centre-metrocentre",
+      "name": "Metrocentre",
+      "logo": "#4f46e5",
+      "description": "Europe's largest out-of-town shopping and leisure complex, located in Gateshead. Features an indoor theme park area, multi-screen cinema, and over 340 stores.",
+      "address": "Metrocentre",
+      "city": "Gateshead",
+      "postcode": "NE11 9YG",
+      "country": "United Kingdom",
+      "coordinates": {
+        "lat": 54.9565,
+        "lng": -1.6668
+      },
+      "status": "Listed",
+      "teamId": "team-one",
+      "totalSqm": 194000,
+      "numberOfStores": 340,
+      "avgVisitTimeMinutes": 105,
+      "footfallPerWeek": 360000,
+      "amenities": [
+        "Free Wi-Fi",
+        "Parking",
+        "Food court",
+        "Cinema",
+        "Accessible facilities",
+        "Baby changing",
+        "ATM",
+        "Click & collect",
+        "Electric vehicle charging"
+      ],
+      "images": [],
+      "contactName": "",
+      "contactEmail": "",
+      "userSignatories": [],
+      "externalSignatories": []
+    },
+    {
+      "id": "centre-oracle",
+      "name": "The Oracle",
+      "logo": "#15803d",
+      "description": "Reading's waterside shopping centre set along the River Kennet. A mix of high street and premium fashion brands alongside a riverside dining terrace.",
+      "address": "106 The Oracle",
+      "city": "Reading",
+      "postcode": "RG1 2AG",
+      "country": "United Kingdom",
+      "coordinates": {
+        "lat": 51.4551,
+        "lng": -0.9762
+      },
+      "status": "Unlisted",
+      "teamId": "team-two",
+      "totalSqm": 64000,
+      "numberOfStores": 90,
+      "avgVisitTimeMinutes": 60,
+      "footfallPerWeek": 175000,
+      "amenities": [
+        "Free Wi-Fi",
+        "Food court",
+        "Accessible facilities",
+        "Baby changing",
+        "ATM"
+      ],
+      "images": [],
+      "contactName": "",
+      "contactEmail": "",
+      "userSignatories": [],
+      "externalSignatories": []
+    },
+    {
+      "id": "centre-highcross",
+      "name": "Highcross",
+      "logo": "#c2410c",
+      "description": "Leicester's contemporary city-centre shopping destination, featuring a striking glass atrium, 120 stores, and a dedicated leisure quarter with a nine-screen cinema.",
+      "address": "High Street",
+      "city": "Leicester",
+      "postcode": "LE1 4FQ",
+      "country": "United Kingdom",
+      "coordinates": {
+        "lat": 52.6369,
+        "lng": -1.1365
+      },
+      "status": "Listed",
+      "teamId": "team-one",
+      "totalSqm": 75000,
+      "numberOfStores": 120,
+      "avgVisitTimeMinutes": 72,
+      "footfallPerWeek": 200000,
+      "amenities": [
+        "Free Wi-Fi",
+        "Parking",
+        "Food court",
+        "Cinema",
+        "Accessible facilities",
+        "Baby changing",
+        "ATM"
+      ],
+      "images": [],
+      "contactName": "",
+      "contactEmail": "",
+      "userSignatories": [],
+      "externalSignatories": []
+    },
+    {
+      "id": "centre-st-davids",
+      "name": "St David's",
+      "logo": "#7e22ce",
+      "description": "Cardiff's flagship shopping and leisure destination, spanning two linked centres in the heart of the city. Home to 200 stores including a flagship John Lewis.",
+      "address": "The Hayes",
+      "city": "Cardiff",
+      "postcode": "CF10 2EL",
+      "country": "United Kingdom",
+      "coordinates": {
+        "lat": 51.4816,
+        "lng": -3.1791
+      },
+      "status": "Listed",
+      "teamId": "team-two",
+      "totalSqm": 103000,
+      "numberOfStores": 200,
+      "avgVisitTimeMinutes": 88,
+      "footfallPerWeek": 310000,
+      "amenities": [
+        "Free Wi-Fi",
+        "Parking",
+        "Food court",
+        "Accessible facilities",
+        "Baby changing",
+        "ATM",
+        "Click & collect",
+        "Information desk"
+      ],
+      "images": [],
+      "contactName": "",
+      "contactEmail": "",
+      "userSignatories": [],
+      "externalSignatories": []
+    },
+    {
+      "id": "centre-victoria-leeds",
+      "name": "Victoria Leeds",
+      "logo": "#0369a1",
+      "description": "A premium retail and dining destination housed in a beautifully restored Victorian arcade in central Leeds. Anchored by Victoria Gate and a flagship John Lewis.",
+      "address": "19 King Edward Street",
+      "city": "Leeds",
+      "postcode": "LS1 6AZ",
+      "country": "United Kingdom",
+      "coordinates": {
+        "lat": 53.7989,
+        "lng": -1.5419
+      },
+      "status": "Unlisted",
+      "teamId": "team-one",
+      "totalSqm": 55000,
+      "numberOfStores": 80,
+      "avgVisitTimeMinutes": 65,
+      "footfallPerWeek": 145000,
+      "amenities": [
+        "Free Wi-Fi",
+        "Parking",
+        "Food court",
+        "Accessible facilities",
+        "Baby changing",
+        "ATM"
+      ],
+      "images": [],
+      "contactName": "",
+      "contactEmail": "",
+      "userSignatories": [],
+      "externalSignatories": []
+    }
+  ]
+}

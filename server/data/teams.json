@@ -1,0 +1,212 @@
+{
+  "teams": [
+    {
+      "id": "team-one",
+      "name": "Team_one",
+      "logo": "#059669",
+      "members": [
+        {
+          "name": "Priya Sharma",
+          "email": "priya.sharma@brand.com",
+          "role": "Admin",
+          "status": "Active",
+          "signatoryCentres": [
+            "Westfield London",
+            "Bluewater"
+          ]
+        },
+        {
+          "name": "Tom Nguyen",
+          "email": "tom.nguyen@retailco.com",
+          "role": "Member",
+          "status": "Active",
+          "signatoryCentres": []
+        }
+      ],
+      "pendingInvites": [
+        {
+          "email": "sam@fillit.com",
+          "status": "Awaiting Signup",
+          "role": "Member",
+          "invitedBy": "Sam O'Brien",
+          "sentOn": "12 May 2026"
+        }
+      ],
+      "signatories": [
+        {
+          "name": "James Wilson",
+          "email": "legal@westfield.com",
+          "centres": [
+            "Bluewater"
+          ],
+          "addedBy": "Sam O'Brien",
+          "addedOn": "01 May 2026"
+        },
+        {
+          "name": "Claire Murphy",
+          "email": "contracts@bluewater.com",
+          "centres": [
+            "Westfield London"
+          ],
+          "addedBy": "Sam O'Brien",
+          "addedOn": "02 May 2026"
+        },
+        {
+          "name": "Tom D",
+          "email": "sam@fillit.com",
+          "centres": [],
+          "addedBy": "Sam O'Brien",
+          "addedOn": "13 May 2026"
+        }
+      ],
+      "centres": [
+        {
+          "id": "centre-westfield",
+          "name": "Westfield London",
+          "location": "White City, London",
+          "status": "Listed"
+        },
+        {
+          "id": "centre-bluewater",
+          "name": "Bluewater",
+          "location": "Bluewater, Kent",
+          "status": "Unlisted"
+        }
+      ]
+    },
+    {
+      "id": "team-two",
+      "name": "Team_two",
+      "logo": "#2563eb",
+      "members": [
+        {
+          "name": "Bob Martinez",
+          "email": "bob@company.com",
+          "role": "Member",
+          "status": "Active",
+          "signatoryCentres": [
+            "Lakeside",
+            "Meadowhall"
+          ]
+        },
+        {
+          "name": "Carol White",
+          "email": "carol@company.com",
+          "role": "Accounts",
+          "status": "Active",
+          "signatoryCentres": []
+        },
+        {
+          "name": "Dan Foster",
+          "email": "dan@company.com",
+          "role": "Member",
+          "status": "Inactive",
+          "signatoryCentres": []
+        },
+        {
+          "name": "Grace Kim",
+          "email": "grace.kim@company.com",
+          "role": "Accounts",
+          "status": "Active",
+          "signatoryCentres": []
+        },
+        {
+          "name": "John Smith",
+          "email": "john@company.com",
+          "role": "Admin",
+          "status": "Active",
+          "signatoryCentres": [
+            "Lakeside",
+            "Meadowhall"
+          ]
+        },
+        {
+          "name": "Lisa Fernandez",
+          "email": "lisa.fernandez@popupstudio.com",
+          "role": "Admin",
+          "status": "Active",
+          "signatoryCentres": []
+        },
+        {
+          "name": "Marcus Okafor",
+          "email": "marcus.okafor@ventures.com",
+          "role": "Member",
+          "status": "Active",
+          "signatoryCentres": []
+        },
+        {
+          "name": "Hannah Reed",
+          "email": "hannah.reed@spaces.co",
+          "role": "Admin",
+          "status": "Active",
+          "signatoryCentres": []
+        }
+      ],
+      "pendingInvites": [
+        {
+          "email": "frank.jones@company.com",
+          "status": "Awaiting Signup",
+          "role": "Member",
+          "invitedBy": "Sam O'Brien",
+          "sentOn": "03 May 2026"
+        },
+        {
+          "email": "james.park@brandhouse.io",
+          "status": "Pending Approval",
+          "role": "Member",
+          "invitedBy": "Requested",
+          "sentOn": "08 May 2026"
+        },
+        {
+          "email": "test",
+          "status": "Awaiting Signup",
+          "role": "Admin",
+          "invitedBy": "Sam O'Brien",
+          "sentOn": "13 May 2026"
+        }
+      ],
+      "signatories": [
+        {
+          "name": "Alice Chen",
+          "email": "alice@company.com",
+          "centres": [
+            "Lakeside",
+            "Meadowhall",
+            "Trafford Centre"
+          ],
+          "addedBy": "Sam O'Brien",
+          "addedOn": "10 Apr 2026"
+        },
+        {
+          "name": "Sam",
+          "email": "sam@fillit.com",
+          "centres": [
+            "Lakeside"
+          ],
+          "addedBy": "Sam O'Brien",
+          "addedOn": "08 May 2026"
+        }
+      ],
+      "centres": [
+        {
+          "id": "centre-lakeside",
+          "name": "Lakeside",
+          "location": "Thurrock, Essex",
+          "status": "Listed"
+        },
+        {
+          "id": "centre-meadowhall",
+          "name": "Meadowhall",
+          "location": "Sheffield, South Yorkshire",
+          "status": "Listed"
+        },
+        {
+          "id": "centre-trafford",
+          "name": "Trafford Centre",
+          "location": "Trafford, Greater Manchester",
+          "status": "Unlisted"
+        }
+      ]
+    }
+  ]
+}
