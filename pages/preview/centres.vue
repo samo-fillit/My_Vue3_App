@@ -1,6 +1,7 @@
 <template>
   <SidebarProvider class="h-screen overflow-hidden">
     <AppSidebar active-item="account-centres" />
+    <RightPanel />
     <SidebarInset class="overflow-hidden">
 
       <div class="flex-1 overflow-y-auto px-24 py-12">
@@ -14,23 +15,26 @@
                 Manage your shopping centre portfolio, spaces, and listing settings.
               </p>
             </div>
-            <Button class="h-10 shrink-0 px-5 text-sm font-medium">
+            <Button class="h-10 shrink-0 px-5 text-sm font-medium" @click="openAddCentre">
               + Add new centre
             </Button>
           </div>
 
           <div class="flex flex-col gap-6">
-          <!-- Search -->
-          <div class="relative w-full max-w-sm">
-            <input
-              ref="searchInputRef"
-              v-model="searchQuery"
-              type="text"
-              placeholder="Search centres…"
-              class="h-10 w-full rounded-lg border border-border bg-background px-4 pr-10 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-foreground focus:border-[1.5px]"
-              @keydown.enter="jumpToMatch"
-            />
-            <IconSearch :size="16" stroke-width="1.5" class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <!-- Toolbar: Search -->
+          <div class="flex items-center gap-4">
+            <!-- Search -->
+            <div class="relative w-full max-w-sm">
+              <input
+                ref="searchInputRef"
+                v-model="searchQuery"
+                type="text"
+                placeholder="Search centres…"
+                class="h-10 w-full rounded-lg border border-border bg-background px-4 pr-10 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-foreground focus:border-[1.5px]"
+                @keydown.enter="jumpToMatch"
+              />
+              <IconSearch :size="16" stroke-width="1.5" class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            </div>
           </div>
 
           <!-- Table -->
@@ -46,34 +50,21 @@
                   </button>
                 </TableHead>
                 <TableHead>
+                  <button type="button" class="inline-flex items-center gap-1 whitespace-nowrap text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort('centreId')">
+                    Centre ID
+                    <IconChevronUp v-if="sort.key === 'centreId' && sort.dir === 'asc'" :size="12" class="text-foreground" />
+                    <IconChevronDown v-else-if="sort.key === 'centreId' && sort.dir === 'desc'" :size="12" class="text-foreground" />
+                    <IconSelector v-else :size="12" class="opacity-30" />
+                  </button>
+                </TableHead>
+                <TableHead class="text-center">
+                  <span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Country</span>
+                </TableHead>
+                <TableHead>
                   <button type="button" class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort('city')">
                     City
                     <IconChevronUp v-if="sort.key === 'city' && sort.dir === 'asc'" :size="12" class="text-foreground" />
                     <IconChevronDown v-else-if="sort.key === 'city' && sort.dir === 'desc'" :size="12" class="text-foreground" />
-                    <IconSelector v-else :size="12" class="opacity-30" />
-                  </button>
-                </TableHead>
-                <TableHead>
-                  <button type="button" class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort('country')">
-                    Country
-                    <IconChevronUp v-if="sort.key === 'country' && sort.dir === 'asc'" :size="12" class="text-foreground" />
-                    <IconChevronDown v-else-if="sort.key === 'country' && sort.dir === 'desc'" :size="12" class="text-foreground" />
-                    <IconSelector v-else :size="12" class="opacity-30" />
-                  </button>
-                </TableHead>
-                <TableHead class="text-center">
-                  <button type="button" class="inline-flex w-full items-center justify-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort('totalSqm')">
-                    Size (sqm)
-                    <IconChevronUp v-if="sort.key === 'totalSqm' && sort.dir === 'asc'" :size="12" class="text-foreground" />
-                    <IconChevronDown v-else-if="sort.key === 'totalSqm' && sort.dir === 'desc'" :size="12" class="text-foreground" />
-                    <IconSelector v-else :size="12" class="opacity-30" />
-                  </button>
-                </TableHead>
-                <TableHead class="text-center">
-                  <button type="button" class="inline-flex w-full items-center justify-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort('footfallPerWeek')">
-                    Weekly footfall
-                    <IconChevronUp v-if="sort.key === 'footfallPerWeek' && sort.dir === 'asc'" :size="12" class="text-foreground" />
-                    <IconChevronDown v-else-if="sort.key === 'footfallPerWeek' && sort.dir === 'desc'" :size="12" class="text-foreground" />
                     <IconSelector v-else :size="12" class="opacity-30" />
                   </button>
                 </TableHead>
@@ -113,10 +104,9 @@
                     <span class="text-sm font-medium text-foreground">{{ centre.name }}</span>
                   </div>
                 </TableCell>
+                <TableCell class="py-3 font-mono text-xs text-muted-foreground">{{ centre.centreId }}</TableCell>
+                <TableCell class="py-3 text-sm text-muted-foreground">{{ countryAbbr(centre.country) }}</TableCell>
                 <TableCell class="py-3 text-sm text-muted-foreground">{{ centre.city }}</TableCell>
-                <TableCell class="py-3 text-sm text-muted-foreground">{{ centre.country }}</TableCell>
-                <TableCell class="py-3 text-center text-sm text-foreground">{{ centre.totalSqm?.toLocaleString() ?? '—' }}</TableCell>
-                <TableCell class="py-3 text-center text-sm text-foreground">{{ centre.footfallPerWeek?.toLocaleString() ?? '—' }}</TableCell>
                 <TableCell class="py-3 text-center">
                   <span
                     class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium"
@@ -130,8 +120,8 @@
                     <Button variant="outline" size="sm" class="h-8 px-4 text-sm font-medium" @click="openEditCentre(centre)">
                       Edit centre
                     </Button>
-                    <Button variant="outline" size="sm" class="h-8 px-4 text-sm font-medium" @click="openManageSpaces(centre)">
-                      Manage spaces
+                    <Button variant="outline" size="sm" class="h-8 px-4 text-sm font-medium" @click="viewSpaces(centre)">
+                      View spaces
                     </Button>
                   </div>
                 </TableCell>
@@ -156,8 +146,8 @@
           <!-- Header -->
           <div class="flex shrink-0 items-center justify-between border-b border-border px-8 py-5">
             <div>
-              <h2 class="text-lg font-semibold text-foreground">Edit centre</h2>
-              <p class="text-sm text-muted-foreground">{{ editDraft.name }}</p>
+              <h2 class="text-lg font-semibold text-foreground">{{ modalMode === 'create' ? 'Add new centre' : 'Edit centre' }}</h2>
+              <p class="text-sm text-muted-foreground">{{ modalMode === 'create' ? 'Fill in the details below to add a new centre.' : editDraft.name }}</p>
             </div>
             <button type="button" class="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground" @click="editCentreOpen = false">
               <IconX :size="18" stroke-width="1.5" />
@@ -168,6 +158,50 @@
           <div class="min-h-0 flex-1 overflow-y-auto">
             <div class="mx-auto max-w-[900px] px-8 py-8">
               <div class="flex flex-col gap-10">
+
+                <!-- Team -->
+                <section class="flex flex-col gap-6">
+                  <h3 class="text-base font-semibold text-foreground/70">Team</h3>
+                  <FloatingLabelSelect
+                    v-model="editDraft.teamId"
+                    label="Assigned team"
+                    :required="true"
+                    :disabled="teams.length === 1"
+                  >
+                    <template v-if="selectedTeamObj" #trigger-prefix>
+                      <div
+                        class="flex h-6 w-6 shrink-0 items-center justify-center rounded text-xs font-bold text-white"
+                        :style="{ backgroundColor: selectedTeamObj.logo }"
+                      >
+                        {{ selectedTeamObj.name.charAt(0).toUpperCase() }}
+                      </div>
+                    </template>
+                    <RekaSelectItem
+                      v-for="team in teams"
+                      :key="team.id"
+                      :value="team.id"
+                      class="relative flex w-full cursor-default select-none items-center rounded-sm py-2 pl-3 pr-8 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
+                    >
+                      <span class="absolute right-2 flex h-3.5 w-3.5 items-center justify-center">
+                        <RekaSelectItemIndicator>
+                          <IconCheck class="h-4 w-4" />
+                        </RekaSelectItemIndicator>
+                      </span>
+                      <div class="flex items-center gap-3">
+                        <div
+                          class="flex h-6 w-6 shrink-0 items-center justify-center rounded text-xs font-bold text-white"
+                          :style="{ backgroundColor: team.logo }"
+                        >
+                          {{ team.name.charAt(0).toUpperCase() }}
+                        </div>
+                        <RekaSelectItemText>{{ team.name }}</RekaSelectItemText>
+                      </div>
+                    </RekaSelectItem>
+                  </FloatingLabelSelect>
+                  <p v-if="teams.length === 1" class="mt-1.5 text-xs text-muted-foreground">Only one team available — assigned automatically.</p>
+                </section>
+
+                <Separator />
 
                 <!-- Identity -->
                 <section class="flex flex-col gap-6">
@@ -219,10 +253,13 @@
                       </div>
                     </div>
 
-                    <FloatingLabelInput v-model="editDraft.name" label="Centre name" :required="true" />
+                    <div class="grid grid-cols-2 gap-5">
+                      <FloatingLabelInput v-model="editDraft.name" label="Centre name" :required="true" />
+                      <FloatingLabelInput v-model="editDraft.centreId" label="Centre ID" :required="true" />
+                    </div>
                     <div class="relative w-full pt-2">
                       <span class="pointer-events-none absolute left-3 top-0 z-10 flex items-center gap-0.5 bg-background px-1 text-sm leading-none text-muted-foreground">
-                        Description
+                        Description<span class="ml-0.5">*</span>
                       </span>
                       <textarea
                         v-model="editDraft.description"
@@ -239,10 +276,10 @@
                 <section class="flex flex-col gap-6">
                   <h3 class="text-base font-semibold text-foreground/70">Details</h3>
                   <div class="grid grid-cols-2 gap-5">
-                    <FloatingLabelInput v-model.number="editDraft.totalSqm" label="Total size (sqm)" type="number" />
-                    <FloatingLabelInput v-model.number="editDraft.numberOfStores" label="Number of stores" type="number" />
+                    <FloatingLabelInput v-model.number="editDraft.totalSqm" label="Total size (sqm)" type="number" :required="true" />
+                    <FloatingLabelInput v-model.number="editDraft.numberOfStores" label="Number of stores" type="number" :required="true" />
                     <FloatingLabelInput v-model.number="editDraft.avgVisitTimeMinutes" label="Avg. visit time (minutes)" type="number" />
-                    <FloatingLabelInput v-model.number="editDraft.footfallPerWeek" label="Weekly footfall" type="number" />
+                    <FloatingLabelInput v-model.number="editDraft.footfallPerWeek" label="Weekly footfall" type="number" :required="true" />
                   </div>
                 </section>
 
@@ -285,7 +322,10 @@
 
                 <!-- Images -->
                 <section class="flex flex-col gap-6">
-                  <h3 class="text-base font-semibold text-foreground/70">Images</h3>
+                  <div>
+                    <h3 class="text-base font-semibold text-foreground/70">Images</h3>
+                    <p class="mt-1 text-xs text-muted-foreground">At least 1 image required.<span class="ml-0.5">*</span></p>
+                  </div>
                   <div class="flex flex-wrap gap-3">
                     <div
                       v-for="(img, i) in editDraft.images"
@@ -330,11 +370,11 @@
                   <h3 class="text-base font-semibold text-foreground/70">Address</h3>
                   <div class="grid grid-cols-2 gap-5">
                     <div class="col-span-2">
-                      <FloatingLabelInput v-model="editDraft.address" label="Street address" />
+                      <FloatingLabelInput v-model="editDraft.address" label="Street address" :required="true" />
                     </div>
-                    <FloatingLabelInput v-model="editDraft.city" label="City" />
-                    <FloatingLabelInput v-model="editDraft.postcode" label="Postcode" />
-                    <FloatingLabelInput v-model="editDraft.country" label="Country" />
+                    <FloatingLabelInput v-model="editDraft.city" label="City" :required="true" />
+                    <FloatingLabelInput v-model="editDraft.postcode" label="Postcode" :required="true" />
+                    <FloatingLabelInput v-model="editDraft.country" label="Country" :required="true" />
                   </div>
                   <div class="grid grid-cols-2 gap-5">
                     <FloatingLabelInput v-model.number="editDraft.coordinates.lat" label="Latitude" type="number" />
@@ -352,21 +392,17 @@
                   </div>
                   <div class="flex flex-col gap-3">
                     <div v-for="(sig, i) in editDraft.userSignatories" :key="i" class="flex items-center gap-3">
-                      <div class="relative flex-1 pt-2">
-                        <span class="pointer-events-none absolute left-3 top-0 z-10 flex items-center gap-0.5 bg-background px-1 text-sm leading-none text-muted-foreground">
-                          Signatory {{ i + 1 }}<span class="ml-0.5">*</span>
-                        </span>
-                        <Select v-model="editDraft.userSignatories[i]">
-                          <SelectTrigger class="h-[72px] w-full rounded-lg border border-border text-base focus:ring-0 focus:border-foreground focus:border-[1.5px]">
-                            <SelectValue placeholder="Select a team member" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem v-for="member in teamMemberOptions" :key="member.email" :value="member.email">
-                              {{ member.name }} — {{ member.email }}
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
+                      <FloatingLabelSelect
+                        :model-value="editDraft.userSignatories[i]"
+                        :label="`Signatory ${i + 1}`"
+                        :required="true"
+                        class="flex-1"
+                        @update:model-value="editDraft.userSignatories[i] = $event"
+                      >
+                        <SelectItem v-for="member in teamMemberOptions" :key="member.email" :value="member.email">
+                          {{ member.name }} — {{ member.email }}
+                        </SelectItem>
+                      </FloatingLabelSelect>
                       <button
                         v-if="editDraft.userSignatories.length > 1"
                         type="button"
@@ -376,7 +412,7 @@
                         <IconTrash :size="16" stroke-width="1.5" />
                       </button>
                     </div>
-                    <Button variant="ghost" size="sm" class="w-fit px-0 text-sm text-muted-foreground hover:text-foreground" @click="editDraft.userSignatories.push('')">
+                    <Button variant="ghost" size="sm" class="w-fit px-4 text-sm text-muted-foreground hover:text-foreground" @click="editDraft.userSignatories.push('')">
                       + Add signatory
                     </Button>
                   </div>
@@ -387,21 +423,16 @@
                   </div>
                   <div class="flex flex-col gap-3">
                     <div v-for="(sig, i) in editDraft.externalSignatories" :key="i" class="flex items-center gap-3">
-                      <div class="relative flex-1 pt-2">
-                        <span class="pointer-events-none absolute left-3 top-0 z-10 flex items-center gap-0.5 bg-background px-1 text-sm leading-none text-muted-foreground">
-                          External signatory {{ i + 1 }}
-                        </span>
-                        <Select v-model="editDraft.externalSignatories[i]">
-                          <SelectTrigger class="h-[72px] w-full rounded-lg border border-border text-base focus:ring-0 focus:border-foreground focus:border-[1.5px]">
-                            <SelectValue placeholder="Select an external signatory" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem v-for="opt in externalSignatoryOptions" :key="opt.email" :value="opt.email">
-                              {{ opt.name }} — {{ opt.email }}
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
+                      <FloatingLabelSelect
+                        :model-value="editDraft.externalSignatories[i]"
+                        :label="`External signatory ${i + 1}`"
+                        class="flex-1"
+                        @update:model-value="editDraft.externalSignatories[i] = $event"
+                      >
+                        <SelectItem v-for="opt in externalSignatoryOptions" :key="opt.email" :value="opt.email">
+                          {{ opt.name }} — {{ opt.email }}
+                        </SelectItem>
+                      </FloatingLabelSelect>
                       <button
                         type="button"
                         class="mt-2 shrink-0 text-muted-foreground transition-colors hover:text-destructive"
@@ -425,8 +456,8 @@
             <Button variant="outline" class="h-10 px-5 text-sm font-medium" @click="editCentreOpen = false">
               Cancel
             </Button>
-            <Button class="h-10 px-5 text-sm font-medium" :disabled="!editDraft.name || editDraft.userSignatories.filter(s => s.trim()).length === 0" @click="saveEditCentre">
-              Save changes
+            <Button class="h-10 px-5 text-sm font-medium" :disabled="!isFormValid" @click="saveEditCentre">
+              {{ modalMode === 'create' ? 'Add centre' : 'Save changes' }}
             </Button>
           </div>
 
@@ -436,33 +467,6 @@
     <input ref="imageFileInputRef" type="file" accept="image/*" class="sr-only" @change="handleImageUpload" />
   </Teleport>
 
-  <!-- ── Manage spaces modal ────────────────────────────────── -->
-  <Teleport to="body">
-    <Transition name="modal">
-      <div v-if="manageSpacesOpen" class="fixed inset-12 z-50 flex justify-center">
-        <div class="fixed inset-0 bg-black/50" @click="manageSpacesOpen = false" />
-        <div class="relative z-10 flex h-full w-full flex-col overflow-hidden rounded-xl border border-border bg-background shadow-2xl">
-
-          <!-- Header -->
-          <div class="flex shrink-0 items-center justify-between border-b border-border px-8 py-5">
-            <div>
-              <h2 class="text-lg font-semibold text-foreground">Manage spaces</h2>
-              <p class="text-sm text-muted-foreground">{{ manageSpacesCentre?.name }}</p>
-            </div>
-            <button type="button" class="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground" @click="manageSpacesOpen = false">
-              <IconX :size="18" stroke-width="1.5" />
-            </button>
-          </div>
-
-          <!-- Body placeholder -->
-          <div class="flex flex-1 items-center justify-center text-sm text-muted-foreground">
-            Space management table — coming next.
-          </div>
-
-        </div>
-      </div>
-    </Transition>
-  </Teleport>
 </template>
 
 <style scoped>
@@ -512,17 +516,28 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import {
-  Select,
-  SelectContent,
+  FloatingLabelSelect,
   SelectItem,
-  SelectTrigger,
-  SelectValue,
 } from '@/components/ui/select'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import {
+  SelectItem as RekaSelectItem,
+  SelectItemIndicator as RekaSelectItemIndicator,
+  SelectItemText as RekaSelectItemText,
+} from 'reka-ui'
 import { FloatingLabelInput } from '@/components/ui/input'
 import AppSidebar from '@/components/app-sidebar.vue'
+import { useTeamContext } from '@/composables/useTeamContext'
+import RightPanel from '@/components/right-panel.vue'
 
 interface Centre {
   id: string
+  centreId: string
   name: string
   logo: string
   description: string
@@ -549,11 +564,47 @@ interface Centre {
 
 interface TeamMember { name: string; email: string }
 interface ExternalSignatory { name: string; email: string; centre: string }
-interface Team { id: string; name: string; members: TeamMember[]; signatories: ExternalSignatory[] }
+interface TeamCentre { id: string; name: string }
+interface Team { id: string; name: string; logo: string; members: TeamMember[]; signatories: ExternalSignatory[]; centres: TeamCentre[] }
+
+// ── Country flag helper ───────────────────────────────────────
+const COUNTRY_CODES: Record<string, string> = {
+  'United Kingdom': 'gb',
+  'United States': 'us',
+  'France': 'fr',
+  'Germany': 'de',
+  'Spain': 'es',
+  'Italy': 'it',
+  'Netherlands': 'nl',
+  'Belgium': 'be',
+  'Ireland': 'ie',
+  'Australia': 'au',
+}
+function countryCode(country: string): string {
+  return COUNTRY_CODES[country] ?? ''
+}
+
+const COUNTRY_ABBR: Record<string, string> = {
+  'United Kingdom': 'UK',
+  'United States': 'US',
+  'France': 'FR',
+  'Germany': 'DE',
+  'Spain': 'ES',
+  'Italy': 'IT',
+  'Netherlands': 'NL',
+  'Belgium': 'BE',
+  'Ireland': 'IE',
+  'Australia': 'AU',
+}
+function countryAbbr(country: string): string {
+  return COUNTRY_ABBR[country] ?? country
+}
 
 // ── Data ──────────────────────────────────────────────────────
 const centres = ref<Centre[]>([])
 const teams = ref<Team[]>([])
+
+const { activeTeamId } = useTeamContext()
 
 onMounted(async () => {
   const [centresData, teamsData] = await Promise.all([
@@ -582,6 +633,10 @@ const externalSignatoryOptions = computed(() => {
   })
 })
 
+const selectedTeamObj = computed(() =>
+  teams.value.find(t => t.id === editDraft.value.teamId) ?? null
+)
+
 async function saveCentres() {
   await $fetch('/api/centres', { method: 'PUT', body: { centres: centres.value } })
 }
@@ -600,8 +655,12 @@ function toggleSort(key: string) {
 }
 
 const sortedCentres = computed(() => {
-  if (!sort.key) return centres.value
-  return [...centres.value].sort((a, b) => {
+  let list = centres.value
+  if (teams.value.length > 1 && activeTeamId.value) {
+    list = list.filter(c => c.teamId === activeTeamId.value)
+  }
+  if (!sort.key) return list
+  return [...list].sort((a, b) => {
     const aVal = String((a as any)[sort.key] ?? '').toLowerCase()
     const bVal = String((b as any)[sort.key] ?? '').toLowerCase()
     const cmp = aVal.localeCompare(bVal, undefined, { numeric: true })
@@ -632,10 +691,15 @@ function jumpToMatch() {
   })
 }
 
-// ── Edit centre ───────────────────────────────────────────────
+// ── Edit / Add centre ─────────────────────────────────────────
 const editCentreOpen = ref(false)
+const modalMode = ref<'create' | 'edit'>('edit')
 const editTarget = ref<Centre | null>(null)
-const editDraft = ref<Omit<Centre, 'id' | 'status' | 'teamId' | 'contactName' | 'contactEmail'> & { thumbnailIndex: number; logoUrl: string }>({
+
+type DraftShape = Omit<Centre, 'id' | 'status' | 'contactName' | 'contactEmail'> & { centreId: string; thumbnailIndex: number; logoUrl: string }
+
+const blankDraft = (): DraftShape => ({
+  centreId: '',
   name: '',
   logo: '#2563eb',
   logoUrl: '',
@@ -654,10 +718,42 @@ const editDraft = ref<Omit<Centre, 'id' | 'status' | 'teamId' | 'contactName' | 
   thumbnailIndex: 0,
   userSignatories: [''],
   externalSignatories: [],
+  teamId: '',
 })
+
+const editDraft = ref<DraftShape>(blankDraft())
 
 const logoFileInputRef = ref<HTMLInputElement | null>(null)
 const imageFileInputRef = ref<HTMLInputElement | null>(null)
+
+const isFormValid = computed(() => {
+  const d = editDraft.value
+  return (
+    !!d.logoUrl &&
+    !!d.name.trim() &&
+    !!d.description.trim() &&
+    (d.totalSqm ?? 0) > 0 &&
+    (d.numberOfStores ?? 0) > 0 &&
+    (d.footfallPerWeek ?? 0) > 0 &&
+    d.images.length >= 1 &&
+    !!d.address.trim() &&
+    !!d.city.trim() &&
+    !!d.postcode.trim() &&
+    !!d.country.trim() &&
+    d.userSignatories.filter(s => s.trim()).length > 0 &&
+    !!d.teamId
+  )
+})
+
+function openAddCentre() {
+  modalMode.value = 'create'
+  editTarget.value = null
+  const draft = blankDraft()
+  if (teams.value.length === 1) draft.teamId = teams.value[0].id
+  editDraft.value = draft
+  newAmenity.value = ''
+  editCentreOpen.value = true
+}
 
 function triggerLogoUpload() {
   logoFileInputRef.value?.click()
@@ -711,8 +807,10 @@ function handleImageUpload(e: Event) {
 }
 
 function openEditCentre(centre: Centre) {
+  modalMode.value = 'edit'
   editTarget.value = centre
   editDraft.value = {
+    centreId: centre.centreId ?? '',
     name: centre.name,
     logo: centre.logo ?? '#2563eb',
     logoUrl: centre.logoUrl ?? '',
@@ -731,35 +829,50 @@ function openEditCentre(centre: Centre) {
     thumbnailIndex: centre.thumbnailIndex ?? 0,
     userSignatories: centre.userSignatories?.length ? [...centre.userSignatories] : [''],
     externalSignatories: [...(centre.externalSignatories ?? [])],
+    teamId: centre.teamId ?? (teams.value.length === 1 ? teams.value[0].id : ''),
   }
   newAmenity.value = ''
   editCentreOpen.value = true
 }
 
 function saveEditCentre() {
-  if (!editTarget.value) return
-  const idx = centres.value.findIndex(c => c.id === editTarget.value!.id)
-  if (idx === -1) return
-  const existing = centres.value[idx]
   const { logoUrl, thumbnailIndex, ...rest } = editDraft.value
-  centres.value[idx] = {
-    ...existing,
+  const cleanedDraft = {
     ...rest,
     ...(logoUrl ? { logoUrl } : {}),
     userSignatories: editDraft.value.userSignatories.filter(s => s.trim()),
     externalSignatories: editDraft.value.externalSignatories.filter(s => s.trim()),
   }
+
+  if (modalMode.value === 'create') {
+    centres.value.push({
+      id: `centre-${Date.now()}`,
+      status: 'Unlisted',
+      contactName: '',
+      contactEmail: '',
+      ...cleanedDraft,
+    })
+  } else {
+    if (!editTarget.value) return
+    const idx = centres.value.findIndex(c => c.id === editTarget.value!.id)
+    if (idx === -1) return
+    centres.value[idx] = { ...centres.value[idx], ...cleanedDraft }
+  }
+
   saveCentres()
   editCentreOpen.value = false
   editTarget.value = null
 }
 
-// ── Manage spaces ─────────────────────────────────────────────
-const manageSpacesOpen = ref(false)
-const manageSpacesCentre = ref<Centre | null>(null)
+// ── View spaces ───────────────────────────────────────────────
+const router = useRouter()
 
-function openManageSpaces(centre: Centre) {
-  manageSpacesCentre.value = centre
-  manageSpacesOpen.value = true
+function viewSpaces(centre: Centre) {
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem('fillit:last-selected-team', centre.teamId)
+    localStorage.setItem('fillit:last-selected-centre', centre.id)
+    localStorage.setItem('fillit:centre-auto-selected', 'true')
+  }
+  router.push('/preview/spaces')
 }
 </script>

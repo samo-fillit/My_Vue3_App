@@ -21,9 +21,30 @@
           "role": "Member",
           "status": "Active",
           "signatoryCentres": []
+        },
+        {
+          "name": "Sarah Chen",
+          "email": "sarah.chen@brandco.com",
+          "role": "Member",
+          "status": "Active",
+          "signatoryCentres": []
         }
       ],
       "pendingInvites": [
+        {
+          "email": "james.wright@retailgroup.com",
+          "status": "Pending Approval",
+          "role": "Admin",
+          "invitedBy": "Priya Sharma",
+          "sentOn": "20 May 2026"
+        },
+        {
+          "email": "nina.patel@studios.co",
+          "status": "Pending Approval",
+          "role": "Member",
+          "invitedBy": "Sam O'Brien",
+          "sentOn": "20 May 2026"
+        },
         {
           "email": "sam@fillit.com",
           "status": "Awaiting Signup",
@@ -33,24 +54,6 @@
         }
       ],
       "signatories": [
-        {
-          "name": "James Wilson",
-          "email": "legal@westfield.com",
-          "centres": [
-            "Bluewater"
-          ],
-          "addedBy": "Sam O'Brien",
-          "addedOn": "01 May 2026"
-        },
-        {
-          "name": "Claire Murphy",
-          "email": "contracts@bluewater.com",
-          "centres": [
-            "Westfield London"
-          ],
-          "addedBy": "Sam O'Brien",
-          "addedOn": "02 May 2026"
-        },
         {
           "name": "Tom D",
           "email": "sam@fillit.com",
@@ -140,29 +143,43 @@
           "role": "Admin",
           "status": "Active",
           "signatoryCentres": []
+        },
+        {
+          "name": "James Park",
+          "email": "james.park@brandhouse.io",
+          "role": "Member",
+          "status": "Active",
+          "signatoryCentres": []
         }
       ],
       "pendingInvites": [
+        {
+          "email": "olivia.grant@brandhouse.com",
+          "status": "Pending Approval",
+          "role": "Member",
+          "invitedBy": "John Smith",
+          "sentOn": "18 May 2026"
+        },
+        {
+          "email": "ryan.kowalski@ventures.io",
+          "status": "Pending Approval",
+          "role": "Member",
+          "invitedBy": "Lisa Fernandez",
+          "sentOn": "19 May 2026"
+        },
+        {
+          "email": "mei.tanaka@popco.com",
+          "status": "Pending Approval",
+          "role": "Accounts",
+          "invitedBy": "John Smith",
+          "sentOn": "20 May 2026"
+        },
         {
           "email": "frank.jones@company.com",
           "status": "Awaiting Signup",
           "role": "Member",
           "invitedBy": "Sam O'Brien",
           "sentOn": "03 May 2026"
-        },
-        {
-          "email": "james.park@brandhouse.io",
-          "status": "Pending Approval",
-          "role": "Member",
-          "invitedBy": "Requested",
-          "sentOn": "08 May 2026"
-        },
-        {
-          "email": "test",
-          "status": "Awaiting Signup",
-          "role": "Admin",
-          "invitedBy": "Sam O'Brien",
-          "sentOn": "13 May 2026"
         }
       ],
       "signatories": [

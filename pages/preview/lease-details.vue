@@ -1,6 +1,7 @@
 <template>
   <SidebarProvider class="h-screen overflow-hidden">
     <AppSidebar active-item="account-lease-info" />
+    <RightPanel />
     <SidebarInset class="overflow-hidden">
 
       <div class="flex-1 overflow-y-auto px-24 py-12">
@@ -105,6 +106,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import AppSidebar from '@/components/app-sidebar.vue'
+import RightPanel from '@/components/right-panel.vue'
 
 const countries = [
   { code: 'FR', name: 'France', flag: '🇫🇷' },

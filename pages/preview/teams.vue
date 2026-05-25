@@ -1,6 +1,7 @@
 <template>
   <SidebarProvider class="h-screen overflow-hidden">
     <AppSidebar active-item="account-teams" />
+    <RightPanel />
     <SidebarInset class="overflow-hidden">
 
       <div class="flex-1 overflow-y-auto px-24 py-12">
@@ -11,7 +12,7 @@
             <div class="flex flex-col gap-3">
               <h1 class="text-[28px] font-bold leading-8 text-foreground">Teams & Permissions</h1>
               <p class="text-base text-muted-foreground">
-                Manage team members, roles, and signing authorities.
+                {{ isUserType('tenant') ? 'Manage your team members and roles.' : 'Manage team members, roles, and signing authorities.' }}
               </p>
             </div>
             <div class="flex shrink-0 items-center gap-3">
@@ -40,24 +41,14 @@
                     <FloatingLabelInput v-model="newInvite.email" label="Email address" type="email" :required="true" />
 
                     <!-- Role -->
-                    <div class="relative w-full pt-2">
-                      <span class="pointer-events-none absolute left-3 top-0 z-10 flex items-center gap-0.5 bg-background px-1 text-sm leading-none text-muted-foreground">
-                        Role<span class="ml-0.5">*</span>
-                      </span>
-                      <Select v-model="newInvite.role">
-                        <SelectTrigger class="h-[72px] w-full rounded-lg border border-border text-base focus:ring-0 focus-visible:border-foreground focus-visible:border-[1.5px]">
-                          <SelectValue placeholder="Select a role" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Admin">Admin</SelectItem>
-                          <SelectItem value="Accounts">Accounts</SelectItem>
-                          <SelectItem value="Member">Member</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                    <FloatingLabelSelect v-model="newInvite.role" label="Role" :required="true">
+                      <SelectItem value="Admin">Admin</SelectItem>
+                      <SelectItem value="Member">Member</SelectItem>
+                      <SelectItem value="Accounts">Accounts</SelectItem>
+                    </FloatingLabelSelect>
 
-                    <!-- Assign as signatory (multi-select) -->
-                    <div class="relative w-full pt-2">
+                    <!-- Assign as signatory (landlord only) -->
+                    <div v-if="!isUserType('tenant')" class="relative w-full pt-2">
                       <span class="pointer-events-none absolute left-3 top-0 z-10 flex items-center gap-0.5 bg-background px-1 text-sm leading-none text-muted-foreground">
                         Assign as signatory
                       </span>
@@ -149,7 +140,7 @@
                 v-for="team in allTeams"
                 :key="team.id"
                 class="flex cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-sm"
-                @click="selectedTeamId = team.id"
+                @click="setActiveTeam(team.id)"
               >
                 <div class="flex items-center gap-3">
                   <div
@@ -217,7 +208,7 @@
                         <IconSelector v-else :size="12" class="opacity-30" />
                       </button>
                     </TableHead>
-                    <TableHead class="text-center">
+                    <TableHead v-if="!isUserType('tenant')" class="text-center">
                       <button type="button" class="inline-flex w-full items-center justify-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort(activeSort, 'signatoryCentres')">
                         Signatory
                         <IconChevronUp v-if="activeSort.key === 'signatoryCentres' && activeSort.dir === 'asc'" :size="12" class="text-foreground" />
@@ -271,7 +262,7 @@
                         {{ member.status }}
                       </span>
                     </TableCell>
-                    <TableCell class="py-3 text-center">
+                    <TableCell v-if="!isUserType('tenant')" class="py-3 text-center">
                       <button
                         type="button"
                         class="group inline-flex items-center gap-1.5 text-sm hover:font-semibold"
@@ -461,7 +452,7 @@
                           variant="outline"
                           size="sm"
                           class="h-8 px-4 text-sm font-medium"
-                          @click="removeSignatory(sig)"
+                          @click="openRemoveSignatoryConfirm(sig)"
                         >
                           Remove
                         </Button>
@@ -557,7 +548,7 @@
               <Table>
                 <TableHeader>
                   <TableRow class="border-border">
-                    <TableHead class="w-[240px]">
+                    <TableHead class="w-[280px]">
                       <button type="button" class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort(assetsSort, 'name')">
                         Centre name
                         <IconChevronUp v-if="assetsSort.key === 'name' && assetsSort.dir === 'asc'" :size="12" class="text-foreground" />
@@ -566,14 +557,30 @@
                       </button>
                     </TableHead>
                     <TableHead>
+                      <button type="button" class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort(assetsSort, 'centreId')">
+                        Centre ID
+                        <IconChevronUp v-if="assetsSort.key === 'centreId' && assetsSort.dir === 'asc'" :size="12" class="text-foreground" />
+                        <IconChevronDown v-else-if="assetsSort.key === 'centreId' && assetsSort.dir === 'desc'" :size="12" class="text-foreground" />
+                        <IconSelector v-else :size="12" class="opacity-30" />
+                      </button>
+                    </TableHead>
+                    <TableHead>
+                      <button type="button" class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort(assetsSort, 'country')">
+                        Country
+                        <IconChevronUp v-if="assetsSort.key === 'country' && assetsSort.dir === 'asc'" :size="12" class="text-foreground" />
+                        <IconChevronDown v-else-if="assetsSort.key === 'country' && assetsSort.dir === 'desc'" :size="12" class="text-foreground" />
+                        <IconSelector v-else :size="12" class="opacity-30" />
+                      </button>
+                    </TableHead>
+                    <TableHead>
                       <button type="button" class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort(assetsSort, 'location')">
-                        Location
+                        City
                         <IconChevronUp v-if="assetsSort.key === 'location' && assetsSort.dir === 'asc'" :size="12" class="text-foreground" />
                         <IconChevronDown v-else-if="assetsSort.key === 'location' && assetsSort.dir === 'desc'" :size="12" class="text-foreground" />
                         <IconSelector v-else :size="12" class="opacity-30" />
                       </button>
                     </TableHead>
-                    <TableHead>
+                    <TableHead class="text-center">
                       <button type="button" class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort(assetsSort, 'status')">
                         Status
                         <IconChevronUp v-if="assetsSort.key === 'status' && assetsSort.dir === 'asc'" :size="12" class="text-foreground" />
@@ -585,30 +592,39 @@
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  <TableRow v-for="centre in sortedAssets" :key="centre.id" class="border-border">
-                    <TableCell class="py-3 text-sm font-medium text-foreground">{{ centre.name }}</TableCell>
-                    <TableCell class="py-3 text-sm text-muted-foreground">{{ centre.location }}</TableCell>
-                    <TableCell class="py-3">
-                      <button
-                        type="button"
-                        class="group inline-flex items-center gap-1.5 transition-colors hover:font-semibold"
-                        @click="openChangeCentreStatus(centre)"
-                      >
-                        <span
-                          class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium"
-                          :class="centre.status === 'Listed' ? 'bg-[#f2fbf8] text-[#4dbd9f]' : 'bg-[#fef9f0] text-[#d97706]'"
-                        >
-                          {{ centre.status }}
-                        </span>
-                        <IconPencil :size="13" stroke-width="1.5" class="text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
-                      </button>
+                  <TableRow v-if="sortedAssets.length === 0">
+                    <TableCell colspan="6" class="py-16 text-center text-sm text-muted-foreground">
+                      No centres have been added to this team yet.
                     </TableCell>
-                    <TableCell class="py-3 pr-0 text-center">
-                      <div class="inline-flex items-center gap-2">
-                        <Button v-if="allTeams.length > 1" variant="outline" size="sm" class="h-8 px-4 text-sm font-medium" @click="openSwitchCentreTeam(centre)">
-                          Switch team
-                        </Button>
+                  </TableRow>
+                  <TableRow v-for="centre in sortedAssets" :key="centre.id" class="border-border">
+                    <TableCell class="py-3">
+                      <div class="flex items-center gap-3">
+                        <div
+                          class="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded"
+                          :style="centre.logoUrl ? {} : { backgroundColor: centre.logo ?? '#2563eb' }"
+                        >
+                          <img v-if="centre.logoUrl" :src="centre.logoUrl" class="h-full w-full object-contain" :alt="centre.name" />
+                          <span v-else class="text-xs font-bold text-white">{{ centre.name.charAt(0) }}</span>
+                        </div>
+                        <span class="text-sm font-medium text-foreground">{{ centre.name }}</span>
                       </div>
+                    </TableCell>
+                    <TableCell class="py-3 font-mono text-xs text-muted-foreground">{{ centre.centreId }}</TableCell>
+                    <TableCell class="py-3 text-sm text-muted-foreground">{{ countryAbbr(centre.country) }}</TableCell>
+                    <TableCell class="py-3 text-sm text-muted-foreground">{{ centre.location }}</TableCell>
+                    <TableCell class="py-3 text-center">
+                      <span
+                        class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium"
+                        :class="centre.status === 'Listed' ? 'bg-[#f2fbf8] text-[#4dbd9f]' : 'bg-[#fef9f0] text-[#d97706]'"
+                      >
+                        {{ centre.status }}
+                      </span>
+                    </TableCell>
+                    <TableCell class="py-3 pr-0 text-right">
+                      <Button v-if="allTeams.length > 1" variant="outline" size="sm" class="h-8 px-4 text-sm font-medium" @click="openSwitchCentreTeam(centre)">
+                        Switch team
+                      </Button>
                     </TableCell>
                   </TableRow>
                 </TableBody>
@@ -762,21 +778,11 @@
         <DialogDescription>Select the team you wish to move this centre to.</DialogDescription>
       </DialogHeader>
       <div class="py-4">
-        <div class="relative w-full pt-2">
-          <span class="pointer-events-none absolute left-3 top-0 z-10 flex items-center gap-0.5 bg-background px-1 text-sm leading-none text-muted-foreground">
-            Team
-          </span>
-          <Select v-model="switchCentreTeamSelected">
-            <SelectTrigger class="h-[72px] w-full rounded-lg border border-border text-base focus:ring-0 focus-visible:border-foreground focus-visible:border-[1.5px]">
-              <SelectValue placeholder="Select a team" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem v-for="team in otherTeams" :key="team.id" :value="team.id">
-                {{ team.name }}
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <FloatingLabelSelect v-model="switchCentreTeamSelected" label="Team">
+          <SelectItem v-for="team in otherTeams" :key="team.id" :value="team.id">
+            {{ team.name }}
+          </SelectItem>
+        </FloatingLabelSelect>
       </div>
       <DialogFooter>
         <Button variant="outline" class="h-10 px-5 text-sm font-medium" @click="switchCentreTeamOpen = false">
@@ -790,22 +796,35 @@
   </Dialog>
 
   <!-- Remove member confirmation -->
-  <Dialog v-model:open="removeMemberOpen">
-    <DialogContent class="sm:max-w-[420px]">
-      <DialogHeader>
-        <DialogTitle>Remove team member</DialogTitle>
-        <DialogDescription>Are you sure you want to remove this user from the team?</DialogDescription>
-      </DialogHeader>
-      <DialogFooter class="mt-2">
-        <Button variant="outline" class="h-10 px-5 text-sm font-medium" @click="removeMemberOpen = false">
-          Cancel
-        </Button>
-        <Button variant="destructive" class="h-10 px-5 text-sm font-medium" @click="confirmRemoveMember">
-          Remove
-        </Button>
-      </DialogFooter>
-    </DialogContent>
-  </Dialog>
+  <Teleport to="body">
+    <Transition name="modal">
+      <div v-if="removeMemberOpen" class="fixed inset-0 z-50 flex items-center justify-center p-12">
+        <div class="fixed inset-0 bg-black/50" @click="removeMemberOpen = false" />
+        <div class="relative z-10 w-full max-w-[480px] rounded-xl border border-border bg-background shadow-2xl">
+          <div class="flex items-center justify-between border-b border-border px-6 py-5">
+            <div>
+              <h2 class="text-lg font-semibold text-foreground">Remove team member</h2>
+              <p class="text-sm text-muted-foreground">{{ removeMemberTarget?.name }}</p>
+            </div>
+            <button type="button" class="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground" @click="removeMemberOpen = false">
+              <IconX :size="18" stroke-width="1.5" />
+            </button>
+          </div>
+          <div class="px-6 py-5">
+            <p class="text-sm text-foreground">Are you sure you want to remove this user from the team?</p>
+          </div>
+          <div class="flex items-center justify-end gap-3 border-t border-border px-6 py-5">
+            <Button variant="outline" class="h-10 px-5 text-sm font-medium" @click="removeMemberOpen = false">
+              Cancel
+            </Button>
+            <Button variant="destructive" class="h-10 px-5 text-sm font-medium" @click="confirmRemoveMember">
+              Remove
+            </Button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
 
   <!-- Switch team -->
   <Dialog v-model:open="switchTeamOpen">
@@ -815,21 +834,11 @@
         <DialogDescription>Select the team you wish to move this user to.</DialogDescription>
       </DialogHeader>
       <div class="py-4">
-        <div class="relative w-full pt-2">
-          <span class="pointer-events-none absolute left-3 top-0 z-10 flex items-center gap-0.5 bg-background px-1 text-sm leading-none text-muted-foreground">
-            Team
-          </span>
-          <Select v-model="switchTeamSelected">
-            <SelectTrigger class="h-[72px] w-full rounded-lg border border-border text-base focus:ring-0 focus-visible:border-foreground focus-visible:border-[1.5px]">
-              <SelectValue placeholder="Select a team" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem v-for="team in otherTeams" :key="team.id" :value="team.id">
-                {{ team.name }}
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <FloatingLabelSelect v-model="switchTeamSelected" label="Team">
+          <SelectItem v-for="team in otherTeams" :key="team.id" :value="team.id">
+            {{ team.name }}
+          </SelectItem>
+        </FloatingLabelSelect>
       </div>
       <DialogFooter>
         <Button variant="outline" class="h-10 px-5 text-sm font-medium" @click="switchTeamOpen = false">
@@ -936,8 +945,8 @@
           </div>
         </div>
 
-        <!-- Shopping centres -->
-        <div class="relative w-full pt-2">
+        <!-- Shopping centres (landlord only) -->
+        <div v-if="!isUserType('tenant')" class="relative w-full pt-2">
           <span class="pointer-events-none absolute left-3 top-0 z-10 flex items-center gap-0.5 bg-background px-1 text-sm leading-none text-muted-foreground">
             Shopping centres
           </span>
@@ -1196,26 +1205,70 @@
   </Dialog>
 
   <!-- Confirmation dialog (withdraw / decline / approve) -->
-  <Dialog v-model:open="confirmOpen">
-    <DialogContent class="sm:max-w-[420px]">
-      <DialogHeader>
-        <DialogTitle>{{ confirmConfig?.title }}</DialogTitle>
-        <DialogDescription>{{ confirmConfig?.description }}</DialogDescription>
-      </DialogHeader>
-      <DialogFooter class="mt-2">
-        <Button variant="outline" class="h-10 px-5 text-sm font-medium" @click="confirmOpen = false">
-          Cancel
-        </Button>
-        <Button
-          :variant="confirmConfig?.destructive ? 'destructive' : 'default'"
-          class="h-10 px-5 text-sm font-medium"
-          @click="executeConfirm"
-        >
-          {{ confirmConfig?.confirmLabel }}
-        </Button>
-      </DialogFooter>
-    </DialogContent>
-  </Dialog>
+  <Teleport to="body">
+    <Transition name="modal">
+      <div v-if="confirmOpen" class="fixed inset-0 z-50 flex items-center justify-center p-12">
+        <div class="fixed inset-0 bg-black/50" @click="confirmOpen = false" />
+        <div class="relative z-10 w-full max-w-[480px] rounded-xl border border-border bg-background shadow-2xl">
+          <div class="flex items-center justify-between border-b border-border px-6 py-5">
+            <div>
+              <h2 class="text-lg font-semibold text-foreground">{{ confirmConfig?.title }}</h2>
+              <p class="text-sm text-muted-foreground">{{ confirmTarget?.email }}</p>
+            </div>
+            <button type="button" class="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground" @click="confirmOpen = false">
+              <IconX :size="18" stroke-width="1.5" />
+            </button>
+          </div>
+          <div class="px-6 py-5">
+            <p class="text-sm text-foreground">{{ confirmConfig?.description }}</p>
+          </div>
+          <div class="flex items-center justify-end gap-3 border-t border-border px-6 py-5">
+            <Button variant="outline" class="h-10 px-5 text-sm font-medium" @click="confirmOpen = false">
+              Cancel
+            </Button>
+            <Button
+              :variant="confirmConfig?.destructive ? 'destructive' : 'default'"
+              class="h-10 px-5 text-sm font-medium"
+              @click="executeConfirm"
+            >
+              {{ confirmConfig?.confirmLabel }}
+            </Button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
+
+  <!-- Remove external signatory confirmation -->
+  <Teleport to="body">
+    <Transition name="modal">
+      <div v-if="removeSignatoryOpen" class="fixed inset-0 z-50 flex items-center justify-center p-12">
+        <div class="fixed inset-0 bg-black/50" @click="removeSignatoryOpen = false" />
+        <div class="relative z-10 w-full max-w-[480px] rounded-xl border border-border bg-background shadow-2xl">
+          <div class="flex items-center justify-between border-b border-border px-6 py-5">
+            <div>
+              <h2 class="text-lg font-semibold text-foreground">Remove external signatory</h2>
+              <p class="text-sm text-muted-foreground">{{ removeSignatoryTarget?.name }}</p>
+            </div>
+            <button type="button" class="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground" @click="removeSignatoryOpen = false">
+              <IconX :size="18" stroke-width="1.5" />
+            </button>
+          </div>
+          <div class="px-6 py-5">
+            <p class="text-sm text-foreground">Are you sure you want to remove this signatory? They will no longer be able to sign lease agreements.</p>
+          </div>
+          <div class="flex items-center justify-end gap-3 border-t border-border px-6 py-5">
+            <Button variant="outline" class="h-10 px-5 text-sm font-medium" @click="removeSignatoryOpen = false">
+              Cancel
+            </Button>
+            <Button variant="destructive" class="h-10 px-5 text-sm font-medium" @click="confirmRemoveSignatory">
+              Remove
+            </Button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
 </template>
 
 <style scoped>
@@ -1228,6 +1281,8 @@
 .row-new {
   animation: row-pulse 1.8s ease-in-out 2;
 }
+.modal-enter-active, .modal-leave-active { transition: opacity 0.18s ease; }
+.modal-enter-from, .modal-leave-to { opacity: 0; }
 </style>
 
 <script setup lang="ts">
@@ -1263,11 +1318,8 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import {
-  Select,
-  SelectContent,
+  FloatingLabelSelect,
   SelectItem,
-  SelectTrigger,
-  SelectValue,
 } from '@/components/ui/select'
 import {
   Popover,
@@ -1281,6 +1333,47 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import AppSidebar from '@/components/app-sidebar.vue'
+import RightPanel from '@/components/right-panel.vue'
+import { useRightPanel } from '@/composables/useRightPanel'
+import { useAppContext } from '@/composables/useAppContext'
+import { useTeamContext } from '@/composables/useTeamContext'
+
+const { pushNotification } = useRightPanel()
+const { isUserType } = useAppContext()
+const { activeTeamId, setActiveTeam } = useTeamContext()
+
+// ── Country flag helper ───────────────────────────────────────
+const COUNTRY_CODES: Record<string, string> = {
+  'United Kingdom': 'gb',
+  'United States': 'us',
+  'France': 'fr',
+  'Germany': 'de',
+  'Spain': 'es',
+  'Italy': 'it',
+  'Netherlands': 'nl',
+  'Belgium': 'be',
+  'Ireland': 'ie',
+  'Australia': 'au',
+}
+function countryCode(country: string): string {
+  return COUNTRY_CODES[country] ?? ''
+}
+
+const COUNTRY_ABBR: Record<string, string> = {
+  'United Kingdom': 'UK',
+  'United States': 'US',
+  'France': 'FR',
+  'Germany': 'DE',
+  'Spain': 'ES',
+  'Italy': 'IT',
+  'Netherlands': 'NL',
+  'Belgium': 'BE',
+  'Ireland': 'IE',
+  'Australia': 'AU',
+}
+function countryAbbr(country: string): string {
+  return COUNTRY_ABBR[country] ?? country
+}
 
 interface Member {
   name: string
@@ -1352,18 +1445,32 @@ function sortRows<T extends Record<string, any>>(rows: T[], state: SortState): T
 
 // ── Team data (API-backed) ────────────────────────────────────
 const teamsData = ref<TeamsData>({ teams: [] })
-const selectedTeamId = ref('')
 const teamOpen = ref(false)
 
 interface CentreRaw {
   id: string
+  centreId: string
   name: string
+  logo: string
+  logoUrl?: string
   city: string
+  country: string
   status: string
+  teamId?: string
 }
 const allCentresRaw = ref<CentreRaw[]>([])
 const allCentresList = computed(() =>
-  allCentresRaw.value.map(c => ({ id: c.id, name: c.name, location: c.city, status: c.status as 'Listed' | 'Unlisted' }))
+  allCentresRaw.value.map(c => ({
+    id: c.id,
+    centreId: c.centreId,
+    name: c.name,
+    logo: c.logo,
+    logoUrl: c.logoUrl,
+    location: c.city,
+    country: c.country,
+    status: c.status as 'Listed' | 'Unlisted',
+    teamId: c.teamId,
+  }))
 )
 
 onMounted(async () => {
@@ -1372,7 +1479,8 @@ onMounted(async () => {
     $fetch<{ centres: CentreRaw[] }>('/api/centres'),
   ])
   teamsData.value = teamsRes
-  selectedTeamId.value = teamsRes.teams[0]?.id ?? ''
+  // Only set if not already set from a previous navigation
+  if (!activeTeamId.value) setActiveTeam(teamsRes.teams[0]?.id ?? '')
   allCentresRaw.value = centresRes.centres
 })
 
@@ -1381,16 +1489,19 @@ async function saveTeams() {
 }
 
 function getCurrentTeam(): Team | undefined {
-  return teamsData.value.teams.find(t => t.id === selectedTeamId.value)
+  return teamsData.value.teams.find(t => t.id === activeTeamId.value)
 }
 
 const allTeams     = computed(() => teamsData.value.teams)
-const selectedTeam = computed(() => allTeams.value.find(t => t.id === selectedTeamId.value) ?? allTeams.value[0])
-const otherTeams   = computed(() => allTeams.value.filter(t => t.id !== selectedTeamId.value))
+const selectedTeam = computed(() => allTeams.value.find(t => t.id === activeTeamId.value) ?? allTeams.value[0])
+const otherTeams   = computed(() => allTeams.value.filter(t => t.id !== activeTeamId.value))
 const activeMembers  = computed(() => selectedTeam.value?.members ?? [])
 const pendingInvites = computed(() => selectedTeam.value?.pendingInvites ?? [])
 const signatories    = computed(() => selectedTeam.value?.signatories ?? [])
-const assets         = computed(() => selectedTeam.value?.centres ?? [])
+// Derive directly from centres.json using teamId — single source of truth.
+const assets = computed(() =>
+  allCentresList.value.filter(c => c.teamId === selectedTeam.value?.id)
+)
 
 const sortedActiveMembers  = computed(() => sortRows(activeMembers.value,  activeSort))
 const sortedPendingInvites = computed(() => sortRows(pendingInvites.value, pendingSort))
@@ -1399,12 +1510,16 @@ const sortedAssets         = computed(() => sortRows(assets.value,         asset
 
 // ── Tabs ──────────────────────────────────────────────────────
 const activeTab = ref('active')
-const tabs = [
-  { value: 'active',      label: 'Active members' },
-  { value: 'pending',     label: 'Pending invites' },
-  { value: 'signatories', label: 'External signatories' },
-  { value: 'assets',      label: 'Managed assets' },
+const allTabs = [
+  { value: 'active',      label: 'Active members',       tenantVisible: true },
+  { value: 'pending',     label: 'Pending invites',      tenantVisible: true },
+  { value: 'signatories', label: 'External signatories', tenantVisible: false },
+  { value: 'assets',      label: 'Managed assets',       tenantVisible: false },
 ]
+
+const tabs = computed(() =>
+  allTabs.filter(t => !isUserType('tenant') || t.tenantVisible)
+)
 
 const centres = ['Westfield London', 'Bluewater', 'Lakeside', 'Meadowhall']
 const centreNames = computed(() => assets.value.map(c => c.name))
@@ -1631,6 +1746,11 @@ function executeConfirm() {
     newlyAddedEmail.value = invite.email
     setTimeout(() => { newlyAddedEmail.value = null }, 3600)
     activeTab.value = 'active'
+    pushNotification({
+      type: 'team.member_joined',
+      title: 'Invitation accepted',
+      body: `${name} has joined ${team.name}.`,
+    })
   }
 
   const idx = team.pendingInvites.findIndex(i => i.email === invite.email)
@@ -1711,6 +1831,25 @@ function saveSignatoryCentres() {
   editSignatoryCentresTarget.value = null
 }
 
+const removeSignatoryOpen = ref(false)
+const removeSignatoryTarget = ref<Signatory | null>(null)
+
+function openRemoveSignatoryConfirm(sig: Signatory) {
+  removeSignatoryTarget.value = sig
+  removeSignatoryOpen.value = true
+}
+
+function confirmRemoveSignatory() {
+  if (!removeSignatoryTarget.value) return
+  const team = getCurrentTeam()
+  if (!team) return
+  const idx = team.signatories.findIndex(s => s.email === removeSignatoryTarget.value!.email)
+  if (idx !== -1) team.signatories.splice(idx, 1)
+  saveTeams()
+  removeSignatoryOpen.value = false
+  removeSignatoryTarget.value = null
+}
+
 function removeSignatory(sig: Signatory) {
   const team = getCurrentTeam()
   if (!team) return
@@ -1767,7 +1906,7 @@ function confirmCreateTeam() {
     centres: centreObjects,
   })
   saveTeams()
-  selectedTeamId.value = id
+  setActiveTeam(id)
   newTeam.value = { name: '', logo: '#2563eb', centres: [] }
   createTeamOpen.value = false
 }
@@ -1806,7 +1945,7 @@ function confirmDeleteTeam() {
   const idx = teamsData.value.teams.findIndex(t => t.id === editTeamTarget.value!.id)
   if (idx !== -1) teamsData.value.teams.splice(idx, 1)
   saveTeams()
-  selectedTeamId.value = teamsData.value.teams[0]?.id ?? ''
+  setActiveTeam(teamsData.value.teams[0]?.id ?? '')
   editTeamOpen.value = false
   editTeamTarget.value = null
   showDeleteConfirm.value = false
