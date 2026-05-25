@@ -30,7 +30,7 @@
         "Click & collect"
       ],
       "images": [
-        "blob:http://localhost:3000/b3b109cd-92a9-49a1-a0e4-37d7ab990131"
+        "blob:http://localhost:3000/44fdf02c-c21f-43b9-bed0-4f3d76dd461d"
       ],
       "contactName": "James Wilson",
       "contactEmail": "legal@westfield.com",
@@ -40,7 +40,7 @@
       "externalSignatories": [
         "legal@westfield.com"
       ],
-      "logoUrl": "blob:http://localhost:3000/f9b14259-5def-41de-9a3e-5a667a4a253b"
+      "logoUrl": "blob:http://localhost:3000/7c85ccde-c19b-430a-bed3-9d7731559de5"
     },
     {
       "id": "centre-bluewater",
