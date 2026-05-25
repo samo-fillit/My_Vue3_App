@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "agent",
+            "statusMessage": "Updating architecture doc...",
+            "timeout": 60,
+            "prompt": "You are maintaining ARCHITECTURE.md for the Fillit Design Lab project at /Users/samo/DesignLab/fillit-design-lab.\n\nFirst, check if anything worth documenting changed this session by running: git -C /Users/samo/DesignLab/fillit-design-lab diff HEAD~1 HEAD --name-only 2>/dev/null\n\nIf no files changed (empty output or error), output {\"continue\": true} and stop — no update needed.\n\nIf files did change, update /Users/samo/DesignLab/fillit-design-lab/ARCHITECTURE.md to reflect the current state of the codebase. Read the existing ARCHITECTURE.md first (if it exists), then read whichever of these files are relevant to what changed:\n- config/platforms.ts (platform/userType config)\n- composables/ (all composables)\n- components/app-sidebar.vue, components/right-panel.vue\n- components/ui/input/FloatingLabelInput.vue, components/ui/select/FloatingLabelSelect.vue\n- pages/preview/ (list the directory)\n- server/api/ and server/data/ (list directories)\n\nKeep the document concise and factual. Use this structure:\n\n# Fillit Design Lab — Architecture\n\n## Stack\nList: Nuxt 3 version, Vue 3, TypeScript, Tailwind CSS v3, shadcn-vue (New York style), Tabler icons, Reka UI\n\n## Project structure\nKey directories and their purpose (brief, one line each)\n\n## Platform configuration (config/platforms.ts)\nExplain the platform × userType matrix (fillit/eleaseloop × landlord/tenant) and which nav/org items each enables\n\n## Pages\nTable: Route | Page file | Description | Active sidebar item\nOnly pages/preview/* routes\n\n## Shared components\nList key non-shadcn components: app-sidebar.vue, right-panel.vue, FloatingLabelInput, FloatingLabelSelect — one-line description + props/slots for each\n\n## Composables\nList each composable: name, what it manages, key exports\n\n## Data layer\nserver/api routes (GET/PUT for teams, centres, spaces) and corresponding server/data/*.json files. Note that data files are the source of truth and are mutated by PUT routes.\n\n## UI patterns\nBrief notes on recurring conventions: floating label inputs, FloatingLabelSelect trigger-prefix slot, Button variants, table header style, team selector pattern, date range picker\n\n_Last updated: [today's date]_\n\nWrite the file, then output {\"continue\": true}."
+          }
+        ]
+      }
+    ]
+  }
+}
