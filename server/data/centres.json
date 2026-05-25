@@ -2,6 +2,7 @@
   "centres": [
     {
       "id": "centre-westfield",
+      "centreId": "10001",
       "name": "Westfield London",
       "logo": "#7c3aed",
       "description": "One of Europe's largest urban shopping centres, located in White City. Home to over 300 stores across fashion, beauty, dining, and entertainment.",
@@ -39,11 +40,11 @@
       ],
       "externalSignatories": [
         "legal@westfield.com"
-      ],
-      "logoUrl": "blob:http://localhost:3000/f9b14259-5def-41de-9a3e-5a667a4a253b"
+      ]
     },
     {
       "id": "centre-bluewater",
+      "centreId": "10002",
       "name": "Bluewater",
       "logo": "#059669",
       "description": "A flagship retail and leisure destination in Kent, set within a 240-acre park. Renowned for its distinctive architecture and premium brand mix.",
@@ -83,6 +84,7 @@
     },
     {
       "id": "centre-lakeside",
+      "centreId": "10003",
       "name": "Lakeside",
       "logo": "#2563eb",
       "description": "A major retail and leisure destination in Thurrock, Essex, with extensive waterfront dining and over 250 stores.",
@@ -95,7 +97,7 @@
         "lng": 0.2945
       },
       "status": "Listed",
-      "teamId": "team-two",
+      "teamId": "team-one",
       "totalSqm": 120000,
       "numberOfStores": 250,
       "avgVisitTimeMinutes": 85,
@@ -109,16 +111,19 @@
         "ATM",
         "Click & collect"
       ],
-      "images": [],
+      "images": [
+        "blob:http://localhost:3001/38199245-83ab-438a-90e7-14b8ff5918bc"
+      ],
       "contactName": "Alice Chen",
       "contactEmail": "alice@company.com",
       "userSignatories": [
-        "sam@fillit.com"
+        "lisa.fernandez@popupstudio.com"
       ],
       "externalSignatories": []
     },
     {
       "id": "centre-meadowhall",
+      "centreId": "10004",
       "name": "Meadowhall",
       "logo": "#d97706",
       "description": "Sheffield's premier shopping and leisure destination, featuring over 280 stores and a dedicated cinema and dining quarter.",
@@ -156,6 +161,7 @@
     },
     {
       "id": "centre-trafford",
+      "centreId": "10005",
       "name": "Trafford Centre",
       "logo": "#dc2626",
       "description": "One of the UK's largest out-of-town shopping centres, featuring ornate architecture, a giant food court, and a 20-screen cinema.",
@@ -194,6 +200,7 @@
     },
     {
       "id": "centre-bullring",
+      "centreId": "10006",
       "name": "Bullring",
       "logo": "#0891b2",
       "description": "Birmingham's iconic city-centre shopping destination, anchored by a flagship Selfridges with its distinctive disc facade. Home to over 160 stores across fashion, beauty, and dining.",
@@ -228,6 +235,7 @@
     },
     {
       "id": "centre-arndale",
+      "centreId": "10007",
       "name": "Manchester Arndale",
       "logo": "#9333ea",
       "description": "The UK's largest city-centre shopping mall, sitting at the heart of Manchester with direct links to the Metrolink network and over 200 retailers.",
@@ -262,6 +270,7 @@
     },
     {
       "id": "centre-brent-cross",
+      "centreId": "10008",
       "name": "Brent Cross",
       "logo": "#0d9488",
       "description": "North London's established shopping centre, recently expanded and refurbished, offering a curated mix of high street and premium brands in a relaxed environment.",
@@ -295,6 +304,7 @@
     },
     {
       "id": "centre-white-rose",
+      "centreId": "10009",
       "name": "White Rose",
       "logo": "#b45309",
       "description": "A major retail and leisure park in south Leeds, anchored by an M&S and Primark, with a strong food and beverage offer and free parking for over 3,000 vehicles.",
@@ -329,6 +339,7 @@
     },
     {
       "id": "centre-cribbs-causeway",
+      "centreId": "10010",
       "name": "Cribbs Causeway",
       "logo": "#be185d",
       "description": "Bristol's premier out-of-town shopping destination, with a strong anchor line-up, popular restaurants, and excellent transport links from across the South West.",
@@ -363,6 +374,7 @@
     },
     {
       "id": "centre-metrocentre",
+      "centreId": "10011",
       "name": "Metrocentre",
       "logo": "#4f46e5",
       "description": "Europe's largest out-of-town shopping and leisure complex, located in Gateshead. Features an indoor theme park area, multi-screen cinema, and over 340 stores.",
@@ -399,6 +411,7 @@
     },
     {
       "id": "centre-oracle",
+      "centreId": "10012",
       "name": "The Oracle",
       "logo": "#15803d",
       "description": "Reading's waterside shopping centre set along the River Kennet. A mix of high street and premium fashion brands alongside a riverside dining terrace.",
@@ -431,6 +444,7 @@
     },
     {
       "id": "centre-highcross",
+      "centreId": "10013",
       "name": "Highcross",
       "logo": "#c2410c",
       "description": "Leicester's contemporary city-centre shopping destination, featuring a striking glass atrium, 120 stores, and a dedicated leisure quarter with a nine-screen cinema.",
@@ -465,6 +479,7 @@
     },
     {
       "id": "centre-st-davids",
+      "centreId": "10014",
       "name": "St David's",
       "logo": "#7e22ce",
       "description": "Cardiff's flagship shopping and leisure destination, spanning two linked centres in the heart of the city. Home to 200 stores including a flagship John Lewis.",
@@ -500,6 +515,7 @@
     },
     {
       "id": "centre-victoria-leeds",
+      "centreId": "10015",
       "name": "Victoria Leeds",
       "logo": "#0369a1",
       "description": "A premium retail and dining destination housed in a beautifully restored Victorian arcade in central Leeds. Anchored by Victoria Gate and a flagship John Lewis.",

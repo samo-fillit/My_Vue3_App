@@ -1,6 +1,7 @@
 <template>
   <SidebarProvider class="h-screen overflow-hidden">
     <AppSidebar active-item="account-profile" />
+    <RightPanel />
     <SidebarInset class="overflow-hidden">
 
       <div class="flex-1 overflow-y-auto px-24 py-12">
@@ -58,6 +59,7 @@ import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar'
 import { Button } from '@/components/ui/button'
 import { FloatingLabelInput } from '@/components/ui/input'
 import AppSidebar from '@/components/app-sidebar.vue'
+import RightPanel from '@/components/right-panel.vue'
 
 const form = ref({
   email: '',

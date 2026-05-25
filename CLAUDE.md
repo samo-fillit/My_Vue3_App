@@ -79,15 +79,58 @@ Pill-shaped, light backgrounds, semantic colors:
 - Use `<Badge>` with appropriate variant or className
 
 ### Forms
-- Section headings (e.g., "Personal Details") sit above the inputs without a card wrapper unless the form spans multiple columns
-- Generous vertical spacing between fields (`gap-4` minimum, often `gap-6`)
-- Submit button left-aligned at the bottom, primary variant
-- Helper text muted, below section heading
+
+#### Inputs
+Always use `<FloatingLabelInput>` from `@/components/ui/input` for all text inputs in forms. Never use the raw `<Input>` + `<Label>` peer pattern — it is inconsistent and was an earlier mistake. `FloatingLabelInput` takes `v-model`, `label`, and an optional `:required="true"` prop.
+
+For `<Select>` fields, always use `<FloatingLabelSelect>` from `@/components/ui/select`. It matches the height, border, and floating label position of `FloatingLabelInput` exactly. Never use the raw `<Select>` + manual wrapper pattern.
+
+```html
+<FloatingLabelSelect v-model="form.country" label="Country" :required="true">
+  <SelectItem v-for="c in countries" :key="c" :value="c">{{ c }}</SelectItem>
+</FloatingLabelSelect>
+```
+
+If the trigger needs a prefix element (e.g. a team avatar shown alongside the selected value), use the `#trigger-prefix` slot:
+
+```html
+<FloatingLabelSelect v-model="form.teamId" label="Assigned team" :required="true">
+  <template v-if="selectedTeam" #trigger-prefix>
+    <div class="h-6 w-6 rounded ..." :style="{ backgroundColor: selectedTeam.color }">
+      {{ selectedTeam.name.charAt(0) }}
+    </div>
+  </template>
+  <SelectItem v-for="t in teams" :key="t.id" :value="t.id">{{ t.name }}</SelectItem>
+</FloatingLabelSelect>
+```
+
+If the select is inside a flex row (e.g. alongside a delete button), pass `class="flex-1"` to the component — it forwards the class to its root wrapper.
+
+#### Form sections
+- Section heading: `<h3 class="text-sm font-semibold text-foreground">Section name</h3>`
+- Never reduce heading opacity (no `text-foreground/70`)
+- Do NOT use `<Separator />` between form sections — `gap-8` on the form container provides sufficient visual separation
+- Generous vertical spacing between fields (`gap-4` within a section)
+- Submit/save button right-aligned in the dialog footer (via `DialogFooter`), primary variant
+- Cancel button to the left of submit, `variant="ghost"`
 
 ### Navigation
 - Sidebar nav uses Tabler icons + label
 - Current page gets a soft `bg-muted` fill, no border
 - Sub-navigation in account-style pages uses a left rail with the same pattern
+
+### Team selector pattern
+Wherever a team filter/selector is needed, use a `DropdownMenu` (not `<Select>`) with this exact trigger button class:
+```
+class="flex h-9 w-fit items-center gap-2 rounded-lg border border-border bg-background px-4 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+```
+Show the team's initial letter in a small coloured square (`h-5 w-5 rounded text-[10px] font-bold text-white` with inline `backgroundColor` from the team's `color` field). For an "All teams" option use `IconUsersGroup` instead of the avatar. Include `IconChevronDown` with `rotate-180` when the dropdown is open. See `pages/preview/transactions.vue` and `pages/preview/teams.vue` for reference implementations.
+
+### Table headers
+Use `text-xs font-semibold uppercase tracking-wide text-muted-foreground` for all table column headers. Sortable columns wrap their label in a `<button>` with a sort icon (`IconSelector` when unsorted, `IconChevronUp`/`IconChevronDown` when active) from `@tabler/icons-vue`. See `pages/preview/centres.vue` and `pages/preview/transactions.vue` for reference.
+
+### Date range picker
+Use a `Popover` trigger (same button style as team selector above) containing a `RangeCalendar` component from `@/components/ui/range-calendar` with `:number-of-months="2"` to show two months side by side. The value is typed as `DateRange | undefined` from `reka-ui`. Convert `CalendarDate` values to ISO strings for filtering. See `pages/preview/transactions.vue` for reference.
 
 ## Layout principles
 - Don't wrap every section in `<Card>`. Cards are for elevated/contained content (modals, key data, isolated forms). Most pages use the page itself as the surface.

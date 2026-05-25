@@ -12,7 +12,12 @@
       "pricePerDay": 280,
       "pricePerWeek": 1500,
       "minDurationDays": 7,
-      "features": ["Power", "Wi-Fi", "Storage", "Lighting"]
+      "features": [
+        "Power",
+        "Wi-Fi",
+        "Storage",
+        "Lighting"
+      ]
     },
     {
       "id": "space-wfl-002",
@@ -26,7 +31,10 @@
       "pricePerDay": 180,
       "pricePerWeek": 950,
       "minDurationDays": 3,
-      "features": ["Power", "Wi-Fi"]
+      "features": [
+        "Power",
+        "Wi-Fi"
+      ]
     },
     {
       "id": "space-wfl-003",
@@ -40,7 +48,9 @@
       "pricePerDay": 120,
       "pricePerWeek": 650,
       "minDurationDays": 1,
-      "features": ["Power"]
+      "features": [
+        "Power"
+      ]
     },
     {
       "id": "space-wfl-004",
@@ -54,7 +64,10 @@
       "pricePerDay": 600,
       "pricePerWeek": 3200,
       "minDurationDays": 7,
-      "features": ["Digital display", "High footfall"]
+      "features": [
+        "Digital display",
+        "High footfall"
+      ]
     },
     {
       "id": "space-bw-001",
@@ -68,7 +81,14 @@
       "pricePerDay": 240,
       "pricePerWeek": 1250,
       "minDurationDays": 7,
-      "features": ["Power", "Wi-Fi", "Storage", "Lighting", "Fitting room"]
+      "features": [
+        "Power",
+        "Wi-Fi",
+        "Storage",
+        "Lighting",
+        "Fitting room"
+      ],
+      "listed": true
     },
     {
       "id": "space-bw-002",
@@ -82,7 +102,10 @@
       "pricePerDay": 150,
       "pricePerWeek": 800,
       "minDurationDays": 3,
-      "features": ["Power", "Wi-Fi"]
+      "features": [
+        "Power",
+        "Wi-Fi"
+      ]
     },
     {
       "id": "space-lk-001",
@@ -96,7 +119,12 @@
       "pricePerDay": 210,
       "pricePerWeek": 1100,
       "minDurationDays": 7,
-      "features": ["Power", "Wi-Fi", "Storage", "Lighting"]
+      "features": [
+        "Power",
+        "Wi-Fi",
+        "Storage",
+        "Lighting"
+      ]
     },
     {
       "id": "space-lk-002",
@@ -110,7 +138,9 @@
       "pricePerDay": 130,
       "pricePerWeek": 700,
       "minDurationDays": 3,
-      "features": ["Power"]
+      "features": [
+        "Power"
+      ]
     },
     {
       "id": "space-lk-003",
@@ -124,7 +154,12 @@
       "pricePerDay": 1200,
       "pricePerWeek": 6000,
       "minDurationDays": 1,
-      "features": ["Power", "Wi-Fi", "Loading bay", "High footfall"]
+      "features": [
+        "Power",
+        "Wi-Fi",
+        "Loading bay",
+        "High footfall"
+      ]
     },
     {
       "id": "space-mh-001",
@@ -138,7 +173,11 @@
       "pricePerDay": 190,
       "pricePerWeek": 1000,
       "minDurationDays": 7,
-      "features": ["Power", "Wi-Fi", "Storage"]
+      "features": [
+        "Power",
+        "Wi-Fi",
+        "Storage"
+      ]
     },
     {
       "id": "space-mh-002",
@@ -152,7 +191,9 @@
       "pricePerDay": 100,
       "pricePerWeek": 520,
       "minDurationDays": 1,
-      "features": ["Power"]
+      "features": [
+        "Power"
+      ]
     },
     {
       "id": "space-mh-003",
@@ -166,7 +207,10 @@
       "pricePerDay": 140,
       "pricePerWeek": 740,
       "minDurationDays": 3,
-      "features": ["Power", "Wi-Fi"]
+      "features": [
+        "Power",
+        "Wi-Fi"
+      ]
     },
     {
       "id": "space-tc-001",
@@ -180,7 +224,13 @@
       "pricePerDay": 350,
       "pricePerWeek": 1850,
       "minDurationDays": 7,
-      "features": ["Power", "Wi-Fi", "Storage", "Lighting", "Fitting room"]
+      "features": [
+        "Power",
+        "Wi-Fi",
+        "Storage",
+        "Lighting",
+        "Fitting room"
+      ]
     },
     {
       "id": "space-tc-002",
@@ -194,7 +244,77 @@
       "pricePerDay": 220,
       "pricePerWeek": 1150,
       "minDurationDays": 3,
-      "features": ["Power", "Wi-Fi"]
+      "features": [
+        "Power",
+        "Wi-Fi"
+      ]
+    },
+    {
+      "id": "space-1779228532481",
+      "centreId": "centre-meadowhall",
+      "name": "test",
+      "type": "Display",
+      "floor": "Ground",
+      "zone": "",
+      "sqm": null,
+      "status": "Available",
+      "listed": false,
+      "pricePerDay": 0,
+      "pricePerWeek": 0,
+      "minDurationDays": 1,
+      "features": [],
+      "description": "test",
+      "images": [
+        "blob:http://localhost:3001/957b8155-4506-4805-a12a-a1793367520a",
+        "blob:http://localhost:3001/a3d950f3-fb73-432d-b9ab-8c6a923a3f0b",
+        "blob:http://localhost:3001/077031d4-913e-4c46-85c9-a4ae9f57325f"
+      ],
+      "amenities": []
+    },
+    {
+      "id": "space-1779228564766",
+      "centreId": "centre-trafford",
+      "name": "test",
+      "type": "Stand",
+      "floor": "Ground",
+      "zone": "",
+      "sqm": null,
+      "status": "Available",
+      "listed": true,
+      "pricePerDay": 0,
+      "pricePerWeek": 0,
+      "minDurationDays": 1,
+      "features": [],
+      "description": "test",
+      "images": [
+        "blob:http://localhost:3001/c8b15542-4e5f-44f4-9396-16e61b75d64d",
+        "blob:http://localhost:3001/44f76302-dec2-4021-a934-c2a05ab95cec",
+        "blob:http://localhost:3001/c2ef19de-bec1-4c65-b5ec-5916753cb54e"
+      ],
+      "amenities": []
+    },
+    {
+      "id": "space-1779229093883",
+      "centreId": "centre-trafford",
+      "name": "test",
+      "type": "Stand",
+      "floor": "Ground",
+      "zone": "",
+      "sqm": null,
+      "status": "Available",
+      "listed": false,
+      "pricePerDay": 0,
+      "pricePerWeek": 0,
+      "minDurationDays": 1,
+      "features": [],
+      "description": "test",
+      "images": [
+        "blob:http://localhost:3001/2bdb8a96-8cfa-4ba9-a28b-9994b4267c48",
+        "blob:http://localhost:3001/355becfc-d44f-4d13-871d-bb94a95f4090",
+        "blob:http://localhost:3001/a915ed61-a31e-423f-8c4d-63bd9edcea20"
+      ],
+      "thumbnailIndex": 0,
+      "amenities": []
     }
   ]
 }
