@@ -1,7 +1,13 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+
+// macOS: avoid spawn EBADF from DevTools / file watchers (nuxt/nuxt#33300)
+if (process.platform === 'darwin' && !process.env.CHOKIDAR_USEPOLLING) {
+  process.env.CHOKIDAR_USEPOLLING = '1'
+}
+
 export default defineNuxtConfig({
   compatibilityDate: '2024-04-03',
-  devtools: { enabled: true },
+  devtools: { enabled: false },
   css: ['~/assets/css/tailwind.css', 'flag-icons/css/flag-icons.min.css'],
   components: [
     // Skip components/ui/ — shadcn-vue components are imported explicitly
