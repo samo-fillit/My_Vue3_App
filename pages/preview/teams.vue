@@ -21,7 +21,7 @@
                 + Create team
               </Button>
 
-              <Dialog v-model:open="inviteUserOpen">
+              <Dialog v-if="can('invite:users')" v-model:open="inviteUserOpen">
                 <DialogTrigger as-child>
                   <Button class="h-10 px-5 text-sm font-medium">
                     + Invite user
@@ -195,12 +195,17 @@
                       </button>
                     </TableHead>
                     <TableHead class="text-center">
-                      <button type="button" class="inline-flex w-full items-center justify-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort(activeSort, 'role')">
-                        Role
-                        <IconChevronUp v-if="activeSort.key === 'role' && activeSort.dir === 'asc'" :size="12" class="text-foreground" />
-                        <IconChevronDown v-else-if="activeSort.key === 'role' && activeSort.dir === 'desc'" :size="12" class="text-foreground" />
-                        <IconSelector v-else :size="12" class="opacity-30" />
-                      </button>
+                      <div class="inline-flex w-full items-center justify-center gap-1.5">
+                        <button type="button" class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort(activeSort, 'role')">
+                          Role
+                          <IconChevronUp v-if="activeSort.key === 'role' && activeSort.dir === 'asc'" :size="12" class="text-foreground" />
+                          <IconChevronDown v-else-if="activeSort.key === 'role' && activeSort.dir === 'desc'" :size="12" class="text-foreground" />
+                          <IconSelector v-else :size="12" class="opacity-30" />
+                        </button>
+                        <NuxtLink to="/preview/roles" class="text-muted-foreground/50 transition-colors hover:text-muted-foreground" title="View roles & permissions">
+                          <IconInfoCircle :size="13" stroke-width="1.75" />
+                        </NuxtLink>
+                      </div>
                     </TableHead>
                     <TableHead class="text-center">
                       <button type="button" class="inline-flex w-full items-center justify-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort(activeSort, 'status')">
@@ -1318,7 +1323,7 @@
 import { ref, computed, reactive, onMounted, resolveComponent } from 'vue'
 
 const NuxtLink = resolveComponent('NuxtLink')
-import { IconCheck, IconX, IconChevronDown, IconChevronUp, IconPencil, IconSelector, IconAlertTriangle, IconLock } from '@tabler/icons-vue'
+import { IconCheck, IconX, IconChevronDown, IconChevronUp, IconPencil, IconSelector, IconAlertTriangle, IconLock, IconInfoCircle } from '@tabler/icons-vue'
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar'
 import { Button } from '@/components/ui/button'
 import { FloatingLabelInput } from '@/components/ui/input'
