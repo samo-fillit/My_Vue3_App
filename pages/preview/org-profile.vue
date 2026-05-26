@@ -1,15 +1,35 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { IconUpload, IconX } from '@tabler/icons-vue'
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar'
 import { Button } from '@/components/ui/button'
 import { FloatingLabelInput } from '@/components/ui/input'
 import { FloatingLabelSelect, SelectItem } from '@/components/ui/select'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import AppSidebar from '@/components/app-sidebar.vue'
 import RightPanel from '@/components/right-panel.vue'
 import { useAppContext } from '@/composables/useAppContext'
 
 const { isUserType, can } = useAppContext()
+
+// ── Types ─────────────────────────────────────────────────────────────────────
+interface Organisation {
+  id: string
+  name: string
+  website: string
+  city: string
+  country: string
+  // Tenant-only
+  companyType?: string
+  companySize?: string
+  sector?: string
+  description?: string
+}
 
 // ── Form state ────────────────────────────────────────────────────────────────
 const form = ref({
@@ -23,6 +43,46 @@ const form = ref({
   sector: '',
   description: '',
 })
+
+let orgId = ''
+
+onMounted(async () => {
+  const data = await $fetch<{ organisations: Organisation[] }>('/api/organisations')
+  const org = data.organisations[0]
+  if (!org) return
+  orgId = org.id
+  form.value = {
+    brandName: org.name,
+    website: org.website ?? '',
+    city: org.city ?? '',
+    country: org.country ?? '',
+    companyType: org.companyType ?? '',
+    companySize: org.companySize ?? '',
+    sector: org.sector ?? '',
+    description: org.description ?? '',
+  }
+})
+
+// ── Save ──────────────────────────────────────────────────────────────────────
+async function save() {
+  const data = await $fetch<{ organisations: Organisation[] }>('/api/organisations')
+  const idx = data.organisations.findIndex(o => o.id === orgId)
+  if (idx === -1) return
+  data.organisations[idx] = {
+    ...data.organisations[idx],
+    name: form.value.brandName,
+    website: form.value.website,
+    city: form.value.city,
+    country: form.value.country,
+    ...(isUserType('tenant') ? {
+      companyType: form.value.companyType,
+      companySize: form.value.companySize,
+      sector: form.value.sector,
+      description: form.value.description,
+    } : {}),
+  }
+  await $fetch('/api/organisations', { method: 'PUT', body: data })
+}
 
 // ── Logo upload ───────────────────────────────────────────────────────────────
 const logoPreview = ref<string | null>(null)
@@ -95,13 +155,12 @@ const countries = [
 
           <!-- Page heading -->
           <div class="flex flex-col gap-3">
-            <h1 class="text-[28px] font-bold leading-8 text-foreground">Organisation profile</h1>
+            <h1 class="text-[28px] font-bold leading-8 text-foreground">Organisation details</h1>
             <p class="text-base text-muted-foreground">
               {{ isUserType('tenant')
                 ? 'Your brand profile is shown to landlords and used to match you with relevant spaces.'
                 : 'This information represents your organisation across the platform and on landlord communications.' }}
             </p>
-            <p v-if="!can('edit:org-profile')" class="text-sm text-muted-foreground">You have view-only access to this page.</p>
           </div>
 
           <!-- Logo -->
@@ -117,7 +176,7 @@ const countries = [
               </div>
               <!-- Upload controls -->
               <div class="flex flex-col gap-3">
-                <div v-if="can('edit:org-profile')" class="flex items-center gap-3">
+                <div class="flex items-center gap-3">
                   <input
                     ref="logoInput"
                     type="file"
@@ -125,12 +184,23 @@ const countries = [
                     class="hidden"
                     @change="onLogoChange"
                   />
-                  <Button variant="outline" class="h-10 gap-2 px-4" @click="logoInput?.click()">
-                    <IconUpload :size="15" stroke-width="1.75" />
-                    Upload logo
-                  </Button>
+                  <TooltipProvider :delay-duration="300">
+                    <Tooltip>
+                      <TooltipTrigger as-child>
+                        <span :class="!can('edit:org-profile') ? 'cursor-not-allowed' : ''">
+                          <Button variant="outline" class="h-10 gap-2 px-4 disabled:pointer-events-none" :disabled="!can('edit:org-profile')" @click="logoInput?.click()">
+                            <IconUpload :size="15" stroke-width="1.75" />
+                            Upload logo
+                          </Button>
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent v-if="!can('edit:org-profile')" side="top">
+                        <p class="text-xs">This action can only be taken by admins</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                   <Button
-                    v-if="logoPreview"
+                    v-if="logoPreview && can('edit:org-profile')"
                     variant="ghost"
                     class="h-10 gap-2 px-4 text-muted-foreground hover:text-foreground"
                     @click="removeLogo"
@@ -209,9 +279,20 @@ const countries = [
             </div>
           </section>
 
-          <Button v-if="can('edit:org-profile')" class="h-14 min-w-[120px] self-start rounded-lg px-6">
-            Save changes
-          </Button>
+          <TooltipProvider :delay-duration="300">
+            <Tooltip>
+              <TooltipTrigger as-child>
+                <span :class="!can('edit:org-profile') ? 'cursor-not-allowed' : ''">
+                  <Button class="h-14 min-w-[120px] self-start rounded-lg px-6 disabled:pointer-events-none" :disabled="!can('edit:org-profile')" @click="save">
+                    Save changes
+                  </Button>
+                </span>
+              </TooltipTrigger>
+              <TooltipContent v-if="!can('edit:org-profile')" side="top">
+                <p class="text-xs">This action can only be taken by admins</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
 
         </div>
       </div>

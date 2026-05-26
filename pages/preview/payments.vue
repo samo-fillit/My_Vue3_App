@@ -12,11 +12,19 @@
             <div class="flex flex-col gap-3">
               <h1 class="text-[28px] font-bold leading-8 text-foreground">Payouts</h1>
               <p class="text-base text-muted-foreground">Manage accounts and control which centres and spaces each account pays out to.</p>
-              <p v-if="!can('edit:payouts')" class="text-sm text-muted-foreground">You have view-only access to this page.</p>
             </div>
-            <div v-if="can('edit:payouts')" class="flex shrink-0 items-center gap-3">
-              <Button variant="outline" class="h-9 px-4 text-sm" @click="dialogOpen = true">Add account</Button>
-            </div>
+            <TooltipProvider :delay-duration="300">
+              <Tooltip>
+                <TooltipTrigger as-child>
+                  <span :class="!can('edit:payouts') ? 'cursor-not-allowed' : ''">
+                    <Button variant="outline" class="h-9 shrink-0 px-4 text-sm disabled:pointer-events-none" :disabled="!can('edit:payouts')" @click="dialogOpen = true">Add account</Button>
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent v-if="!can('edit:payouts')" side="bottom">
+                  <p class="text-xs">This action can only be taken by admins</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
 
           <!-- Accounts list -->
@@ -50,9 +58,42 @@
                 </span>
 
                 <div class="flex shrink-0 items-center gap-1">
-                  <Button v-if="can('edit:payouts')" variant="outline" size="sm" class="h-8 text-xs">Manage spaces</Button>
-                  <Button v-if="can('edit:payouts')" variant="ghost" size="sm" class="h-8 text-xs text-muted-foreground">Edit</Button>
-                  <Button v-if="can('edit:payouts')" variant="ghost" size="sm" class="h-8 text-xs text-destructive hover:bg-destructive/10 hover:text-destructive">Remove</Button>
+                  <TooltipProvider :delay-duration="300">
+                    <Tooltip>
+                      <TooltipTrigger as-child>
+                        <span :class="!can('edit:payouts') ? 'cursor-not-allowed' : ''">
+                          <Button variant="outline" size="sm" class="h-8 text-xs disabled:pointer-events-none" :disabled="!can('edit:payouts')">Manage spaces</Button>
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent v-if="!can('edit:payouts')" side="top">
+                        <p class="text-xs">This action can only be taken by admins</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  <TooltipProvider :delay-duration="300">
+                    <Tooltip>
+                      <TooltipTrigger as-child>
+                        <span :class="!can('edit:payouts') ? 'cursor-not-allowed' : ''">
+                          <Button variant="ghost" size="sm" class="h-8 text-xs text-muted-foreground disabled:pointer-events-none" :disabled="!can('edit:payouts')">Edit</Button>
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent v-if="!can('edit:payouts')" side="top">
+                        <p class="text-xs">This action can only be taken by admins</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  <TooltipProvider :delay-duration="300">
+                    <Tooltip>
+                      <TooltipTrigger as-child>
+                        <span :class="!can('edit:payouts') ? 'cursor-not-allowed' : ''">
+                          <Button variant="ghost" size="sm" class="h-8 text-xs text-destructive hover:bg-destructive/10 hover:text-destructive disabled:pointer-events-none" :disabled="!can('edit:payouts')">Remove</Button>
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent v-if="!can('edit:payouts')" side="top">
+                        <p class="text-xs">This action can only be taken by admins</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
               </div>
 
@@ -188,6 +229,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import AppSidebar from '@/components/app-sidebar.vue'
 import { useTeamContext } from '@/composables/useTeamContext'
 import RightPanel from '@/components/right-panel.vue'

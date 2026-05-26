@@ -1,6 +1,6 @@
 <template>
   <SidebarProvider class="h-screen overflow-hidden">
-    <AppSidebar active-item="account-profile" />
+    <AppSidebar active-item="user-profile" />
     <RightPanel />
     <SidebarInset class="overflow-hidden">
 
@@ -16,7 +16,6 @@
                 v-model="form.email"
                 label="Email"
                 type="email"
-                placeholder="sam@fillit.com"
                 :required="true"
               />
               <FloatingLabelInput
@@ -42,7 +41,7 @@
             </div>
           </section>
 
-          <Button class="h-14 min-w-[120px] self-start rounded-lg px-6">
+          <Button class="h-14 min-w-[120px] self-start rounded-lg px-6" @click="save">
             Save changes
           </Button>
 
@@ -54,18 +53,54 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar'
 import { Button } from '@/components/ui/button'
 import { FloatingLabelInput } from '@/components/ui/input'
 import AppSidebar from '@/components/app-sidebar.vue'
 import RightPanel from '@/components/right-panel.vue'
 
+interface User {
+  id: string
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+  location: string
+  teamId: string
+  organisationId: string
+  role: string
+}
+
 const form = ref({
   email: '',
-  firstName: 'Sam',
-  lastName: "O'Brien",
-  phone: '087 123 4567',
+  firstName: '',
+  lastName: '',
+  phone: '',
   location: '',
 })
+
+let userId = ''
+
+onMounted(async () => {
+  const data = await $fetch<{ users: User[] }>('/api/users')
+  const user = data.users[0]
+  if (!user) return
+  userId = user.id
+  form.value = {
+    email: user.email,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    phone: user.phone,
+    location: user.location,
+  }
+})
+
+async function save() {
+  const data = await $fetch<{ users: User[] }>('/api/users')
+  const idx = data.users.findIndex(u => u.id === userId)
+  if (idx === -1) return
+  data.users[idx] = { ...data.users[idx], ...form.value }
+  await $fetch('/api/users', { method: 'PUT', body: data })
+}
 </script>

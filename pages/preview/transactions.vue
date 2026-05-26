@@ -96,7 +96,18 @@
               </button>
             </div>
             <div class="pb-2">
-              <Button v-if="can('manage:transactions')" variant="outline" size="sm" class="h-8 px-3 text-xs">Export CSV</Button>
+              <TooltipProvider :delay-duration="300">
+                <Tooltip>
+                  <TooltipTrigger as-child>
+                    <span :class="!can('manage:transactions') ? 'cursor-not-allowed' : ''">
+                      <Button variant="outline" size="sm" class="h-8 px-3 text-xs disabled:pointer-events-none" :disabled="!can('manage:transactions')">Export CSV</Button>
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent v-if="!can('manage:transactions')" side="bottom">
+                    <p class="text-xs">This action can only be taken by admins or accounts users</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
           </div>
 
@@ -158,7 +169,7 @@
               <TableRow v-for="tx in filteredTransactions" :key="tx.id" class="group">
 
                 <TableCell class="text-sm text-muted-foreground">
-                  {{ tx.paidOn ? formatDate(tx.paidOn) : '—' }}
+                  {{ formatDate(tx.paidOn) }}
                 </TableCell>
 
                 <TableCell class="font-mono text-xs text-muted-foreground">
@@ -193,14 +204,25 @@
 
                 <TableCell class="text-right">
                   <div class="flex items-center justify-end gap-2">
-                    <Button
-                      v-if="tx.paymentType === 'pending' || tx.paymentType === 'overdue' || tx.paymentType === 'failed'"
-                      variant="outline"
-                      size="sm"
-                      class="h-8 px-4 text-sm font-medium"
-                    >
-                      Send reminder
-                    </Button>
+                    <TooltipProvider v-if="tx.paymentType === 'pending' || tx.paymentType === 'overdue' || tx.paymentType === 'failed'" :delay-duration="300">
+                      <Tooltip>
+                        <TooltipTrigger as-child>
+                          <span :class="!can('manage:transactions') ? 'cursor-not-allowed' : ''">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              class="h-8 px-4 text-sm font-medium disabled:pointer-events-none"
+                              :disabled="!can('manage:transactions')"
+                            >
+                              Send reminder
+                            </Button>
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent v-if="!can('manage:transactions')" side="top">
+                          <p class="text-xs">This action can only be taken by admins or accounts users</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                     <button
                       v-if="tx.invoiceUrl"
                       class="invisible flex h-6 w-6 items-center justify-center rounded text-muted-foreground transition-colors hover:text-foreground group-hover:visible"
@@ -261,6 +283,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import AppSidebar from '@/components/app-sidebar.vue'
 import RightPanel from '@/components/right-panel.vue'
 import { useTeamContext } from '@/composables/useTeamContext'
@@ -287,7 +315,7 @@ interface Transaction {
   fillitFee: number
   netAmount: number
   chargeId: string | null
-  paidOn: string | null
+  paidOn: string
   invoiceUrl: string | null
 }
 
@@ -423,7 +451,7 @@ const transactions = ref<Transaction[]>([
     fillitFee: 240,
     netAmount: 3120,
     chargeId: null,
-    paidOn: null,
+    paidOn: '2026-06-02',
     invoiceUrl: null,
   },
   {
@@ -441,7 +469,7 @@ const transactions = ref<Transaction[]>([
     fillitFee: 240,
     netAmount: 3120,
     chargeId: null,
-    paidOn: null,
+    paidOn: '2026-06-09',
     invoiceUrl: null,
   },
   {
@@ -531,7 +559,7 @@ const transactions = ref<Transaction[]>([
     fillitFee: 200,
     netAmount: 2600,
     chargeId: null,
-    paidOn: null,
+    paidOn: '2026-01-20',
     invoiceUrl: null,
   },
   {
@@ -549,7 +577,7 @@ const transactions = ref<Transaction[]>([
     fillitFee: 200,
     netAmount: 2600,
     chargeId: null,
-    paidOn: null,
+    paidOn: '2026-04-07',
     invoiceUrl: null,
   },
   {
@@ -567,7 +595,7 @@ const transactions = ref<Transaction[]>([
     fillitFee: 140,
     netAmount: 1820,
     chargeId: null,
-    paidOn: null,
+    paidOn: '2026-03-24',
     invoiceUrl: null,
   },
 ])
@@ -600,11 +628,11 @@ const filteredByTeamAndDate = computed(() => {
   }
   if (dateRange.value?.start) {
     const start = `${dateRange.value.start.year}-${String(dateRange.value.start.month).padStart(2, '0')}-${String(dateRange.value.start.day).padStart(2, '0')}`
-    list = list.filter(t => (t.paidOn ?? t.periodFrom) >= start)
+    list = list.filter(t => t.paidOn >= start)
   }
   if (dateRange.value?.end) {
     const end = `${dateRange.value.end.year}-${String(dateRange.value.end.month).padStart(2, '0')}-${String(dateRange.value.end.day).padStart(2, '0')}`
-    list = list.filter(t => (t.paidOn ?? t.periodFrom) <= end)
+    list = list.filter(t => t.paidOn <= end)
   }
   return list
 })

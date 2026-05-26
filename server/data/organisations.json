@@ -1,0 +1,11 @@
+{
+  "organisations": [
+    {
+      "id": "org-001",
+      "name": "Westfield Group Ltd",
+      "website": "https://www.westfield.com",
+      "city": "London",
+      "country": "United Kingdom"
+    }
+  ]
+}

@@ -81,7 +81,7 @@ const allMainNav = [
 
 // ── All possible org sub-items ────────────────────────────────────────────────
 const allOrgItems = [
-  { id: 'account-profile',       label: 'Profile',       route: '/preview/org-profile' },
+  { id: 'account-profile',       label: 'Details',       route: '/preview/org-profile' },
   { id: 'account-teams',         label: 'Teams',         route: '/preview/teams' },
   { id: 'account-centres',       label: 'Centres',       route: '/preview/centres' },
   { id: 'account-spaces',        label: 'Spaces',        route: '/preview/spaces' },

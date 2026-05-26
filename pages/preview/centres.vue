@@ -14,11 +14,21 @@
               <p class="text-base text-muted-foreground">
                 Manage your shopping centre portfolio, spaces, and listing settings.
               </p>
-              <p v-if="!can('edit:centres')" class="text-sm text-muted-foreground">You have view-only access to this page.</p>
             </div>
-            <Button v-if="can('edit:centres')" class="h-10 shrink-0 px-5 text-sm font-medium" @click="openAddCentre">
-              + Add new centre
-            </Button>
+            <TooltipProvider :delay-duration="300">
+              <Tooltip>
+                <TooltipTrigger as-child>
+                  <span :class="!can('edit:centres') ? 'cursor-not-allowed' : ''">
+                    <Button class="h-10 shrink-0 px-5 text-sm font-medium disabled:pointer-events-none" :disabled="!can('edit:centres')" @click="openAddCentre">
+                      + Add new centre
+                    </Button>
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent v-if="!can('edit:centres')" side="bottom">
+                  <p class="text-xs">This action can only be taken by admins</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
 
           <div class="flex flex-col gap-6">
@@ -118,9 +128,20 @@
                 </TableCell>
                 <TableCell class="py-3 pr-0 text-right">
                   <div class="inline-flex items-center gap-2">
-                    <Button v-if="can('edit:centres')" variant="outline" size="sm" class="h-8 px-4 text-sm font-medium" @click="openEditCentre(centre)">
-                      Edit centre
-                    </Button>
+                    <TooltipProvider :delay-duration="300">
+                      <Tooltip>
+                        <TooltipTrigger as-child>
+                          <span :class="!can('edit:centres') ? 'cursor-not-allowed' : ''">
+                            <Button variant="outline" size="sm" class="h-8 px-4 text-sm font-medium disabled:pointer-events-none" :disabled="!can('edit:centres')" @click="openEditCentre(centre)">
+                              Edit centre
+                            </Button>
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent v-if="!can('edit:centres')" side="top">
+                          <p class="text-xs">This action can only be taken by admins</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                     <Button variant="outline" size="sm" class="h-8 px-4 text-sm font-medium" @click="viewSpaces(centre)">
                       View spaces
                     </Button>
@@ -532,6 +553,12 @@ import {
   SelectItemText as RekaSelectItemText,
 } from 'reka-ui'
 import { FloatingLabelInput } from '@/components/ui/input'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import AppSidebar from '@/components/app-sidebar.vue'
 import { useTeamContext } from '@/composables/useTeamContext'
 import RightPanel from '@/components/right-panel.vue'

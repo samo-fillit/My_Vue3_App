@@ -1,0 +1,15 @@
+{
+  "users": [
+    {
+      "id": "user-001",
+      "firstName": "Sam",
+      "lastName": "O'Brien",
+      "email": "sam@fillit.com",
+      "phone": "+44 7911 123 456",
+      "location": "London, UK",
+      "teamId": "team-one",
+      "organisationId": "org-001",
+      "role": "Admin"
+    }
+  ]
+}

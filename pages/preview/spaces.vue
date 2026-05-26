@@ -14,11 +14,21 @@
               <p class="text-base text-muted-foreground">
                 Manage spaces across your shopping centre portfolio.
               </p>
-              <p v-if="!can('edit:spaces')" class="text-sm text-muted-foreground">You have view-only access to this page.</p>
             </div>
-            <Button v-if="can('edit:spaces')" class="h-10 shrink-0 px-5 text-sm font-medium" @click="openAddSpace">
-              + Add new space
-            </Button>
+            <TooltipProvider :delay-duration="300">
+              <Tooltip>
+                <TooltipTrigger as-child>
+                  <span :class="!can('edit:spaces') ? 'cursor-not-allowed' : ''">
+                    <Button class="h-10 shrink-0 px-5 text-sm font-medium disabled:pointer-events-none" :disabled="!can('edit:spaces')" @click="openAddSpace">
+                      + Add new space
+                    </Button>
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent v-if="!can('edit:spaces')" side="bottom">
+                  <p class="text-xs">This action can only be taken by admins</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
 
           <div class="flex flex-col gap-6">
@@ -152,18 +162,41 @@
                     </span>
                   </TableCell>
                   <TableCell class="py-3 pr-0 text-right">
-                    <div v-if="can('edit:spaces')" class="inline-flex items-center gap-2">
-                      <Button variant="outline" size="sm" class="h-8 px-4 text-sm font-medium" @click="openEditSpace(space)">
-                        Edit space
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        class="h-8 px-4 text-sm font-medium"
-                        @click="promptToggleListed(space)"
-                      >
-                        {{ space.listed === false ? 'List' : 'Unlist' }}
-                      </Button>
+                    <div class="inline-flex items-center gap-2">
+                      <TooltipProvider :delay-duration="300">
+                        <Tooltip>
+                          <TooltipTrigger as-child>
+                            <span :class="!can('edit:spaces') ? 'cursor-not-allowed' : ''">
+                              <Button variant="outline" size="sm" class="h-8 px-4 text-sm font-medium disabled:pointer-events-none" :disabled="!can('edit:spaces')" @click="openEditSpace(space)">
+                                Edit space
+                              </Button>
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent v-if="!can('edit:spaces')" side="top">
+                            <p class="text-xs">This action can only be taken by admins</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                      <TooltipProvider :delay-duration="300">
+                        <Tooltip>
+                          <TooltipTrigger as-child>
+                            <span :class="!can('edit:spaces') ? 'cursor-not-allowed' : ''">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                class="h-8 px-4 text-sm font-medium disabled:pointer-events-none"
+                                :disabled="!can('edit:spaces')"
+                                @click="promptToggleListed(space)"
+                              >
+                                {{ space.listed === false ? 'List' : 'Unlist' }}
+                              </Button>
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent v-if="!can('edit:spaces')" side="top">
+                            <p class="text-xs">This action can only be taken by admins</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -474,6 +507,12 @@ import {
   SelectItem,
 } from '@/components/ui/select'
 import { FloatingLabelInput } from '@/components/ui/input'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import AppSidebar from '@/components/app-sidebar.vue'
 import RightPanel from '@/components/right-panel.vue'
 import { useTeamContext } from '@/composables/useTeamContext'

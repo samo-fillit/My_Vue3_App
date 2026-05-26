@@ -14,19 +14,40 @@
               <p class="text-base text-muted-foreground">
                 {{ isUserType('tenant') ? 'Manage your team members and roles.' : 'Manage team members, roles, and signing authorities.' }}
               </p>
-              <p v-if="isRole('member') && !isUserType('tenant')" class="text-sm text-muted-foreground">You have limited access to this page. Some actions are restricted to admins.</p>
             </div>
             <div class="flex shrink-0 items-center gap-3">
-              <Button v-if="can('create:team')" variant="outline" class="h-10 px-5 text-sm font-medium" @click="createTeamOpen = true">
-                + Create team
-              </Button>
+              <TooltipProvider :delay-duration="300">
+                <Tooltip>
+                  <TooltipTrigger as-child>
+                    <span :class="!can('create:team') ? 'cursor-not-allowed' : ''">
+                      <Button variant="outline" class="h-10 px-5 text-sm font-medium disabled:pointer-events-none" :disabled="!can('create:team')" @click="createTeamOpen = true">
+                        + Create team
+                      </Button>
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent v-if="!can('create:team')" side="top">
+                    <p class="text-xs">This action can only be taken by admins</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
 
-              <Dialog v-if="can('invite:users')" v-model:open="inviteUserOpen">
-                <DialogTrigger as-child>
-                  <Button class="h-10 px-5 text-sm font-medium">
-                    + Invite user
-                  </Button>
-                </DialogTrigger>
+              <Dialog v-model:open="inviteUserOpen">
+                <TooltipProvider :delay-duration="300">
+                  <Tooltip>
+                    <TooltipTrigger as-child>
+                      <span :class="!can('invite:users') ? 'cursor-not-allowed' : ''">
+                        <DialogTrigger as-child>
+                          <Button class="h-10 px-5 text-sm font-medium disabled:pointer-events-none" :disabled="!can('invite:users')">
+                            + Invite user
+                          </Button>
+                        </DialogTrigger>
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent v-if="!can('invite:users')" side="top">
+                      <p class="text-xs">This action can only be taken by admins</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
                 <DialogContent class="sm:max-w-[480px]">
                   <DialogHeader>
                     <DialogTitle>Invite a team member</DialogTitle>
@@ -152,14 +173,25 @@
                   </div>
                   <span class="font-medium">{{ team.name }}</span>
                 </div>
-                <button
-                  v-if="can('edit:team')"
-                  type="button"
-                  class="rounded p-0.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                  @click.stop="openEditTeam(team)"
-                >
-                  <IconPencil :size="14" stroke-width="1.5" />
-                </button>
+                <TooltipProvider :delay-duration="300">
+                  <Tooltip>
+                    <TooltipTrigger as-child>
+                      <span :class="!can('edit:team') ? 'cursor-not-allowed' : ''">
+                        <button
+                          type="button"
+                          class="rounded p-0.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-30"
+                          :disabled="!can('edit:team')"
+                          @click.stop="openEditTeam(team)"
+                        >
+                          <IconPencil :size="14" stroke-width="1.5" />
+                        </button>
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent v-if="!can('edit:team')" side="top">
+                      <p class="text-xs">This action can only be taken by admins</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -251,16 +283,26 @@
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
-                      <button
-                        v-else-if="can('change:user-roles')"
-                        type="button"
-                        class="group inline-flex items-center gap-1.5 text-sm text-foreground hover:font-semibold"
-                        @click="openChangeRole(member)"
-                      >
-                        {{ member.role }}
-                        <IconPencil :size="13" stroke-width="1.5" class="text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
-                      </button>
-                      <span v-else class="text-sm text-foreground">{{ member.role }}</span>
+                      <TooltipProvider v-else :delay-duration="300">
+                        <Tooltip>
+                          <TooltipTrigger as-child>
+                            <span :class="!can('change:user-roles') ? 'cursor-not-allowed' : ''">
+                              <button
+                                type="button"
+                                class="group inline-flex items-center gap-1.5 text-sm text-foreground hover:font-semibold disabled:pointer-events-none disabled:opacity-60"
+                                :disabled="!can('change:user-roles')"
+                                @click="openChangeRole(member)"
+                              >
+                                {{ member.role }}
+                                <IconPencil v-if="can('change:user-roles')" :size="13" stroke-width="1.5" class="text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                              </button>
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent v-if="!can('change:user-roles')" side="top">
+                            <p class="text-xs">This action can only be taken by admins</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </TableCell>
                     <TableCell class="py-3 text-center">
                       <span
@@ -271,26 +313,58 @@
                       </span>
                     </TableCell>
                     <TableCell v-if="!isUserType('tenant')" class="py-3 text-center">
-                      <button
-                        v-if="can('manage:signatories')"
-                        type="button"
-                        class="group inline-flex items-center gap-1.5 text-sm hover:font-semibold"
-                        :class="(member.signatoryCentres ?? []).length ? 'text-foreground' : 'text-muted-foreground'"
-                        @click="openAssignSignatory(member)"
-                      >
-                        <span>{{ (member.signatoryCentres ?? []).length || '—' }}</span>
-                        <IconPencil :size="13" stroke-width="1.5" class="text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
-                      </button>
-                      <span v-else class="text-sm" :class="(member.signatoryCentres ?? []).length ? 'text-foreground' : 'text-muted-foreground'">{{ (member.signatoryCentres ?? []).length || '—' }}</span>
+                      <TooltipProvider :delay-duration="300">
+                        <Tooltip>
+                          <TooltipTrigger as-child>
+                            <span :class="!can('manage:signatories') ? 'cursor-not-allowed' : ''">
+                              <button
+                                type="button"
+                                class="group inline-flex items-center gap-1.5 text-sm hover:font-semibold disabled:pointer-events-none disabled:opacity-60"
+                                :class="(member.signatoryCentres ?? []).length ? 'text-foreground' : 'text-muted-foreground'"
+                                :disabled="!can('manage:signatories')"
+                                @click="openAssignSignatory(member)"
+                              >
+                                <span>{{ (member.signatoryCentres ?? []).length || '—' }}</span>
+                                <IconPencil v-if="can('manage:signatories')" :size="13" stroke-width="1.5" class="text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                              </button>
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent v-if="!can('manage:signatories')" side="top">
+                            <p class="text-xs">This action can only be taken by admins</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </TableCell>
                     <TableCell class="py-3 pr-0 text-center">
                       <div class="inline-flex items-center gap-2">
-                        <Button v-if="allTeams.length > 1 && can('move:centre-team')" variant="outline" size="sm" class="h-8 px-4 text-sm font-medium" @click="openSwitchTeam(member)">
-                          Switch team
-                        </Button>
-                        <Button v-if="can('edit:team')" variant="outline" size="sm" class="h-8 px-4 text-sm font-medium" :disabled="isLastAdmin(member)" @click="openRemoveConfirm(member)">
-                          Remove
-                        </Button>
+                        <TooltipProvider v-if="allTeams.length > 1" :delay-duration="300">
+                          <Tooltip>
+                            <TooltipTrigger as-child>
+                              <span :class="!can('move:centre-team') ? 'cursor-not-allowed' : ''">
+                                <Button variant="outline" size="sm" class="h-8 px-4 text-sm font-medium disabled:pointer-events-none" :disabled="!can('move:centre-team')" @click="openSwitchTeam(member)">
+                                  Switch team
+                                </Button>
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent v-if="!can('move:centre-team')" side="top">
+                              <p class="text-xs">This action can only be taken by admins</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                        <TooltipProvider :delay-duration="300">
+                          <Tooltip>
+                            <TooltipTrigger as-child>
+                              <span :class="(!can('edit:team') || isLastAdmin(member)) ? 'cursor-not-allowed' : ''">
+                                <Button variant="outline" size="sm" class="h-8 px-4 text-sm font-medium disabled:pointer-events-none" :disabled="!can('edit:team') || isLastAdmin(member)" @click="openRemoveConfirm(member)">
+                                  Remove
+                                </Button>
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent v-if="!can('edit:team')" side="top">
+                              <p class="text-xs">This action can only be taken by admins</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -358,52 +432,91 @@
                       </span>
                     </TableCell>
                     <TableCell class="py-3 text-center">
-                      <button
-                        v-if="can('change:user-roles')"
-                        type="button"
-                        class="group inline-flex items-center gap-1.5 text-sm text-foreground hover:font-semibold"
-                        @click="openChangeRole(invite)"
-                      >
-                        {{ invite.role }}
-                        <IconPencil :size="13" stroke-width="1.5" class="text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
-                      </button>
-                      <span v-else class="text-sm text-foreground">{{ invite.role }}</span>
+                      <TooltipProvider :delay-duration="300">
+                        <Tooltip>
+                          <TooltipTrigger as-child>
+                            <span :class="!can('change:user-roles') ? 'cursor-not-allowed' : ''">
+                              <button
+                                type="button"
+                                class="group inline-flex items-center gap-1.5 text-sm text-foreground hover:font-semibold disabled:pointer-events-none disabled:opacity-60"
+                                :disabled="!can('change:user-roles')"
+                                @click="openChangeRole(invite)"
+                              >
+                                {{ invite.role }}
+                                <IconPencil v-if="can('change:user-roles')" :size="13" stroke-width="1.5" class="text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                              </button>
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent v-if="!can('change:user-roles')" side="top">
+                            <p class="text-xs">This action can only be taken by admins</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </TableCell>
                     <TableCell class="py-3 text-center text-sm text-muted-foreground">{{ invite.invitedBy }}</TableCell>
                     <TableCell class="py-3 text-center text-sm text-muted-foreground">{{ invite.sentOn }}</TableCell>
                     <TableCell class="py-3 pr-0 text-center">
                       <div v-if="invite.status === 'Pending Approval'" class="inline-flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          class="h-8 px-4 text-sm font-medium"
-                          :disabled="!can('action:pending-invites')"
-                          :class="!can('action:pending-invites') ? 'disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none' : ''"
-                          @click="openConfirm('decline', invite)"
-                        >
-                          Decline
-                        </Button>
-                        <Button
-                          size="sm"
-                          class="h-8 px-4 text-sm font-medium"
-                          :disabled="!can('action:pending-invites')"
-                          :class="!can('action:pending-invites') ? 'disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none' : ''"
-                          @click="openConfirm('approve', invite)"
-                        >
-                          Approve
-                        </Button>
+                        <TooltipProvider :delay-duration="300">
+                          <Tooltip>
+                            <TooltipTrigger as-child>
+                              <span :class="!can('action:pending-invites') ? 'cursor-not-allowed' : ''">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  class="h-8 px-4 text-sm font-medium disabled:pointer-events-none"
+                                  :disabled="!can('action:pending-invites')"
+                                  @click="openConfirm('decline', invite)"
+                                >
+                                  Decline
+                                </Button>
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent v-if="!can('action:pending-invites')" side="top">
+                              <p class="text-xs">This action can only be taken by admins</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                        <TooltipProvider :delay-duration="300">
+                          <Tooltip>
+                            <TooltipTrigger as-child>
+                              <span :class="!can('action:pending-invites') ? 'cursor-not-allowed' : ''">
+                                <Button
+                                  size="sm"
+                                  class="h-8 px-4 text-sm font-medium disabled:pointer-events-none"
+                                  :disabled="!can('action:pending-invites')"
+                                  @click="openConfirm('approve', invite)"
+                                >
+                                  Approve
+                                </Button>
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent v-if="!can('action:pending-invites')" side="top">
+                              <p class="text-xs">This action can only be taken by admins</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </div>
-                      <Button
-                        v-else
-                        variant="outline"
-                        size="sm"
-                        class="h-8 px-4 text-sm font-medium"
-                        :disabled="!can('action:pending-invites')"
-                        :class="!can('action:pending-invites') ? 'disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none' : ''"
-                        @click="openConfirm('withdraw', invite)"
-                      >
-                        Withdraw invite
-                      </Button>
+                      <TooltipProvider v-else :delay-duration="300">
+                        <Tooltip>
+                          <TooltipTrigger as-child>
+                            <span :class="!can('action:pending-invites') ? 'cursor-not-allowed' : ''">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                class="h-8 px-4 text-sm font-medium disabled:pointer-events-none"
+                                :disabled="!can('action:pending-invites')"
+                                @click="openConfirm('withdraw', invite)"
+                              >
+                                Withdraw invite
+                              </Button>
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent v-if="!can('action:pending-invites')" side="top">
+                            <p class="text-xs">This action can only be taken by admins</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </TableCell>
                   </TableRow>
                 </TableBody>
@@ -469,38 +582,72 @@
                       </TableCell>
                       <TableCell class="py-3 text-center text-sm text-muted-foreground">{{ sig.organisation || '—' }}</TableCell>
                       <TableCell class="py-3 text-center">
-                        <button
-                          type="button"
-                          class="group inline-flex items-center gap-1.5 text-sm text-foreground hover:font-semibold"
-                          @click="openEditSignatoryCentres(sig)"
-                        >
-                          <span :class="!(sig.centres?.length) ? 'text-muted-foreground' : ''">{{ sig.centres?.length === 1 ? sig.centres[0] : sig.centres?.length || '—' }}</span>
-                          <IconPencil :size="13" stroke-width="1.5" class="text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
-                        </button>
+                        <TooltipProvider :delay-duration="300">
+                          <Tooltip>
+                            <TooltipTrigger as-child>
+                              <span :class="!can('manage:signatories') ? 'cursor-not-allowed' : ''">
+                                <button
+                                  type="button"
+                                  class="group inline-flex items-center gap-1.5 text-sm text-foreground hover:font-semibold disabled:pointer-events-none disabled:opacity-60"
+                                  :disabled="!can('manage:signatories')"
+                                  @click="openEditSignatoryCentres(sig)"
+                                >
+                                  <span :class="!(sig.centres?.length) ? 'text-muted-foreground' : ''">{{ sig.centres?.length === 1 ? sig.centres[0] : sig.centres?.length || '—' }}</span>
+                                  <IconPencil v-if="can('manage:signatories')" :size="13" stroke-width="1.5" class="text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                                </button>
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent v-if="!can('manage:signatories')" side="top">
+                              <p class="text-xs">This action can only be taken by admins</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </TableCell>
                       <TableCell class="py-3 text-center text-sm text-muted-foreground">{{ sig.addedBy }}</TableCell>
                       <TableCell class="py-3 text-center text-sm text-muted-foreground">{{ sig.addedOn }}</TableCell>
                       <TableCell class="py-3 pr-0 text-center">
-                        <Button
-                          v-if="can('manage:signatories')"
-                          variant="outline"
-                          size="sm"
-                          class="h-8 px-4 text-sm font-medium"
-                          @click="openRemoveSignatoryConfirm(sig)"
-                        >
-                          Remove
-                        </Button>
+                        <TooltipProvider :delay-duration="300">
+                          <Tooltip>
+                            <TooltipTrigger as-child>
+                              <span :class="!can('manage:signatories') ? 'cursor-not-allowed' : ''">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  class="h-8 px-4 text-sm font-medium disabled:pointer-events-none"
+                                  :disabled="!can('manage:signatories')"
+                                  @click="openRemoveSignatoryConfirm(sig)"
+                                >
+                                  Remove
+                                </Button>
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent v-if="!can('manage:signatories')" side="top">
+                              <p class="text-xs">This action can only be taken by admins</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>
 
-                <Dialog v-if="can('manage:signatories')" v-model:open="addSignatoryOpen">
-                  <DialogTrigger as-child>
-                    <Button variant="outline" class="h-10 w-fit px-5 text-sm font-medium">
-                      + Add signatory
-                    </Button>
-                  </DialogTrigger>
+                <Dialog v-model:open="addSignatoryOpen">
+                  <TooltipProvider :delay-duration="300">
+                    <Tooltip>
+                      <TooltipTrigger as-child>
+                        <span :class="!can('manage:signatories') ? 'cursor-not-allowed' : ''">
+                          <DialogTrigger as-child>
+                            <Button variant="outline" class="h-10 w-fit px-5 text-sm font-medium disabled:pointer-events-none" :disabled="!can('manage:signatories')">
+                              + Add signatory
+                            </Button>
+                          </DialogTrigger>
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent v-if="!can('manage:signatories')" side="top">
+                        <p class="text-xs">This action can only be taken by admins</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                   <DialogContent class="sm:max-w-[480px]">
                     <DialogHeader>
                       <DialogTitle>Add external signatory</DialogTitle>
@@ -656,9 +803,20 @@
                       </span>
                     </TableCell>
                     <TableCell class="py-3 pr-0 text-right">
-                      <Button v-if="allTeams.length > 1 && can('move:centre-team')" variant="outline" size="sm" class="h-8 px-4 text-sm font-medium" @click="openSwitchCentreTeam(centre)">
-                        Switch team
-                      </Button>
+                      <TooltipProvider v-if="allTeams.length > 1" :delay-duration="300">
+                        <Tooltip>
+                          <TooltipTrigger as-child>
+                            <span :class="!can('move:centre-team') ? 'cursor-not-allowed' : ''">
+                              <Button variant="outline" size="sm" class="h-8 px-4 text-sm font-medium disabled:pointer-events-none" :disabled="!can('move:centre-team')" @click="openSwitchCentreTeam(centre)">
+                                Switch team
+                              </Button>
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent v-if="!can('move:centre-team')" side="top">
+                            <p class="text-xs">This action can only be taken by admins</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </TableCell>
                   </TableRow>
                 </TableBody>

@@ -2,8 +2,9 @@
   "teams": [
     {
       "id": "team-one",
-      "name": "Team_one",
+      "name": "Team One",
       "logo": "#059669",
+      "organisationId": "org-001",
       "members": [
         {
           "name": "Priya Sharma",
@@ -16,15 +17,15 @@
           ]
         },
         {
-          "name": "Tom Nguyen",
-          "email": "tom.nguyen@retailco.com",
+          "name": "Sarah Chen",
+          "email": "sarah.chen@brandco.com",
           "role": "Member",
           "status": "Active",
           "signatoryCentres": []
         },
         {
-          "name": "Sarah Chen",
-          "email": "sarah.chen@brandco.com",
+          "name": "Tom Nguyen",
+          "email": "tom.nguyen@retailco.com",
           "role": "Member",
           "status": "Active",
           "signatoryCentres": []
@@ -79,8 +80,9 @@
     },
     {
       "id": "team-two",
-      "name": "Team_two",
+      "name": "Team Two",
       "logo": "#2563eb",
+      "organisationId": "org-001",
       "members": [
         {
           "name": "Bob Martinez",

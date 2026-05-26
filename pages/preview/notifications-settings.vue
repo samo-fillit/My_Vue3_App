@@ -4,6 +4,12 @@ import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import AppSidebar from '@/components/app-sidebar.vue'
 import RightPanel from '@/components/right-panel.vue'
 import { useAppContext } from '@/composables/useAppContext'
@@ -142,7 +148,6 @@ function save() {
 
           <div class="flex flex-col gap-3">
             <h1 class="text-[28px] font-bold leading-8 text-foreground">Notifications</h1>
-            <p v-if="!can('edit:notifications')" class="text-sm text-muted-foreground">You have view-only access to this page.</p>
           </div>
 
           <!-- Required -->
@@ -176,13 +181,35 @@ function save() {
                   <p class="text-sm font-medium text-foreground">{{ item.label }}</p>
                   <p class="text-sm text-muted-foreground">{{ item.description }}</p>
                 </div>
-                <Switch :default-value="item.enabled" class="shrink-0" :disabled="!can('edit:notifications')" @update:model-value="(val) => { if (can('edit:notifications')) item.enabled = val as boolean }" />
+                <TooltipProvider :delay-duration="300">
+                  <Tooltip>
+                    <TooltipTrigger as-child>
+                      <span :class="!can('edit:notifications') ? 'cursor-not-allowed' : ''">
+                        <Switch :default-value="item.enabled" class="shrink-0 disabled:pointer-events-none" :disabled="!can('edit:notifications')" @update:model-value="(val) => { if (can('edit:notifications')) item.enabled = val as boolean }" />
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent v-if="!can('edit:notifications')" side="top">
+                      <p class="text-xs">This action can only be taken by admins</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
             </div>
           </section>
 
-          <div v-if="can('edit:notifications')">
-            <Button class="h-14 min-w-[120px] self-start rounded-lg px-6" @click="save">Save preferences</Button>
+          <div>
+            <TooltipProvider :delay-duration="300">
+              <Tooltip>
+                <TooltipTrigger as-child>
+                  <span :class="!can('edit:notifications') ? 'cursor-not-allowed' : ''">
+                    <Button class="h-14 min-w-[120px] self-start rounded-lg px-6 disabled:pointer-events-none" :disabled="!can('edit:notifications')" @click="save">Save preferences</Button>
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent v-if="!can('edit:notifications')" side="top">
+                  <p class="text-xs">This action can only be taken by admins</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
 
         </div>
