@@ -1304,15 +1304,15 @@
     </Transition>
   </Teleport>
 
-  <!-- Roles & Permissions sheet -->
-  <Sheet v-model:open="rolesSheetOpen">
-    <SheetContent side="right" class="flex w-[560px] flex-col gap-0 overflow-y-auto sm:max-w-[560px]">
-      <SheetHeader class="shrink-0 pb-6">
-        <SheetTitle>Roles & Permissions</SheetTitle>
-        <SheetDescription>Access control reference for landlord roles.</SheetDescription>
-      </SheetHeader>
+  <!-- Roles & Permissions dialog -->
+  <Dialog v-model:open="rolesSheetOpen">
+    <DialogContent class="flex max-h-[90vh] flex-col sm:max-w-[600px]">
+      <DialogHeader class="shrink-0">
+        <DialogTitle>Roles & Permissions</DialogTitle>
+        <DialogDescription>Access control reference for landlord roles.</DialogDescription>
+      </DialogHeader>
 
-      <div class="flex flex-col gap-8">
+      <div class="flex flex-col gap-8 overflow-y-auto py-4">
         <div v-for="section in permSections" :key="section.heading" class="flex flex-col gap-3">
           <h3 class="text-sm font-semibold text-foreground">{{ section.heading }}</h3>
           <Table>
@@ -1353,8 +1353,8 @@
           </Table>
         </div>
       </div>
-    </SheetContent>
-  </Sheet>
+    </DialogContent>
+  </Dialog>
 </template>
 
 <style scoped>
@@ -1376,13 +1376,6 @@ import { ref, computed, reactive, onMounted, resolveComponent } from 'vue'
 
 const NuxtLink = resolveComponent('NuxtLink')
 import { IconCheck, IconX, IconChevronDown, IconChevronUp, IconPencil, IconSelector, IconAlertTriangle, IconLock, IconInfoCircle } from '@tabler/icons-vue'
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-} from '@/components/ui/sheet'
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar'
 import { Button } from '@/components/ui/button'
 import { FloatingLabelInput } from '@/components/ui/input'
