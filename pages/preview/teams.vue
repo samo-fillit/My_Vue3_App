@@ -202,9 +202,9 @@
                           <IconChevronDown v-else-if="activeSort.key === 'role' && activeSort.dir === 'desc'" :size="12" class="text-foreground" />
                           <IconSelector v-else :size="12" class="opacity-30" />
                         </button>
-                        <NuxtLink to="/preview/roles" class="text-muted-foreground/50 transition-colors hover:text-muted-foreground" title="View roles & permissions">
+                        <button type="button" class="text-muted-foreground/50 transition-colors hover:text-muted-foreground" title="View roles & permissions" @click="rolesSheetOpen = true">
                           <IconInfoCircle :size="13" stroke-width="1.75" />
-                        </NuxtLink>
+                        </button>
                       </div>
                     </TableHead>
                     <TableHead class="text-center">
@@ -1303,6 +1303,58 @@
       </div>
     </Transition>
   </Teleport>
+
+  <!-- Roles & Permissions sheet -->
+  <Sheet v-model:open="rolesSheetOpen">
+    <SheetContent side="right" class="flex w-[560px] flex-col gap-0 overflow-y-auto sm:max-w-[560px]">
+      <SheetHeader class="shrink-0 pb-6">
+        <SheetTitle>Roles & Permissions</SheetTitle>
+        <SheetDescription>Access control reference for landlord roles.</SheetDescription>
+      </SheetHeader>
+
+      <div class="flex flex-col gap-8">
+        <div v-for="section in permSections" :key="section.heading" class="flex flex-col gap-3">
+          <h3 class="text-sm font-semibold text-foreground">{{ section.heading }}</h3>
+          <Table>
+            <TableHeader>
+              <TableRow class="border-border">
+                <TableHead class="w-1/2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Feature</TableHead>
+                <TableHead class="text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  <div class="inline-flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-foreground" />Admin</div>
+                </TableHead>
+                <TableHead class="text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  <div class="inline-flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-blue-400" />Member</div>
+                </TableHead>
+                <TableHead class="text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  <div class="inline-flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-green-500" />Accounts</div>
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow v-for="row in section.rows" :key="row.feature" class="border-border">
+                <TableCell class="py-2.5 text-sm text-foreground">{{ row.feature }}</TableCell>
+                <TableCell class="py-2.5 text-center">
+                  <IconCheck v-if="row.admin === true" :size="15" class="mx-auto text-green-600" />
+                  <span v-else-if="typeof row.admin === 'string'" class="text-xs text-muted-foreground">{{ row.admin }}</span>
+                  <span v-else class="text-muted-foreground">—</span>
+                </TableCell>
+                <TableCell class="py-2.5 text-center">
+                  <IconCheck v-if="row.member === true" :size="15" class="mx-auto text-green-600" />
+                  <span v-else-if="typeof row.member === 'string'" class="text-xs text-muted-foreground">{{ row.member }}</span>
+                  <span v-else class="text-muted-foreground">—</span>
+                </TableCell>
+                <TableCell class="py-2.5 text-center">
+                  <IconCheck v-if="row.accounts === true" :size="15" class="mx-auto text-green-600" />
+                  <span v-else-if="typeof row.accounts === 'string'" class="text-xs text-muted-foreground">{{ row.accounts }}</span>
+                  <span v-else class="text-muted-foreground">—</span>
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+    </SheetContent>
+  </Sheet>
 </template>
 
 <style scoped>
@@ -1324,6 +1376,13 @@ import { ref, computed, reactive, onMounted, resolveComponent } from 'vue'
 
 const NuxtLink = resolveComponent('NuxtLink')
 import { IconCheck, IconX, IconChevronDown, IconChevronUp, IconPencil, IconSelector, IconAlertTriangle, IconLock, IconInfoCircle } from '@tabler/icons-vue'
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from '@/components/ui/sheet'
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar'
 import { Button } from '@/components/ui/button'
 import { FloatingLabelInput } from '@/components/ui/input'
@@ -1480,6 +1539,71 @@ function sortRows<T extends Record<string, any>>(rows: T[], state: SortState): T
 // ── Team data (API-backed) ────────────────────────────────────
 const teamsData = ref<TeamsData>({ teams: [] })
 const teamOpen = ref(false)
+const rolesSheetOpen = ref(false)
+
+// ── Roles & Permissions sheet data ────────────────────────────────────────────
+
+interface PermRow { feature: string; admin: boolean | string; member: boolean | string; accounts: boolean | string }
+interface PermSection { heading: string; rows: PermRow[] }
+
+const permSections: PermSection[] = [
+  {
+    heading: 'Organisation Profile',
+    rows: [
+      { feature: 'View profile',  admin: true,  member: true,  accounts: true  },
+      { feature: 'Edit profile',  admin: true,  member: false, accounts: false },
+    ],
+  },
+  {
+    heading: 'Teams & Permissions',
+    rows: [
+      { feature: 'View members',                 admin: true,           member: true,          accounts: true  },
+      { feature: 'Invite users',                 admin: true,           member: 'Invite only', accounts: false },
+      { feature: 'Action pending invites',       admin: true,           member: false,         accounts: false },
+      { feature: 'Change user roles',            admin: true,           member: false,         accounts: false },
+      { feature: 'Edit team info',               admin: true,           member: false,         accounts: false },
+      { feature: 'Create / remove teams',        admin: true,           member: false,         accounts: false },
+      { feature: 'Manage external signatories',  admin: true,           member: false,         accounts: false },
+      { feature: 'Move centres between teams',   admin: true,           member: false,         accounts: false },
+    ],
+  },
+  {
+    heading: 'Centres',
+    rows: [
+      { feature: 'View centres',               admin: true, member: true,  accounts: true  },
+      { feature: 'Add / edit / remove centres', admin: true, member: false, accounts: false },
+    ],
+  },
+  {
+    heading: 'Spaces',
+    rows: [
+      { feature: 'View spaces',               admin: true, member: true,  accounts: true  },
+      { feature: 'Add / edit / remove spaces', admin: true, member: false, accounts: false },
+    ],
+  },
+  {
+    heading: 'Payouts',
+    rows: [
+      { feature: 'View payout accounts',           admin: true, member: true,  accounts: true  },
+      { feature: 'Add / edit / remove accounts',   admin: true, member: false, accounts: false },
+    ],
+  },
+  {
+    heading: 'Notifications',
+    rows: [
+      { feature: 'View notification settings',   admin: true, member: true,  accounts: true  },
+      { feature: 'Change notification settings', admin: true, member: false, accounts: false },
+    ],
+  },
+  {
+    heading: 'Transactions',
+    rows: [
+      { feature: 'View transactions', admin: true,  member: true,  accounts: true  },
+      { feature: 'Export CSV',        admin: true,  member: false, accounts: true  },
+      { feature: 'Send reminders',    admin: true,  member: false, accounts: true  },
+    ],
+  },
+]
 
 interface CentreRaw {
   id: string

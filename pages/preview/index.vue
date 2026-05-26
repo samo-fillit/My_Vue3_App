@@ -189,18 +189,6 @@ const groups: Group[] = [
       },
     ],
   },
-  {
-    label: 'Reference',
-    pages: [
-      {
-        path: '/preview/roles',
-        label: 'Roles & Permissions',
-        description: 'Access control reference table showing what each landlord role (Admin, Member, Accounts) can do across all pages.',
-        status: 'Signed off',
-        tags: ['landlord', 'tenant'],
-      },
-    ],
-  },
 ]
 
 const totalPages = computed(() =>
