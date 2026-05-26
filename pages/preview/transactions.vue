@@ -96,7 +96,7 @@
               </button>
             </div>
             <div class="pb-2">
-              <Button variant="outline" size="sm" class="h-8 px-3 text-xs">Export CSV</Button>
+              <Button v-if="can('manage:transactions')" variant="outline" size="sm" class="h-8 px-3 text-xs">Export CSV</Button>
             </div>
           </div>
 
@@ -264,6 +264,7 @@ import {
 import AppSidebar from '@/components/app-sidebar.vue'
 import RightPanel from '@/components/right-panel.vue'
 import { useTeamContext } from '@/composables/useTeamContext'
+import { useAppContext } from '@/composables/useAppContext'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -293,6 +294,7 @@ interface Transaction {
 // ─── Teams ────────────────────────────────────────────────────────────────────
 
 const { activeTeamId } = useTeamContext()
+const { can } = useAppContext()
 
 // ─── Date range ───────────────────────────────────────────────────────────────
 

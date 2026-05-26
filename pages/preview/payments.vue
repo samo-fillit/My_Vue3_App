@@ -12,8 +12,9 @@
             <div class="flex flex-col gap-3">
               <h1 class="text-[28px] font-bold leading-8 text-foreground">Payouts</h1>
               <p class="text-base text-muted-foreground">Manage accounts and control which centres and spaces each account pays out to.</p>
+              <p v-if="!can('edit:payouts')" class="text-sm text-muted-foreground">You have view-only access to this page.</p>
             </div>
-            <div class="flex shrink-0 items-center gap-3">
+            <div v-if="can('edit:payouts')" class="flex shrink-0 items-center gap-3">
               <Button variant="outline" class="h-9 px-4 text-sm" @click="dialogOpen = true">Add account</Button>
             </div>
           </div>
@@ -49,9 +50,9 @@
                 </span>
 
                 <div class="flex shrink-0 items-center gap-1">
-                  <Button variant="outline" size="sm" class="h-8 text-xs">Manage spaces</Button>
-                  <Button variant="ghost" size="sm" class="h-8 text-xs text-muted-foreground">Edit</Button>
-                  <Button variant="ghost" size="sm" class="h-8 text-xs text-destructive hover:bg-destructive/10 hover:text-destructive">Remove</Button>
+                  <Button v-if="can('edit:payouts')" variant="outline" size="sm" class="h-8 text-xs">Manage spaces</Button>
+                  <Button v-if="can('edit:payouts')" variant="ghost" size="sm" class="h-8 text-xs text-muted-foreground">Edit</Button>
+                  <Button v-if="can('edit:payouts')" variant="ghost" size="sm" class="h-8 text-xs text-destructive hover:bg-destructive/10 hover:text-destructive">Remove</Button>
                 </div>
               </div>
 
@@ -190,8 +191,10 @@ import {
 import AppSidebar from '@/components/app-sidebar.vue'
 import { useTeamContext } from '@/composables/useTeamContext'
 import RightPanel from '@/components/right-panel.vue'
+import { useAppContext } from '@/composables/useAppContext'
 
 const { activeTeamId } = useTeamContext()
+const { can } = useAppContext()
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

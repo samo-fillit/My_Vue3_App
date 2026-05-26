@@ -14,8 +14,9 @@
               <p class="text-base text-muted-foreground">
                 Manage your shopping centre portfolio, spaces, and listing settings.
               </p>
+              <p v-if="!can('edit:centres')" class="text-sm text-muted-foreground">You have view-only access to this page.</p>
             </div>
-            <Button class="h-10 shrink-0 px-5 text-sm font-medium" @click="openAddCentre">
+            <Button v-if="can('edit:centres')" class="h-10 shrink-0 px-5 text-sm font-medium" @click="openAddCentre">
               + Add new centre
             </Button>
           </div>
@@ -117,7 +118,7 @@
                 </TableCell>
                 <TableCell class="py-3 pr-0 text-right">
                   <div class="inline-flex items-center gap-2">
-                    <Button variant="outline" size="sm" class="h-8 px-4 text-sm font-medium" @click="openEditCentre(centre)">
+                    <Button v-if="can('edit:centres')" variant="outline" size="sm" class="h-8 px-4 text-sm font-medium" @click="openEditCentre(centre)">
                       Edit centre
                     </Button>
                     <Button variant="outline" size="sm" class="h-8 px-4 text-sm font-medium" @click="viewSpaces(centre)">
@@ -534,6 +535,7 @@ import { FloatingLabelInput } from '@/components/ui/input'
 import AppSidebar from '@/components/app-sidebar.vue'
 import { useTeamContext } from '@/composables/useTeamContext'
 import RightPanel from '@/components/right-panel.vue'
+import { useAppContext } from '@/composables/useAppContext'
 
 interface Centre {
   id: string
@@ -605,6 +607,7 @@ const centres = ref<Centre[]>([])
 const teams = ref<Team[]>([])
 
 const { activeTeamId } = useTeamContext()
+const { can } = useAppContext()
 
 onMounted(async () => {
   const [centresData, teamsData] = await Promise.all([

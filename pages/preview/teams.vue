@@ -14,9 +14,10 @@
               <p class="text-base text-muted-foreground">
                 {{ isUserType('tenant') ? 'Manage your team members and roles.' : 'Manage team members, roles, and signing authorities.' }}
               </p>
+              <p v-if="isRole('member') && !isUserType('tenant')" class="text-sm text-muted-foreground">You have limited access to this page. Some actions are restricted to admins.</p>
             </div>
             <div class="flex shrink-0 items-center gap-3">
-              <Button variant="outline" class="h-10 px-5 text-sm font-medium" @click="createTeamOpen = true">
+              <Button v-if="can('create:team')" variant="outline" class="h-10 px-5 text-sm font-medium" @click="createTeamOpen = true">
                 + Create team
               </Button>
 
@@ -152,6 +153,7 @@
                   <span class="font-medium">{{ team.name }}</span>
                 </div>
                 <button
+                  v-if="can('edit:team')"
                   type="button"
                   class="rounded p-0.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                   @click.stop="openEditTeam(team)"
@@ -245,7 +247,7 @@
                         </Tooltip>
                       </TooltipProvider>
                       <button
-                        v-else
+                        v-else-if="can('change:user-roles')"
                         type="button"
                         class="group inline-flex items-center gap-1.5 text-sm text-foreground hover:font-semibold"
                         @click="openChangeRole(member)"
@@ -253,6 +255,7 @@
                         {{ member.role }}
                         <IconPencil :size="13" stroke-width="1.5" class="text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
                       </button>
+                      <span v-else class="text-sm text-foreground">{{ member.role }}</span>
                     </TableCell>
                     <TableCell class="py-3 text-center">
                       <span
@@ -264,6 +267,7 @@
                     </TableCell>
                     <TableCell v-if="!isUserType('tenant')" class="py-3 text-center">
                       <button
+                        v-if="can('manage:signatories')"
                         type="button"
                         class="group inline-flex items-center gap-1.5 text-sm hover:font-semibold"
                         :class="(member.signatoryCentres ?? []).length ? 'text-foreground' : 'text-muted-foreground'"
@@ -272,13 +276,14 @@
                         <span>{{ (member.signatoryCentres ?? []).length || '—' }}</span>
                         <IconPencil :size="13" stroke-width="1.5" class="text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
                       </button>
+                      <span v-else class="text-sm" :class="(member.signatoryCentres ?? []).length ? 'text-foreground' : 'text-muted-foreground'">{{ (member.signatoryCentres ?? []).length || '—' }}</span>
                     </TableCell>
                     <TableCell class="py-3 pr-0 text-center">
                       <div class="inline-flex items-center gap-2">
-                        <Button v-if="allTeams.length > 1" variant="outline" size="sm" class="h-8 px-4 text-sm font-medium" @click="openSwitchTeam(member)">
+                        <Button v-if="allTeams.length > 1 && can('move:centre-team')" variant="outline" size="sm" class="h-8 px-4 text-sm font-medium" @click="openSwitchTeam(member)">
                           Switch team
                         </Button>
-                        <Button variant="outline" size="sm" class="h-8 px-4 text-sm font-medium" :disabled="isLastAdmin(member)" @click="openRemoveConfirm(member)">
+                        <Button v-if="can('edit:team')" variant="outline" size="sm" class="h-8 px-4 text-sm font-medium" :disabled="isLastAdmin(member)" @click="openRemoveConfirm(member)">
                           Remove
                         </Button>
                       </div>
@@ -349,6 +354,7 @@
                     </TableCell>
                     <TableCell class="py-3 text-center">
                       <button
+                        v-if="can('change:user-roles')"
                         type="button"
                         class="group inline-flex items-center gap-1.5 text-sm text-foreground hover:font-semibold"
                         @click="openChangeRole(invite)"
@@ -356,19 +362,41 @@
                         {{ invite.role }}
                         <IconPencil :size="13" stroke-width="1.5" class="text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
                       </button>
+                      <span v-else class="text-sm text-foreground">{{ invite.role }}</span>
                     </TableCell>
                     <TableCell class="py-3 text-center text-sm text-muted-foreground">{{ invite.invitedBy }}</TableCell>
                     <TableCell class="py-3 text-center text-sm text-muted-foreground">{{ invite.sentOn }}</TableCell>
                     <TableCell class="py-3 pr-0 text-center">
                       <div v-if="invite.status === 'Pending Approval'" class="inline-flex items-center gap-2">
-                        <Button variant="outline" size="sm" class="h-8 px-4 text-sm font-medium" @click="openConfirm('decline', invite)">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          class="h-8 px-4 text-sm font-medium"
+                          :disabled="!can('action:pending-invites')"
+                          :class="!can('action:pending-invites') ? 'disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none' : ''"
+                          @click="openConfirm('decline', invite)"
+                        >
                           Decline
                         </Button>
-                        <Button size="sm" class="h-8 px-4 text-sm font-medium" @click="openConfirm('approve', invite)">
+                        <Button
+                          size="sm"
+                          class="h-8 px-4 text-sm font-medium"
+                          :disabled="!can('action:pending-invites')"
+                          :class="!can('action:pending-invites') ? 'disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none' : ''"
+                          @click="openConfirm('approve', invite)"
+                        >
                           Approve
                         </Button>
                       </div>
-                      <Button v-else variant="outline" size="sm" class="h-8 px-4 text-sm font-medium" @click="openConfirm('withdraw', invite)">
+                      <Button
+                        v-else
+                        variant="outline"
+                        size="sm"
+                        class="h-8 px-4 text-sm font-medium"
+                        :disabled="!can('action:pending-invites')"
+                        :class="!can('action:pending-invites') ? 'disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none' : ''"
+                        @click="openConfirm('withdraw', invite)"
+                      >
                         Withdraw invite
                       </Button>
                     </TableCell>
@@ -449,6 +477,7 @@
                       <TableCell class="py-3 text-center text-sm text-muted-foreground">{{ sig.addedOn }}</TableCell>
                       <TableCell class="py-3 pr-0 text-center">
                         <Button
+                          v-if="can('manage:signatories')"
                           variant="outline"
                           size="sm"
                           class="h-8 px-4 text-sm font-medium"
@@ -461,7 +490,7 @@
                   </TableBody>
                 </Table>
 
-                <Dialog v-model:open="addSignatoryOpen">
+                <Dialog v-if="can('manage:signatories')" v-model:open="addSignatoryOpen">
                   <DialogTrigger as-child>
                     <Button variant="outline" class="h-10 w-fit px-5 text-sm font-medium">
                       + Add signatory
@@ -622,7 +651,7 @@
                       </span>
                     </TableCell>
                     <TableCell class="py-3 pr-0 text-right">
-                      <Button v-if="allTeams.length > 1" variant="outline" size="sm" class="h-8 px-4 text-sm font-medium" @click="openSwitchCentreTeam(centre)">
+                      <Button v-if="allTeams.length > 1 && can('move:centre-team')" variant="outline" size="sm" class="h-8 px-4 text-sm font-medium" @click="openSwitchCentreTeam(centre)">
                         Switch team
                       </Button>
                     </TableCell>
@@ -1339,7 +1368,7 @@ import { useAppContext } from '@/composables/useAppContext'
 import { useTeamContext } from '@/composables/useTeamContext'
 
 const { pushNotification } = useRightPanel()
-const { isUserType } = useAppContext()
+const { isUserType, can, isRole } = useAppContext()
 const { activeTeamId, setActiveTeam } = useTeamContext()
 
 // ── Country flag helper ───────────────────────────────────────

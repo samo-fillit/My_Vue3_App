@@ -9,7 +9,7 @@ import AppSidebar from '@/components/app-sidebar.vue'
 import RightPanel from '@/components/right-panel.vue'
 import { useAppContext } from '@/composables/useAppContext'
 
-const { isUserType } = useAppContext()
+const { isUserType, can } = useAppContext()
 
 // ── Form state ────────────────────────────────────────────────────────────────
 const form = ref({
@@ -101,6 +101,7 @@ const countries = [
                 ? 'Your brand profile is shown to landlords and used to match you with relevant spaces.'
                 : 'This information represents your organisation across the platform and on landlord communications.' }}
             </p>
+            <p v-if="!can('edit:org-profile')" class="text-sm text-muted-foreground">You have view-only access to this page.</p>
           </div>
 
           <!-- Logo -->
@@ -116,7 +117,7 @@ const countries = [
               </div>
               <!-- Upload controls -->
               <div class="flex flex-col gap-3">
-                <div class="flex items-center gap-3">
+                <div v-if="can('edit:org-profile')" class="flex items-center gap-3">
                   <input
                     ref="logoInput"
                     type="file"
@@ -153,8 +154,9 @@ const countries = [
                 v-model="form.brandName"
                 :label="isUserType('tenant') ? 'Brand name' : 'Company name'"
                 :required="true"
+                :disabled="!can('edit:org-profile')"
               />
-              <FloatingLabelInput v-model="form.website" label="Website" type="url" />
+              <FloatingLabelInput v-model="form.website" label="Website" type="url" :disabled="!can('edit:org-profile')" />
             </div>
           </section>
 
@@ -162,8 +164,8 @@ const countries = [
           <section class="flex flex-col gap-8">
             <h3 class="text-xl font-semibold tracking-tight text-foreground">Location</h3>
             <div class="flex flex-col gap-4">
-              <FloatingLabelInput v-model="form.city" label="City" :required="true" />
-              <FloatingLabelSelect v-model="form.country" label="Country" :required="true">
+              <FloatingLabelInput v-model="form.city" label="City" :required="true" :disabled="!can('edit:org-profile')" />
+              <FloatingLabelSelect v-model="form.country" label="Country" :required="true" :disabled="!can('edit:org-profile')">
                 <SelectItem v-for="c in countries" :key="c" :value="c">{{ c }}</SelectItem>
               </FloatingLabelSelect>
             </div>
@@ -207,7 +209,7 @@ const countries = [
             </div>
           </section>
 
-          <Button class="h-14 min-w-[120px] self-start rounded-lg px-6">
+          <Button v-if="can('edit:org-profile')" class="h-14 min-w-[120px] self-start rounded-lg px-6">
             Save changes
           </Button>
 

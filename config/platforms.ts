@@ -29,24 +29,44 @@ export type FeatureId = NavItemId | OrgItemId
 // Used by can() in useAppContext.
 
 export type Permission =
-  | 'manage:team'
-  | 'manage:payouts'
-  | 'manage:spaces'
-  | 'manage:centres'
-  | 'view:transactions'
+  // org-profile
+  | 'edit:org-profile'
+  // teams
+  | 'invite:users'
+  | 'action:pending-invites'
+  | 'move:centre-team'
+  | 'manage:signatories'
+  | 'edit:team'
+  | 'create:team'
+  | 'change:user-roles'
+  // centres / spaces / payouts
+  | 'edit:centres'
+  | 'edit:spaces'
+  | 'edit:payouts'
+  // notifications
+  | 'edit:notifications'
+  // transactions
+  | 'manage:transactions'
+  // legacy (keep existing ones)
   | 'view:analytics'
   | 'manage:crm'
-  | 'export:data'
 
 export const rolePermissions: Record<Permission, Role[]> = {
-  'manage:team':       ['admin'],
-  'manage:payouts':    ['admin', 'accounts'],
-  'manage:spaces':     ['admin'],
-  'manage:centres':    ['admin'],
-  'view:transactions': ['admin', 'accounts'],
-  'view:analytics':    ['admin', 'accounts', 'member'],
-  'manage:crm':        ['admin', 'member'],
-  'export:data':       ['admin', 'accounts'],
+  'edit:org-profile':       ['admin'],
+  'invite:users':           ['admin', 'member'],
+  'action:pending-invites': ['admin'],
+  'move:centre-team':       ['admin'],
+  'manage:signatories':     ['admin'],
+  'edit:team':              ['admin'],
+  'create:team':            ['admin'],
+  'change:user-roles':      ['admin'],
+  'edit:centres':           ['admin'],
+  'edit:spaces':            ['admin'],
+  'edit:payouts':           ['admin'],
+  'edit:notifications':     ['admin'],
+  'manage:transactions':    ['admin', 'accounts'],
+  'view:analytics':         ['admin', 'accounts', 'member'],
+  'manage:crm':             ['admin', 'member'],
 }
 
 // ─── Platform × UserType config ───────────────────────────────────────────────

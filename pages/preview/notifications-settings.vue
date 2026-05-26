@@ -8,7 +8,7 @@ import AppSidebar from '@/components/app-sidebar.vue'
 import RightPanel from '@/components/right-panel.vue'
 import { useAppContext } from '@/composables/useAppContext'
 
-const { isUserType } = useAppContext()
+const { isUserType, can } = useAppContext()
 
 // ── Landlord notifications ────────────────────────────────────────────────────
 const landlordRequired = [
@@ -140,7 +140,10 @@ function save() {
       <div class="flex-1 overflow-y-auto px-24 py-12">
         <div class="mx-auto flex w-full max-w-[1200px] flex-col gap-12">
 
-          <h1 class="text-[28px] font-bold leading-8 text-foreground">Notifications</h1>
+          <div class="flex flex-col gap-3">
+            <h1 class="text-[28px] font-bold leading-8 text-foreground">Notifications</h1>
+            <p v-if="!can('edit:notifications')" class="text-sm text-muted-foreground">You have view-only access to this page.</p>
+          </div>
 
           <!-- Required -->
           <section class="flex flex-col gap-8">
@@ -154,7 +157,7 @@ function save() {
                   <p class="text-sm font-medium text-foreground">{{ item.label }}</p>
                   <p class="text-sm text-muted-foreground">{{ item.description }}</p>
                 </div>
-                <Switch :default-value="true" disabled class="shrink-0" />
+                <Switch :default-value="true" disabled class="shrink-0" :disabled="true" />
               </div>
             </div>
           </section>
@@ -173,12 +176,12 @@ function save() {
                   <p class="text-sm font-medium text-foreground">{{ item.label }}</p>
                   <p class="text-sm text-muted-foreground">{{ item.description }}</p>
                 </div>
-                <Switch :default-value="item.enabled" class="shrink-0" @update:model-value="(val) => item.enabled = val as boolean" />
+                <Switch :default-value="item.enabled" class="shrink-0" :disabled="!can('edit:notifications')" @update:model-value="(val) => { if (can('edit:notifications')) item.enabled = val as boolean }" />
               </div>
             </div>
           </section>
 
-          <div>
+          <div v-if="can('edit:notifications')">
             <Button class="h-14 min-w-[120px] self-start rounded-lg px-6" @click="save">Save preferences</Button>
           </div>
 

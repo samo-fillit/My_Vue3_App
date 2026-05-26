@@ -14,8 +14,9 @@
               <p class="text-base text-muted-foreground">
                 Manage spaces across your shopping centre portfolio.
               </p>
+              <p v-if="!can('edit:spaces')" class="text-sm text-muted-foreground">You have view-only access to this page.</p>
             </div>
-            <Button class="h-10 shrink-0 px-5 text-sm font-medium" @click="openAddSpace">
+            <Button v-if="can('edit:spaces')" class="h-10 shrink-0 px-5 text-sm font-medium" @click="openAddSpace">
               + Add new space
             </Button>
           </div>
@@ -151,7 +152,7 @@
                     </span>
                   </TableCell>
                   <TableCell class="py-3 pr-0 text-right">
-                    <div class="inline-flex items-center gap-2">
+                    <div v-if="can('edit:spaces')" class="inline-flex items-center gap-2">
                       <Button variant="outline" size="sm" class="h-8 px-4 text-sm font-medium" @click="openEditSpace(space)">
                         Edit space
                       </Button>
@@ -476,6 +477,7 @@ import { FloatingLabelInput } from '@/components/ui/input'
 import AppSidebar from '@/components/app-sidebar.vue'
 import RightPanel from '@/components/right-panel.vue'
 import { useTeamContext } from '@/composables/useTeamContext'
+import { useAppContext } from '@/composables/useAppContext'
 
 interface Space {
   id: string
@@ -523,6 +525,7 @@ const selectedCentreId = ref('')
 const centreAutoSelected = ref(false)
 
 const { activeTeamId } = useTeamContext()
+const { can } = useAppContext()
 
 onMounted(async () => {
   const [spacesData, centresData, teamsData] = await Promise.all([
