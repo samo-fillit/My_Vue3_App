@@ -8,6 +8,13 @@ if (process.platform === 'darwin' && !process.env.CHOKIDAR_USEPOLLING) {
 export default defineNuxtConfig({
   compatibilityDate: '2024-04-03',
   devtools: { enabled: false },
+
+  // Server-side runtime config — not exposed to the browser
+  runtimeConfig: {
+    // Override with RAILS_URL env var when running against staging/prod
+    railsBaseUrl: process.env.RAILS_URL || 'http://localhost:3000',
+  },
+
   css: ['~/assets/css/tailwind.css', 'flag-icons/css/flag-icons.min.css'],
   components: [
     // Skip components/ui/ — shadcn-vue components are imported explicitly

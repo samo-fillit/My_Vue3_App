@@ -187,6 +187,20 @@ const groups: Group[] = [
         status: 'Signed off',
         tags: ['landlord', 'fillit', 'eleaseloop'],
       },
+      {
+        path: '/preview/invoices',
+        label: 'Transactions (tenant)',
+        description: 'Tenant-side transaction history with status filter, date range picker, sortable table, and change payment method overlay.',
+        status: 'In progress',
+        tags: ['tenant'],
+      },
+      {
+        path: '/preview/booking-links',
+        label: 'Booking links',
+        description: 'Create direct booking invitations for tenants and track their status — sent, declined, or completed.',
+        status: 'In progress',
+        tags: ['landlord'],
+      },
     ],
   },
 ]

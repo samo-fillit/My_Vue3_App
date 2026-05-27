@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, resolveComponent } from 'vue'
+import { LOCALE_OPTIONS, PLATFORM_LOCALES, type SupportedLocale } from '@/config/locales'
+import { useLocale } from '@/composables/useLocale'
 import {
   IconLayoutGrid,
   IconBook,
@@ -20,6 +22,7 @@ import {
   IconChartBar,
   IconAddressBook,
   IconFileInvoice,
+  IconX,
 } from '@tabler/icons-vue'
 import { useRightPanel } from '@/composables/useRightPanel'
 import { useAppContext } from '@/composables/useAppContext'
@@ -48,10 +51,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { Button } from '@/components/ui/button'
 
 const panel = useRightPanel()
 const { context: appContext, activeNav, activeOrg } = useAppContext()
 const { teams, activeTeam, setActiveTeam } = useTeamContext()
+const { locale, setLocale } = useLocale()
 const NuxtLink = resolveComponent('NuxtLink')
 
 const teamSwitcherOpen = ref(false)
@@ -70,10 +75,10 @@ const allMainNav = [
   { id: 'bookings',     icon: IconBook,         label: 'Bookings' },
   { id: 'calendar',     icon: IconCalendar,     label: 'Calendar' },
   { id: 'messages',     icon: IconMessage,      label: 'Messages', badge: 3 },
-  { id: 'create-link',  icon: IconLink,         label: 'Create Link' },
+  { id: 'create-link',  icon: IconLink,         label: 'Booking links', route: '/preview/booking-links' },
   { id: 'transactions', icon: IconReceipt,      label: 'Transactions', route: '/preview/transactions' },
   // Tenant only
-  { id: 'invoices',     icon: IconFileInvoice,  label: 'Invoices',     route: '/preview/invoices' },
+  { id: 'invoices',     icon: IconFileInvoice,  label: 'Transactions', route: '/preview/invoices' },
   // Enterprise (eLeaseLoop) only
   { id: 'analytics',    icon: IconChartBar,     label: 'Analytics',    route: '/preview/analytics' },
   { id: 'crm',          icon: IconAddressBook,  label: 'CRM',          route: '/preview/crm' },
@@ -103,6 +108,35 @@ const footerLinks = [
   { id: 'search-spaces', icon: IconMap,   label: 'Search spaces' },
   { id: 'language',      icon: IconWorld, label: 'Language' },
 ]
+
+// ── Language overlay ──────────────────────────────────────────────────────────
+
+const languageOpen  = ref(false)
+const pendingLocale = ref<SupportedLocale>(locale.value)
+
+// For eLeaseLoop: show English + the active country team's local language.
+// For Fillit: always English + Spanish.
+const availableLocales = computed(() => {
+  if (appContext.value.platform === 'eleaseloop') {
+    const teamCountryLocale = activeTeam.value?.countryLocale
+    const localLocale = teamCountryLocale ?? null
+    const localeIds: SupportedLocale[] = localLocale
+      ? ['en', localLocale]
+      : PLATFORM_LOCALES.eleaseloop
+    return localeIds.map(id => LOCALE_OPTIONS[id])
+  }
+  return PLATFORM_LOCALES.fillit.map(id => LOCALE_OPTIONS[id])
+})
+
+function openLanguage() {
+  pendingLocale.value = locale.value
+  languageOpen.value  = true
+}
+
+function saveLanguage() {
+  setLocale(pendingLocale.value)
+  languageOpen.value = false
+}
 </script>
 
 <template>
@@ -113,7 +147,7 @@ const footerLinks = [
         <img
           :src="appContext.platform === 'eleaseloop' ? '/eleaseloop-logo.svg' : '/fillit-logo.svg'"
           :alt="appContext.platform === 'eleaseloop' ? 'eLeaseLoop' : 'Fillit'"
-          width="56" height="42" class="block shrink-0"
+          class="block h-[42px] w-auto shrink-0"
         />
       </div>
     </SidebarHeader>
@@ -131,7 +165,7 @@ const footerLinks = [
                 :class="teams.length > 1 ? 'hover:bg-sidebar-accent cursor-pointer' : 'cursor-default'"
               >
                 <div
-                  class="flex h-6 w-6 shrink-0 items-center justify-center rounded text-[11px] font-bold text-white"
+                  class="flex h-4 w-4 shrink-0 items-center justify-center rounded text-[9px] font-bold text-white"
                   :style="{ backgroundColor: activeTeam?.color ?? '#6b7280' }"
                 >
                   {{ activeTeam?.name.charAt(0).toUpperCase() ?? '?' }}
@@ -223,9 +257,12 @@ const footerLinks = [
         <SidebarGroupContent>
           <SidebarMenu>
             <SidebarMenuItem v-for="item in footerLinks" :key="item.id">
-              <SidebarMenuButton>
+              <SidebarMenuButton @click="item.id === 'language' && openLanguage()">
                 <component :is="item.icon" stroke-width="1.5" />
                 <span>{{ item.label }}</span>
+                <span v-if="item.id === 'language' && locale !== 'en'" class="ml-auto text-[11px] font-medium uppercase text-sidebar-foreground/50">
+                  {{ locale }}
+                </span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
@@ -289,4 +326,85 @@ const footerLinks = [
     </SidebarFooter>
 
   </Sidebar>
+
+  <!-- ── Language overlay ──────────────────────────────────────────────── -->
+  <Teleport to="body">
+    <Transition name="lang-modal">
+      <div v-if="languageOpen" class="fixed inset-0 z-50 flex items-center justify-center p-12">
+        <div class="fixed inset-0 bg-black/50" @click="languageOpen = false" />
+        <div class="relative z-10 w-full max-w-[400px] rounded-xl border border-border bg-background shadow-2xl">
+
+          <!-- Header -->
+          <div class="flex items-start justify-between border-b border-border px-6 py-5">
+            <div>
+              <h2 class="text-lg font-semibold text-foreground">Display language</h2>
+              <p v-if="appContext.platform === 'eleaseloop' && activeTeam?.country" class="mt-0.5 text-sm text-muted-foreground">
+                {{ activeTeam.name }} team
+              </p>
+            </div>
+            <button
+              type="button"
+              class="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              @click="languageOpen = false"
+            >
+              <IconX :size="18" stroke-width="1.5" />
+            </button>
+          </div>
+
+          <!-- Language options -->
+          <div class="flex flex-col gap-2 px-6 py-5">
+            <button
+              v-for="option in availableLocales"
+              :key="option.value"
+              type="button"
+              class="flex w-full items-center gap-4 rounded-lg border px-4 py-3 text-left transition-colors"
+              :class="pendingLocale === option.value
+                ? 'border-foreground bg-muted/40'
+                : 'border-border hover:bg-muted/30'"
+              @click="pendingLocale = option.value"
+            >
+              <span class="text-2xl leading-none">{{ option.flag }}</span>
+              <div class="flex flex-1 flex-col gap-0.5">
+                <span class="text-sm font-medium text-foreground">{{ option.label }}</span>
+                <span v-if="option.nativeLabel !== option.label" class="text-xs text-muted-foreground">
+                  {{ option.nativeLabel }}
+                </span>
+              </div>
+              <div
+                class="flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 transition-colors"
+                :class="pendingLocale === option.value ? 'border-foreground' : 'border-border'"
+              >
+                <div v-if="pendingLocale === option.value" class="h-2 w-2 rounded-full bg-foreground" />
+              </div>
+            </button>
+          </div>
+
+          <!-- Footer -->
+          <div class="flex items-center justify-end gap-3 border-t border-border px-6 py-5">
+            <Button variant="ghost" size="sm" @click="languageOpen = false">Cancel</Button>
+            <Button
+              size="sm"
+              class="px-5"
+              :disabled="pendingLocale === locale"
+              @click="saveLanguage"
+            >
+              Save
+            </Button>
+          </div>
+
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
 </template>
+
+<style scoped>
+.lang-modal-enter-active,
+.lang-modal-leave-active {
+  transition: opacity 0.18s ease;
+}
+.lang-modal-enter-from,
+.lang-modal-leave-to {
+  opacity: 0;
+}
+</style>

@@ -17,7 +17,7 @@
               <Tooltip>
                 <TooltipTrigger as-child>
                   <span :class="!can('edit:payouts') ? 'cursor-not-allowed' : ''">
-                    <Button variant="outline" class="h-9 shrink-0 px-4 text-sm disabled:pointer-events-none" :disabled="!can('edit:payouts')" @click="dialogOpen = true">Add account</Button>
+                    <Button variant="outline" size="sm" class="shrink-0 disabled:pointer-events-none" :disabled="!can('edit:payouts')" @click="dialogOpen = true">Add account</Button>
                   </span>
                 </TooltipTrigger>
                 <TooltipContent v-if="!can('edit:payouts')" side="bottom">
@@ -62,7 +62,7 @@
                     <Tooltip>
                       <TooltipTrigger as-child>
                         <span :class="!can('edit:payouts') ? 'cursor-not-allowed' : ''">
-                          <Button variant="outline" size="sm" class="h-8 text-xs disabled:pointer-events-none" :disabled="!can('edit:payouts')">Manage spaces</Button>
+                          <Button variant="outline" size="sm" class="disabled:pointer-events-none" :disabled="!can('edit:payouts')">Manage spaces</Button>
                         </span>
                       </TooltipTrigger>
                       <TooltipContent v-if="!can('edit:payouts')" side="top">
@@ -74,7 +74,7 @@
                     <Tooltip>
                       <TooltipTrigger as-child>
                         <span :class="!can('edit:payouts') ? 'cursor-not-allowed' : ''">
-                          <Button variant="ghost" size="sm" class="h-8 text-xs text-muted-foreground disabled:pointer-events-none" :disabled="!can('edit:payouts')">Edit</Button>
+                          <Button variant="ghost" size="sm" class="text-muted-foreground disabled:pointer-events-none" :disabled="!can('edit:payouts')">Edit</Button>
                         </span>
                       </TooltipTrigger>
                       <TooltipContent v-if="!can('edit:payouts')" side="top">
@@ -86,7 +86,7 @@
                     <Tooltip>
                       <TooltipTrigger as-child>
                         <span :class="!can('edit:payouts') ? 'cursor-not-allowed' : ''">
-                          <Button variant="ghost" size="sm" class="h-8 text-xs text-destructive hover:bg-destructive/10 hover:text-destructive disabled:pointer-events-none" :disabled="!can('edit:payouts')">Remove</Button>
+                          <Button variant="ghost" size="sm" class="text-destructive hover:bg-destructive/10 hover:text-destructive disabled:pointer-events-none" :disabled="!can('edit:payouts')">Remove</Button>
                         </span>
                       </TooltipTrigger>
                       <TooltipContent v-if="!can('edit:payouts')" side="top">
@@ -199,8 +199,8 @@
       </form>
 
       <DialogFooter class="shrink-0 gap-2">
-        <Button variant="ghost" @click="dialogOpen = false">Cancel</Button>
-        <Button @click="handleSave">Save account</Button>
+        <Button variant="ghost" size="sm" @click="dialogOpen = false">Cancel</Button>
+        <Button size="sm" @click="handleSave">Save account</Button>
       </DialogFooter>
     </DialogContent>
   </Dialog>

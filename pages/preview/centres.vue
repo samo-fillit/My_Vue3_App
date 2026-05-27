@@ -19,7 +19,7 @@
               <Tooltip>
                 <TooltipTrigger as-child>
                   <span :class="!can('edit:centres') ? 'cursor-not-allowed' : ''">
-                    <Button class="h-10 shrink-0 px-5 text-sm font-medium disabled:pointer-events-none" :disabled="!can('edit:centres')" @click="openAddCentre">
+                    <Button size="sm" class="shrink-0 disabled:pointer-events-none" :disabled="!can('edit:centres')" @click="openAddCentre">
                       + Add new centre
                     </Button>
                   </span>
@@ -132,7 +132,7 @@
                       <Tooltip>
                         <TooltipTrigger as-child>
                           <span :class="!can('edit:centres') ? 'cursor-not-allowed' : ''">
-                            <Button variant="outline" size="sm" class="h-8 px-4 text-sm font-medium disabled:pointer-events-none" :disabled="!can('edit:centres')" @click="openEditCentre(centre)">
+                            <Button variant="outline" size="sm" class="disabled:pointer-events-none" :disabled="!can('edit:centres')" @click="openEditCentre(centre)">
                               Edit centre
                             </Button>
                           </span>
@@ -142,7 +142,7 @@
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
-                    <Button variant="outline" size="sm" class="h-8 px-4 text-sm font-medium" @click="viewSpaces(centre)">
+                    <Button variant="outline" size="sm" @click="viewSpaces(centre)">
                       View spaces
                     </Button>
                   </div>
@@ -183,7 +183,7 @@
 
                 <!-- Team -->
                 <section class="flex flex-col gap-6">
-                  <h3 class="text-base font-semibold text-foreground/70">Team</h3>
+                  <h3 class="text-sm font-semibold text-foreground">Team</h3>
                   <FloatingLabelSelect
                     v-model="editDraft.teamId"
                     label="Assigned team"
@@ -227,7 +227,7 @@
 
                 <!-- Identity -->
                 <section class="flex flex-col gap-6">
-                  <h3 class="text-base font-semibold text-foreground/70">Identity</h3>
+                  <h3 class="text-sm font-semibold text-foreground">Identity</h3>
                   <div class="flex flex-col gap-5">
 
                     <!-- Logo upload -->
@@ -296,7 +296,7 @@
 
                 <!-- Details -->
                 <section class="flex flex-col gap-6">
-                  <h3 class="text-base font-semibold text-foreground/70">Details</h3>
+                  <h3 class="text-sm font-semibold text-foreground">Details</h3>
                   <div class="grid grid-cols-2 gap-5">
                     <FloatingLabelInput v-model.number="editDraft.totalSqm" label="Total size (sqm)" type="number" :required="true" />
                     <FloatingLabelInput v-model.number="editDraft.numberOfStores" label="Number of stores" type="number" :required="true" />
@@ -309,7 +309,7 @@
 
                 <!-- Amenities -->
                 <section class="flex flex-col gap-6">
-                  <h3 class="text-base font-semibold text-foreground/70">Amenities</h3>
+                  <h3 class="text-sm font-semibold text-foreground">Amenities</h3>
                   <div class="flex flex-wrap gap-2">
                     <button
                       v-for="amenity in allAmenities"
@@ -334,7 +334,7 @@
                       class="h-9 flex-1 rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-foreground focus:border-[1.5px]"
                       @keydown.enter.prevent="addAmenity"
                     />
-                    <Button variant="outline" size="sm" class="h-9 px-4 text-sm" :disabled="!newAmenity.trim()" @click="addAmenity">
+                    <Button variant="outline" size="sm" :disabled="!newAmenity.trim()" @click="addAmenity">
                       Add
                     </Button>
                   </div>
@@ -345,7 +345,7 @@
                 <!-- Images -->
                 <section class="flex flex-col gap-6">
                   <div>
-                    <h3 class="text-base font-semibold text-foreground/70">Images</h3>
+                    <h3 class="text-sm font-semibold text-foreground">Images</h3>
                     <p class="mt-1 text-xs text-muted-foreground">At least 1 image required.<span class="ml-0.5">*</span></p>
                   </div>
                   <div class="flex flex-wrap gap-3">
@@ -389,7 +389,7 @@
 
                 <!-- Address -->
                 <section class="flex flex-col gap-6">
-                  <h3 class="text-base font-semibold text-foreground/70">Address</h3>
+                  <h3 class="text-sm font-semibold text-foreground">Address</h3>
                   <div class="grid grid-cols-2 gap-5">
                     <div class="col-span-2">
                       <FloatingLabelInput v-model="editDraft.address" label="Street address" :required="true" />
@@ -409,7 +409,7 @@
                 <!-- Signatories -->
                 <section class="flex flex-col gap-6">
                   <div>
-                    <h3 class="text-base font-semibold text-foreground/70">User signatories</h3>
+                    <h3 class="text-sm font-semibold text-foreground">User signatories</h3>
                     <p class="mt-1 text-xs text-muted-foreground">At least one required. Must be a team member with signatory permission.</p>
                   </div>
                   <div class="flex flex-col gap-3">
@@ -434,13 +434,13 @@
                         <IconTrash :size="16" stroke-width="1.5" />
                       </button>
                     </div>
-                    <Button variant="ghost" size="sm" class="w-fit px-4 text-sm text-muted-foreground hover:text-foreground" @click="editDraft.userSignatories.push('')">
+                    <Button variant="ghost" size="sm" class="w-fit text-muted-foreground hover:text-foreground" @click="editDraft.userSignatories.push('')">
                       + Add signatory
                     </Button>
                   </div>
 
                   <div>
-                    <h3 class="text-base font-semibold text-foreground/70">External signatories</h3>
+                    <h3 class="text-sm font-semibold text-foreground">External signatories</h3>
                     <p class="mt-1 text-xs text-muted-foreground">Optional. External parties authorised to sign on behalf of this centre.</p>
                   </div>
                   <div class="flex flex-col gap-3">
@@ -463,7 +463,7 @@
                         <IconTrash :size="16" stroke-width="1.5" />
                       </button>
                     </div>
-                    <Button variant="ghost" size="sm" class="w-fit px-4 text-sm text-muted-foreground hover:text-foreground" @click="editDraft.externalSignatories.push('')">
+                    <Button variant="ghost" size="sm" class="w-fit text-muted-foreground hover:text-foreground" @click="editDraft.externalSignatories.push('')">
                       + Add external signatory
                     </Button>
                   </div>
@@ -475,10 +475,10 @@
 
           <!-- Footer -->
           <div class="flex shrink-0 items-center justify-end gap-3 border-t border-border px-8 py-5">
-            <Button variant="outline" class="h-10 px-5 text-sm font-medium" @click="editCentreOpen = false">
+            <Button variant="outline" size="sm" @click="editCentreOpen = false">
               Cancel
             </Button>
-            <Button class="h-10 px-5 text-sm font-medium" :disabled="!isFormValid" @click="saveEditCentre">
+            <Button size="sm" :disabled="!isFormValid" @click="saveEditCentre">
               {{ modalMode === 'create' ? 'Add centre' : 'Save changes' }}
             </Button>
           </div>

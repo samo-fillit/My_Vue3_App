@@ -19,7 +19,7 @@
               <Tooltip>
                 <TooltipTrigger as-child>
                   <span :class="!can('edit:spaces') ? 'cursor-not-allowed' : ''">
-                    <Button class="h-10 shrink-0 px-5 text-sm font-medium disabled:pointer-events-none" :disabled="!can('edit:spaces')" @click="openAddSpace">
+                    <Button size="sm" class="shrink-0 disabled:pointer-events-none" :disabled="!can('edit:spaces')" @click="openAddSpace">
                       + Add new space
                     </Button>
                   </span>
@@ -167,7 +167,7 @@
                         <Tooltip>
                           <TooltipTrigger as-child>
                             <span :class="!can('edit:spaces') ? 'cursor-not-allowed' : ''">
-                              <Button variant="outline" size="sm" class="h-8 px-4 text-sm font-medium disabled:pointer-events-none" :disabled="!can('edit:spaces')" @click="openEditSpace(space)">
+                              <Button variant="outline" size="sm" class="disabled:pointer-events-none" :disabled="!can('edit:spaces')" @click="openEditSpace(space)">
                                 Edit space
                               </Button>
                             </span>
@@ -184,7 +184,7 @@
                               <Button
                                 variant="outline"
                                 size="sm"
-                                class="h-8 px-4 text-sm font-medium disabled:pointer-events-none"
+                                class="disabled:pointer-events-none"
                                 :disabled="!can('edit:spaces')"
                                 @click="promptToggleListed(space)"
                               >
@@ -243,10 +243,10 @@
             </p>
           </div>
           <div class="flex items-center justify-end gap-3 border-t border-border px-6 py-5">
-            <Button variant="outline" class="h-10 px-5 text-sm font-medium" @click="confirmListingOpen = false">
+            <Button variant="outline" size="sm" @click="confirmListingOpen = false">
               Cancel
             </Button>
-            <Button class="h-10 px-5 text-sm font-medium" @click="confirmToggleListed">
+            <Button size="sm" @click="confirmToggleListed">
               {{ confirmListingSpace?.listed === false ? 'List space' : 'Unlist space' }}
             </Button>
           </div>
@@ -423,7 +423,7 @@
                       class="h-9 flex-1 rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-foreground focus:border-[1.5px]"
                       @keydown.enter.prevent="addSpaceAmenity"
                     />
-                    <Button variant="outline" size="sm" class="h-9 px-4 text-sm" :disabled="!newSpaceAmenity.trim()" @click="addSpaceAmenity">
+                    <Button variant="outline" size="sm" :disabled="!newSpaceAmenity.trim()" @click="addSpaceAmenity">
                       Add
                     </Button>
                   </div>
@@ -435,10 +435,10 @@
 
           <!-- Footer -->
           <div class="flex shrink-0 items-center justify-end gap-3 border-t border-border px-8 py-5">
-            <Button variant="outline" class="h-10 px-5 text-sm font-medium" @click="editSpaceOpen = false">
+            <Button variant="outline" size="sm" @click="editSpaceOpen = false">
               Cancel
             </Button>
-            <Button class="h-10 px-5 text-sm font-medium" :disabled="!isSpaceFormValid" @click="saveSpaceEdit">
+            <Button size="sm" :disabled="!isSpaceFormValid" @click="saveSpaceEdit">
               {{ spaceModalMode === 'create' ? 'Add space' : 'Save changes' }}
             </Button>
           </div>

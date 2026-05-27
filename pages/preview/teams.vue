@@ -20,7 +20,7 @@
                 <Tooltip>
                   <TooltipTrigger as-child>
                     <span :class="!can('create:team') ? 'cursor-not-allowed' : ''">
-                      <Button variant="outline" class="h-10 px-5 text-sm font-medium disabled:pointer-events-none" :disabled="!can('create:team')" @click="createTeamOpen = true">
+                      <Button variant="outline" size="sm" class="disabled:pointer-events-none" :disabled="!can('create:team')" @click="createTeamOpen = true">
                         + Create team
                       </Button>
                     </span>
@@ -37,7 +37,7 @@
                     <TooltipTrigger as-child>
                       <span :class="!can('invite:users') ? 'cursor-not-allowed' : ''">
                         <DialogTrigger as-child>
-                          <Button class="h-10 px-5 text-sm font-medium disabled:pointer-events-none" :disabled="!can('invite:users')">
+                          <Button size="sm" class="disabled:pointer-events-none" :disabled="!can('invite:users')">
                             + Invite user
                           </Button>
                         </DialogTrigger>
@@ -123,10 +123,10 @@
                     </div>
                   </div>
                   <DialogFooter>
-                    <Button variant="outline" class="h-10 px-5 text-sm font-medium" @click="inviteUserOpen = false">
+                    <Button variant="outline" size="sm" @click="inviteUserOpen = false">
                       Cancel
                     </Button>
-                    <Button class="h-10 px-5 text-sm font-medium" @click="sendInvite">
+                    <Button size="sm" @click="sendInvite">
                       Send invite
                     </Button>
                   </DialogFooter>
@@ -341,7 +341,7 @@
                           <Tooltip>
                             <TooltipTrigger as-child>
                               <span :class="!can('move:centre-team') ? 'cursor-not-allowed' : ''">
-                                <Button variant="outline" size="sm" class="h-8 px-4 text-sm font-medium disabled:pointer-events-none" :disabled="!can('move:centre-team')" @click="openSwitchTeam(member)">
+                                <Button variant="outline" size="sm" class="disabled:pointer-events-none" :disabled="!can('move:centre-team')" @click="openSwitchTeam(member)">
                                   Switch team
                                 </Button>
                               </span>
@@ -355,7 +355,7 @@
                           <Tooltip>
                             <TooltipTrigger as-child>
                               <span :class="(!can('edit:team') || isLastAdmin(member)) ? 'cursor-not-allowed' : ''">
-                                <Button variant="outline" size="sm" class="h-8 px-4 text-sm font-medium disabled:pointer-events-none" :disabled="!can('edit:team') || isLastAdmin(member)" @click="openRemoveConfirm(member)">
+                                <Button variant="outline" size="sm" class="disabled:pointer-events-none" :disabled="!can('edit:team') || isLastAdmin(member)" @click="openRemoveConfirm(member)">
                                   Remove
                                 </Button>
                               </span>
@@ -464,7 +464,7 @@
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  class="h-8 px-4 text-sm font-medium disabled:pointer-events-none"
+                                  class="disabled:pointer-events-none"
                                   :disabled="!can('action:pending-invites')"
                                   @click="openConfirm('decline', invite)"
                                 >
@@ -483,7 +483,7 @@
                               <span :class="!can('action:pending-invites') ? 'cursor-not-allowed' : ''">
                                 <Button
                                   size="sm"
-                                  class="h-8 px-4 text-sm font-medium disabled:pointer-events-none"
+                                  class="disabled:pointer-events-none"
                                   :disabled="!can('action:pending-invites')"
                                   @click="openConfirm('approve', invite)"
                                 >
@@ -504,7 +504,7 @@
                               <Button
                                 variant="outline"
                                 size="sm"
-                                class="h-8 px-4 text-sm font-medium disabled:pointer-events-none"
+                                class="disabled:pointer-events-none"
                                 :disabled="!can('action:pending-invites')"
                                 @click="openConfirm('withdraw', invite)"
                               >
@@ -613,7 +613,7 @@
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  class="h-8 px-4 text-sm font-medium disabled:pointer-events-none"
+                                  class="disabled:pointer-events-none"
                                   :disabled="!can('manage:signatories')"
                                   @click="openRemoveSignatoryConfirm(sig)"
                                 >
@@ -637,7 +637,7 @@
                       <TooltipTrigger as-child>
                         <span :class="!can('manage:signatories') ? 'cursor-not-allowed' : ''">
                           <DialogTrigger as-child>
-                            <Button variant="outline" class="h-10 w-fit px-5 text-sm font-medium disabled:pointer-events-none" :disabled="!can('manage:signatories')">
+                            <Button variant="outline" size="sm" class="disabled:pointer-events-none" :disabled="!can('manage:signatories')">
                               + Add signatory
                             </Button>
                           </DialogTrigger>
@@ -711,12 +711,12 @@
                     <DialogFooter>
                       <Button
                         variant="outline"
-                        class="h-10 px-5 text-sm font-medium"
+                        size="sm"
                         @click="addSignatoryOpen = false"
                       >
                         Cancel
                       </Button>
-                      <Button class="h-10 px-5 text-sm font-medium" @click="addSignatory">
+                      <Button size="sm" @click="addSignatory">
                         Add signatory
                       </Button>
                     </DialogFooter>
@@ -807,7 +807,7 @@
                         <Tooltip>
                           <TooltipTrigger as-child>
                             <span :class="!can('move:centre-team') ? 'cursor-not-allowed' : ''">
-                              <Button variant="outline" size="sm" class="h-8 px-4 text-sm font-medium disabled:pointer-events-none" :disabled="!can('move:centre-team')" @click="openSwitchCentreTeam(centre)">
+                              <Button variant="outline" size="sm" class="disabled:pointer-events-none" :disabled="!can('move:centre-team')" @click="openSwitchCentreTeam(centre)">
                                 Switch team
                               </Button>
                             </span>
@@ -880,7 +880,8 @@
             />
             <Button
               variant="destructive"
-              class="h-10 shrink-0 px-4 text-sm font-medium"
+              size="sm"
+              class="shrink-0"
               :disabled="deleteConfirmText !== 'DELETE'"
               @click="confirmDeleteTeam"
             >
@@ -892,15 +893,16 @@
       <DialogFooter class="flex-row items-center">
         <Button
           variant="ghost"
-          class="mr-auto h-10 px-4 text-sm font-medium text-destructive hover:bg-destructive/10 hover:text-destructive"
+          size="sm"
+          class="mr-auto text-destructive hover:bg-destructive/10 hover:text-destructive"
           @click="showDeleteConfirm = !showDeleteConfirm; deleteConfirmText = ''"
         >
           {{ showDeleteConfirm ? 'Cancel delete' : 'Delete team' }}
         </Button>
-        <Button variant="outline" class="h-10 px-5 text-sm font-medium" @click="editTeamOpen = false">
+        <Button variant="outline" size="sm" @click="editTeamOpen = false">
           Cancel
         </Button>
-        <Button class="h-10 px-5 text-sm font-medium" :disabled="!editTeamDraft.name" @click="confirmEditTeam">
+        <Button size="sm" :disabled="!editTeamDraft.name" @click="confirmEditTeam">
           Save changes
         </Button>
       </DialogFooter>
@@ -948,11 +950,11 @@
         </button>
       </div>
       <DialogFooter class="mt-2">
-        <Button variant="outline" class="h-10 px-5 text-sm font-medium" @click="changeCentreStatusOpen = false">
+        <Button variant="outline" size="sm" @click="changeCentreStatusOpen = false">
           Cancel
         </Button>
         <Button
-          class="h-10 px-5 text-sm font-medium"
+          size="sm"
           :disabled="!changeCentreStatusSelected || changeCentreStatusSelected === changeCentreStatusTarget?.status"
           @click="confirmChangeCentreStatus"
         >
@@ -977,10 +979,10 @@
         </FloatingLabelSelect>
       </div>
       <DialogFooter>
-        <Button variant="outline" class="h-10 px-5 text-sm font-medium" @click="switchCentreTeamOpen = false">
+        <Button variant="outline" size="sm" @click="switchCentreTeamOpen = false">
           Cancel
         </Button>
-        <Button class="h-10 px-5 text-sm font-medium" :disabled="!switchCentreTeamSelected" @click="confirmSwitchCentreTeam">
+        <Button size="sm" :disabled="!switchCentreTeamSelected" @click="confirmSwitchCentreTeam">
           Confirm
         </Button>
       </DialogFooter>
@@ -1006,10 +1008,10 @@
             <p class="text-sm text-foreground">Are you sure you want to remove this user from the team?</p>
           </div>
           <div class="flex items-center justify-end gap-3 border-t border-border px-6 py-5">
-            <Button variant="outline" class="h-10 px-5 text-sm font-medium" @click="removeMemberOpen = false">
+            <Button variant="outline" size="sm" @click="removeMemberOpen = false">
               Cancel
             </Button>
-            <Button variant="destructive" class="h-10 px-5 text-sm font-medium" @click="confirmRemoveMember">
+            <Button variant="destructive" size="sm" @click="confirmRemoveMember">
               Remove
             </Button>
           </div>
@@ -1033,10 +1035,10 @@
         </FloatingLabelSelect>
       </div>
       <DialogFooter>
-        <Button variant="outline" class="h-10 px-5 text-sm font-medium" @click="switchTeamOpen = false">
+        <Button variant="outline" size="sm" @click="switchTeamOpen = false">
           Cancel
         </Button>
-        <Button class="h-10 px-5 text-sm font-medium" :disabled="!switchTeamSelected" @click="confirmSwitchTeam">
+        <Button size="sm" :disabled="!switchTeamSelected" @click="confirmSwitchTeam">
           Confirm
         </Button>
       </DialogFooter>
@@ -1086,11 +1088,11 @@
       </div>
 
       <DialogFooter class="mt-2">
-        <Button variant="outline" class="h-10 px-5 text-sm font-medium" @click="changeRoleOpen = false">
+        <Button variant="outline" size="sm" @click="changeRoleOpen = false">
           Cancel
         </Button>
         <Button
-          class="h-10 px-5 text-sm font-medium"
+          size="sm"
           :disabled="!changeRoleSelected || changeRoleSelected === changeRoleTarget?.role"
           @click="confirmChangeRole"
         >
@@ -1179,10 +1181,10 @@
         </div>
       </div>
       <DialogFooter>
-        <Button variant="outline" class="h-10 px-5 text-sm font-medium" @click="createTeamOpen = false; newTeam = { name: '', logo: '#2563eb', centres: [] }">
+        <Button variant="outline" size="sm" @click="createTeamOpen = false; newTeam = { name: '', logo: '#2563eb', centres: [] }">
           Cancel
         </Button>
-        <Button class="h-10 px-5 text-sm font-medium" :disabled="!newTeam.name" @click="confirmCreateTeam">
+        <Button size="sm" :disabled="!newTeam.name" @click="confirmCreateTeam">
           Create team
         </Button>
       </DialogFooter>
@@ -1251,7 +1253,7 @@
       </div>
 
       <DialogFooter class="mt-2">
-        <Button variant="outline" class="h-10 px-5 text-sm font-medium" @click="viewRolesOpen = false">
+        <Button variant="outline" size="sm" @click="viewRolesOpen = false">
           Close
         </Button>
       </DialogFooter>
@@ -1319,10 +1321,10 @@
         </div>
       </div>
       <DialogFooter>
-        <Button variant="outline" class="h-10 px-5 text-sm font-medium" @click="assignSignatoryOpen = false">
+        <Button variant="outline" size="sm" @click="assignSignatoryOpen = false">
           Cancel
         </Button>
-        <Button class="h-10 px-5 text-sm font-medium" @click="saveAssignSignatory">
+        <Button size="sm" @click="saveAssignSignatory">
           Save
         </Button>
       </DialogFooter>
@@ -1386,10 +1388,10 @@
         </div>
       </div>
       <DialogFooter>
-        <Button variant="outline" class="h-10 px-5 text-sm font-medium" @click="editSignatoryCentresOpen = false">
+        <Button variant="outline" size="sm" @click="editSignatoryCentresOpen = false">
           Cancel
         </Button>
-        <Button class="h-10 px-5 text-sm font-medium" @click="saveSignatoryCentres">
+        <Button size="sm" @click="saveSignatoryCentres">
           Save
         </Button>
       </DialogFooter>
@@ -1415,12 +1417,12 @@
             <p class="text-sm text-foreground">{{ confirmConfig?.description }}</p>
           </div>
           <div class="flex items-center justify-end gap-3 border-t border-border px-6 py-5">
-            <Button variant="outline" class="h-10 px-5 text-sm font-medium" @click="confirmOpen = false">
+            <Button variant="outline" size="sm" @click="confirmOpen = false">
               Cancel
             </Button>
             <Button
               :variant="confirmConfig?.destructive ? 'destructive' : 'default'"
-              class="h-10 px-5 text-sm font-medium"
+              size="sm"
               @click="executeConfirm"
             >
               {{ confirmConfig?.confirmLabel }}
@@ -1450,10 +1452,10 @@
             <p class="text-sm text-foreground">Are you sure you want to remove this signatory? They will no longer be able to sign lease agreements.</p>
           </div>
           <div class="flex items-center justify-end gap-3 border-t border-border px-6 py-5">
-            <Button variant="outline" class="h-10 px-5 text-sm font-medium" @click="removeSignatoryOpen = false">
+            <Button variant="outline" size="sm" @click="removeSignatoryOpen = false">
               Cancel
             </Button>
-            <Button variant="destructive" class="h-10 px-5 text-sm font-medium" @click="confirmRemoveSignatory">
+            <Button variant="destructive" size="sm" @click="confirmRemoveSignatory">
               Remove
             </Button>
           </div>
@@ -1583,7 +1585,7 @@ import { useAppContext } from '@/composables/useAppContext'
 import { useTeamContext } from '@/composables/useTeamContext'
 
 const { pushNotification } = useRightPanel()
-const { isUserType, can, isRole } = useAppContext()
+const { context: appContext, isUserType, can, isRole } = useAppContext()
 const { activeTeamId, setActiveTeam } = useTeamContext()
 
 // ── Country flag helper ───────────────────────────────────────
@@ -1651,6 +1653,7 @@ interface Team {
   id: string
   name: string
   logo: string
+  platform?: string
   members: Member[]
   pendingInvites: PendingInvite[]
   signatories: Signatory[]
@@ -1801,7 +1804,12 @@ function getCurrentTeam(): Team | undefined {
   return teamsData.value.teams.find(t => t.id === activeTeamId.value)
 }
 
-const allTeams     = computed(() => teamsData.value.teams)
+const allTeams     = computed(() => {
+  if (appContext.value.userType === 'tenant') {
+    return teamsData.value.teams.filter(t => t.platform === 'tenant')
+  }
+  return teamsData.value.teams.filter(t => t.platform === appContext.value.platform)
+})
 const selectedTeam = computed(() => allTeams.value.find(t => t.id === activeTeamId.value) ?? allTeams.value[0])
 const otherTeams   = computed(() => allTeams.value.filter(t => t.id !== activeTeamId.value))
 const activeMembers  = computed(() => selectedTeam.value?.members ?? [])

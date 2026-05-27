@@ -26,6 +26,10 @@ export type NotificationEventType =
   | 'team.invitation_sent'
   | 'team.member_joined'
   | 'team.signatory_added'
+  // Booking link (Create Link flow)
+  | 'booking_link.received'
+  | 'booking_link.completed'
+  | 'booking_link.declined'
   // Enquiry
   | 'enquiry.received'
   | 'enquiry.updated'
@@ -62,6 +66,27 @@ export interface TeamMemberJoinedPayload {
 export interface TeamSignatoryAddedPayload {
   signatoryName: string
   centreName: string
+}
+
+export interface BookingLinkReceivedPayload {
+  /** The shopping centre name shown in the notification body */
+  centreName: string
+  spaceName: string
+  bookingLinkId: string
+}
+
+export interface BookingLinkCompletedPayload {
+  tenantName: string
+  centreName: string
+  spaceName: string
+  bookingLinkId: string
+}
+
+export interface BookingLinkDeclinedPayload {
+  tenantName: string
+  centreName: string
+  spaceName: string
+  bookingLinkId: string
 }
 
 export interface EnquiryReceivedPayload {
@@ -213,6 +238,35 @@ export const NOTIFICATION_REGISTRY: Record<NotificationEventType, NotificationDe
     iconType: 'team',
     railsTrigger: 'SignatoriesController#create — after_create on Signatory model',
     sendsEmail: true,
+  },
+
+  // ── Booking link (Create Link flow) ─────────────────────────────────────────
+
+  'booking_link.received': {
+    label: 'New enquiry request',
+    bodyTemplate: 'You have a new enquiry request from {centreName} for {spaceName}. Complete your enquiry to confirm the booking.',
+    iconType: 'enquiry',
+    actionLabel: 'Complete enquiry',
+    railsTrigger: 'BookingLinksController#create — after_create on BookingLink model; sent to tenant',
+    sendsEmail: true,
+  },
+
+  'booking_link.completed': {
+    label: 'Booking link completed',
+    bodyTemplate: '{tenantName} has completed the booking link for {spaceName}, {centreName}.',
+    iconType: 'booking',
+    actionLabel: 'View booking',
+    railsTrigger: 'BookingLinksController#complete — after status transitions to :completed; sent to landlord team',
+    sendsEmail: false,
+  },
+
+  'booking_link.declined': {
+    label: 'Booking link declined',
+    bodyTemplate: '{tenantName} has declined the booking link for {spaceName}, {centreName}.',
+    iconType: 'enquiry',
+    actionLabel: 'View booking link',
+    railsTrigger: 'BookingLinksController#decline — after status transitions to :declined; sent to landlord team',
+    sendsEmail: false,
   },
 
   // ── Enquiry ─────────────────────────────────────────────────────────────────

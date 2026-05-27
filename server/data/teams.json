@@ -3,6 +3,7 @@
     {
       "id": "team-one",
       "name": "Team One",
+      "platform": "fillit",
       "logo": "#059669",
       "organisationId": "org-001",
       "members": [
@@ -27,6 +28,13 @@
           "name": "Tom Nguyen",
           "email": "tom.nguyen@retailco.com",
           "role": "Member",
+          "status": "Active",
+          "signatoryCentres": []
+        },
+        {
+          "name": "Rachel Foster",
+          "email": "r.foster@brand.com",
+          "role": "Accounts",
           "status": "Active",
           "signatoryCentres": []
         }
@@ -81,6 +89,7 @@
     {
       "id": "team-two",
       "name": "Team Two",
+      "platform": "fillit",
       "logo": "#2563eb",
       "organisationId": "org-001",
       "members": [
@@ -226,6 +235,107 @@
           "status": "Unlisted"
         }
       ]
+    }
+  ,
+    {
+      "id": "team-spain",
+      "name": "Spain",
+      "country": "es",
+      "logo": "#c0392b",
+      "platform": "eleaseloop",
+      "organisationId": "org-eleaseloop",
+      "members": [
+        { "name": "Carlos García",  "email": "c.garcia@eleaseloop.es",  "role": "Admin",    "status": "Active", "signatoryCentres": ["Centro Comercial Xanadú", "La Maquinista"] },
+        { "name": "María López",    "email": "m.lopez@eleaseloop.es",   "role": "Member",   "status": "Active", "signatoryCentres": [] },
+        { "name": "Ana Martínez",   "email": "a.martinez@eleaseloop.es","role": "Accounts", "status": "Active", "signatoryCentres": [] }
+      ],
+      "pendingInvites": [],
+      "signatories": [
+        { "name": "Carlos García", "email": "c.garcia@eleaseloop.es", "centres": ["Centro Comercial Xanadú", "La Maquinista"], "addedBy": "Sam O'Brien", "addedOn": "01 Mar 2026" }
+      ],
+      "centres": [
+        { "id": "centre-xanadu",        "name": "Centro Comercial Xanadú", "location": "Arroyomolinos, Madrid", "status": "Listed" },
+        { "id": "centre-la-maquinista", "name": "La Maquinista",           "location": "Barcelona",             "status": "Listed" }
+      ]
+    },
+    {
+      "id": "team-france",
+      "name": "France",
+      "country": "fr",
+      "logo": "#2980b9",
+      "platform": "eleaseloop",
+      "organisationId": "org-eleaseloop",
+      "members": [
+        { "name": "Jean Dupont",   "email": "j.dupont@eleaseloop.fr",  "role": "Admin",    "status": "Active", "signatoryCentres": ["Les Quatre Temps", "Centre Commercial Part-Dieu"] },
+        { "name": "Sophie Martin", "email": "s.martin@eleaseloop.fr",  "role": "Member",   "status": "Active", "signatoryCentres": [] },
+        { "name": "Camille Leroy", "email": "c.leroy@eleaseloop.fr",   "role": "Accounts", "status": "Active", "signatoryCentres": [] }
+      ],
+      "pendingInvites": [],
+      "signatories": [
+        { "name": "Jean Dupont", "email": "j.dupont@eleaseloop.fr", "centres": ["Les Quatre Temps", "Centre Commercial Part-Dieu"], "addedBy": "Sam O'Brien", "addedOn": "01 Mar 2026" }
+      ],
+      "centres": [
+        { "id": "centre-quatre-temps", "name": "Les Quatre Temps",              "location": "La Défense, Paris", "status": "Listed" },
+        { "id": "centre-part-dieu",    "name": "Centre Commercial Part-Dieu",   "location": "Lyon",              "status": "Listed" }
+      ]
+    },
+    {
+      "id": "team-italy",
+      "name": "Italy",
+      "country": "it",
+      "logo": "#27ae60",
+      "platform": "eleaseloop",
+      "organisationId": "org-eleaseloop",
+      "members": [
+        { "name": "Marco Rossi",    "email": "m.rossi@eleaseloop.it",   "role": "Admin",  "status": "Active", "signatoryCentres": ["Oriocenter", "Adigeo"] },
+        { "name": "Giulia Ferrari", "email": "g.ferrari@eleaseloop.it", "role": "Member", "status": "Active", "signatoryCentres": [] }
+      ],
+      "pendingInvites": [],
+      "signatories": [
+        { "name": "Marco Rossi", "email": "m.rossi@eleaseloop.it", "centres": ["Oriocenter", "Adigeo"], "addedBy": "Sam O'Brien", "addedOn": "01 Mar 2026" }
+      ],
+      "centres": [
+        { "id": "centre-oriocenter", "name": "Oriocenter", "location": "Orio al Serio, Bergamo", "status": "Listed" },
+        { "id": "centre-adigeo",     "name": "Adigeo",     "location": "Verona",                 "status": "Listed" }
+      ]
+    },
+    {
+      "id": "team-poland",
+      "name": "Poland",
+      "country": "pl",
+      "logo": "#8e44ad",
+      "platform": "eleaseloop",
+      "organisationId": "org-eleaseloop",
+      "members": [
+        { "name": "Piotr Kowalski", "email": "p.kowalski@eleaseloop.pl", "role": "Admin",  "status": "Active", "signatoryCentres": ["Galeria Mokotów", "Silesia City Center"] },
+        { "name": "Anna Nowak",     "email": "a.nowak@eleaseloop.pl",    "role": "Member", "status": "Active", "signatoryCentres": [] }
+      ],
+      "pendingInvites": [],
+      "signatories": [
+        { "name": "Piotr Kowalski", "email": "p.kowalski@eleaseloop.pl", "centres": ["Galeria Mokotów", "Silesia City Center"], "addedBy": "Sam O'Brien", "addedOn": "01 Mar 2026" }
+      ],
+      "centres": [
+        { "id": "centre-galeria-mokotow", "name": "Galeria Mokotów",    "location": "Warsaw",   "status": "Listed" },
+        { "id": "centre-silesia",         "name": "Silesia City Center", "location": "Katowice", "status": "Listed" }
+      ]
+    },
+    {
+      "id": "team-tenant",
+      "name": "Fresh Co.",
+      "platform": "tenant",
+      "logo": "#0891b2",
+      "organisationId": "org-tenant",
+      "members": [
+        { "name": "Sophie Turner",  "email": "sophie.turner@freshco.com", "role": "Admin",    "status": "Active",   "signatoryCentres": [] },
+        { "name": "Tom Walsh",      "email": "t.walsh@freshco.com",       "role": "Member",   "status": "Active",   "signatoryCentres": [] },
+        { "name": "Rachel Kim",     "email": "r.kim@freshco.com",         "role": "Accounts", "status": "Active",   "signatoryCentres": [] },
+        { "name": "James Okafor",   "email": "j.okafor@freshco.com",      "role": "Member",   "status": "Inactive", "signatoryCentres": [] }
+      ],
+      "pendingInvites": [
+        { "email": "new.hire@freshco.com", "status": "Pending Approval", "role": "Member", "invitedBy": "Sophie Turner", "sentOn": "22 May 2026" }
+      ],
+      "signatories": [],
+      "centres": []
     }
   ]
 }

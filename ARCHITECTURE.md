@@ -65,7 +65,9 @@ The app supports two platforms (`fillit`, `eleaseloop`) and two user types (`lan
 | `/preview/spaces` | `pages/preview/spaces.vue` | Organisation — rentable spaces within centres |
 | `/preview/payments` | `pages/preview/payments.vue` | Organisation — payout settings and bank details |
 | `/preview/notifications-settings` | `pages/preview/notifications-settings.vue` | Organisation — notification preferences |
-| `/preview/transactions` | `pages/preview/transactions.vue` | Transactions list with team filter, date range picker, and sortable table |
+| `/preview/transactions` | `pages/preview/transactions.vue` | Transactions list with team filter, date range picker, centre filter, search bar, and sortable table (landlord) |
+| `/preview/invoices` | `pages/preview/invoices.vue` | Invoices list with date range picker, search bar, and sortable table (tenant) |
+| `/preview/booking-links` | `pages/preview/booking-links.vue` | Booking links history with Create booking overlay, centre filter, and search bar; linked from "Create Link" sidebar item |
 
 ## Shared components
 
@@ -134,6 +136,30 @@ The app supports two platforms (`fillit`, `eleaseloop`) and two user types (`lan
 ### `notifications.registry.ts`
 - **File:** `composables/notifications.registry.ts`
 - **Purpose:** Single source of truth for every notification event type the platform can produce. Exports `NotificationEventType` (union of string literals), per-event payload interfaces, and `NOTIFICATION_REGISTRY` mapping each type to its display label, body template, icon category, optional CTA label, Rails trigger location, and whether a corresponding email is sent.
+- **Notification types by category:**
+
+| Type | Recipient | Trigger |
+|------|-----------|---------|
+| `team.invitation_sent` | Invitee | Landlord/tenant invites a new user |
+| `team.member_joined` | Team admins | Invited user accepts |
+| `team.signatory_added` | Team admins | Signatory added to a centre |
+| `booking_link.received` | **Tenant** | Landlord creates a booking link — *"New enquiry request from {centreName}"* with link to complete |
+| `booking_link.completed` | **Landlord team** | Tenant completes the booking link enquiry |
+| `booking_link.declined` | **Landlord team** | Tenant declines the booking link |
+| `enquiry.received` | Landlord | Organic enquiry submitted |
+| `enquiry.updated` | Landlord | Tenant updates enquiry |
+| `enquiry.expired` | Landlord | Enquiry passes expiry date |
+| `booking.confirmed` | Both | Booking moves to confirmed |
+| `booking.ending_soon` | Both | 7 and 2 days before end date |
+| `booking.ended` | Both | Booking end date passes |
+| `booking.cancelled` | Both | Booking cancelled |
+| `payment.received` | Landlord | Payment successfully charged |
+| `payment.overdue` | Landlord | Payment past due date |
+| `payment.refunded` | Landlord | Refund issued |
+| `message.received` | Recipient | New message in thread |
+| `document.awaiting_signature` | Signatory | DocuSign envelope sent |
+| `document.signed` | Landlord | All signatures complete |
+| `document.declined` | Landlord | Signatory declines |
 
 ## Data layer
 
@@ -147,6 +173,9 @@ All server routes are thin Nitro handlers that read from or write to JSON files 
 | PUT | `/api/spaces` | `server/data/spaces.json` | Replaces the entire spaces array |
 | GET | `/api/teams` | `server/data/teams.json` | Returns all teams |
 | PUT | `/api/teams` | `server/data/teams.json` | Replaces the entire teams array |
+| GET | `/api/booking-links` | `server/data/booking-links.json` | Returns all booking links; Rails endpoint TBD |
+| GET | `/api/transactions` | `server/api/transactions.get.ts` | Returns mock transaction records; all booking refs are 5-digit numeric strings |
+| — | _(pending)_ | `server/data/bookings.json` | Canonical booking records — no API route yet; file seeded with ~30 records |
 
 ## UI patterns
 
@@ -163,11 +192,27 @@ All form text inputs use `FloatingLabelInput` and all dropdowns use `FloatingLab
 ### Table header style
 Column headers use `text-xs font-semibold uppercase tracking-wide text-muted-foreground`. Sortable columns wrap the label in a `<button>` with sort icons from Tabler (`IconSelector`, `IconChevronUp`, `IconChevronDown`).
 
+### Filter / selector button style
+All filter trigger buttons (date range picker, centre filter, team selector) use a consistent small-button style that matches `size="sm"` components:
+```
+class="flex h-8 w-fit items-center gap-2 rounded-lg border border-border bg-background px-3 text-xs font-medium text-foreground transition-colors hover:bg-muted"
+```
+Icons inside these triggers use `size=13` (leading icon) and `size=12` (chevron). **Do not use `h-9` or `text-sm` for filter buttons** — they will be taller than adjacent action buttons.
+
 ### Team selector dropdown pattern
-Used wherever a team filter is needed. A `DropdownMenu` trigger with class `flex h-9 w-fit items-center gap-2 rounded-lg border border-border bg-background px-4 text-sm font-medium text-foreground`. Team avatar is a `h-5 w-5 rounded` square with the team's `color` and initial letter; "All teams" uses `IconUsersGroup`; chevron uses `IconChevronDown` with `rotate-180` when open.
+Used wherever a team filter is needed. A `DropdownMenu` trigger using the filter button style above. Team avatar is a `h-5 w-5 rounded` square with the team's `color` and initial letter; "All teams" uses `IconUsersGroup`; chevron uses `IconChevronDown` with `rotate-180` when open.
 
 ### Date range picker
-A `Popover` trigger (same button style as team selector) containing a `RangeCalendar` from `@/components/ui/range-calendar` with `:number-of-months="2"`. Value typed as `DateRange | undefined` from `reka-ui`; `CalendarDate` values are converted to ISO strings for filtering.
+A `Popover` trigger (filter button style above) containing a `RangeCalendar` from `@/components/ui/range-calendar` with `:number-of-months="2"`. Value typed as `DateRange | undefined` from `reka-ui`; `CalendarDate` values are converted to ISO strings for filtering.
+
+### Centre filter (multi-select)
+A `Popover` trigger (filter button style) with a `w-[220px]` `PopoverContent` listing centre names as inline checkbox rows. `selectedCentreNames: ref<string[]>([])` tracks selection; `toggleCentre(name)` adds/removes. Label collapses to `"N centres"` when multiple selected. Available names are computed from the team-filtered data set so the list stays in sync with the active team. See `transactions.vue` and `booking-links.vue` for reference.
+
+### Search with match cycling
+Pages with search bars use a `matchIndex ref(-1)` + `matchIds` computed array pattern. Pressing Enter calls `jumpToMatch()` which advances the index with modulo wrap, scrolls the matched row into view via `nextTick`, and applies the `row-highlight` class (which runs the `row-search-pulse` animation). The highlight clears after 2.1 s via `setTimeout`. `watch(searchQuery)` resets `matchIndex` to `-1` so new queries start from the first result. A "2 / 5" counter is shown inline in the search bar when a match is active. See `transactions.vue`, `booking-links.vue`, and `invoices.vue` for reference.
+
+### Booking ID format
+All booking IDs are 5-digit numeric strings (e.g. `"10042"`, `"11001"`). No prefixes (`FILL-`, `BK-`, `ELL-`). The column header is always "Booking ID".
 
 ### Status badges
 `<Badge>` component with pill shape and light semantic background tints: green for active/success, muted pink for inactive, light blue for pending.
@@ -175,4 +220,4 @@ A `Popover` trigger (same button style as team selector) containing a `RangeCale
 ### Dark mode
 Handled entirely through CSS variable tokens in `assets/css/tailwind.css`. Semantic Tailwind classes (`bg-background`, `text-foreground`, etc.) adapt automatically under the `.dark` class. No `dark:` color prefixes are used in component templates.
 
-_Last updated: 2026-05-25_
+_Last updated: 2026-05-27 (session 3)_
