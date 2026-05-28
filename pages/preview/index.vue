@@ -201,6 +201,13 @@ const groups: Group[] = [
         status: 'In progress',
         tags: ['landlord'],
       },
+      {
+        path: '/preview/messages',
+        label: 'Messages',
+        description: 'One-thread-per-contact messaging between landlords and tenants, with file/image attachments and new conversation search.',
+        status: 'In progress',
+        tags: ['landlord', 'tenant', 'fillit', 'eleaseloop'],
+      },
     ],
   },
 ]

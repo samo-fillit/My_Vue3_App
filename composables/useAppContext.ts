@@ -36,9 +36,11 @@ export function useAppContext() {
   }))
 
   // ── Setters ──────────────────────────────────────────────────────────────────
-  function setPlatform(v: Platform) { context.value.platform = v }
-  function setUserType(v: UserType) { context.value.userType = v }
-  function setRole(v: Role)         { context.value.role = v }
+  // Replace the entire value rather than mutating properties — ensures reactivity
+  // across all consumers regardless of whether useState uses a shallow ref.
+  function setPlatform(v: Platform) { context.value = { ...context.value, platform: v } }
+  function setUserType(v: UserType) { context.value = { ...context.value, userType: v } }
+  function setRole(v: Role)         { context.value = { ...context.value, role: v } }
 
   // ── Simple boolean helpers ───────────────────────────────────────────────────
   const isPlatform = (p: Platform) => context.value.platform === p

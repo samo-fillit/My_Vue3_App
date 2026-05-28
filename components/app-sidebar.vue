@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, computed, resolveComponent } from 'vue'
+import { ref, computed, resolveComponent, watch, nextTick } from 'vue'
 import { LOCALE_OPTIONS, PLATFORM_LOCALES, type SupportedLocale } from '@/config/locales'
+import { COUNTRY_MAP, ELEASELOOP_COUNTRIES } from '@/config/countries'
 import { useLocale } from '@/composables/useLocale'
 import {
   IconLayoutGrid,
@@ -23,6 +24,7 @@ import {
   IconAddressBook,
   IconFileInvoice,
   IconX,
+  IconArrowLeft,
 } from '@tabler/icons-vue'
 import { useRightPanel } from '@/composables/useRightPanel'
 import { useAppContext } from '@/composables/useAppContext'
@@ -53,13 +55,55 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
 
+const router = useRouter()
 const panel = useRightPanel()
 const { context: appContext, activeNav, activeOrg } = useAppContext()
-const { teams, activeTeam, setActiveTeam } = useTeamContext()
+const {
+  teams,
+  activeTeam,
+  setActiveTeam,
+  activeCountry,
+  userCountries,
+  hasCountryAccess,
+  setActiveCountry,
+  createTeamInCountry,
+} = useTeamContext()
 const { locale, setLocale } = useLocale()
 const NuxtLink = resolveComponent('NuxtLink')
 
-const teamSwitcherOpen = ref(false)
+const teamSwitcherOpen    = ref(false)
+const countrySwitcherOpen = ref(false)
+
+function countryInfo(code: string) {
+  return COUNTRY_MAP[code] ?? { code, name: code.toUpperCase(), flag: '🌐' }
+}
+
+// ── Country mismatch overlay state machine ─────────────────────────────────
+type OverlayMode = 'mismatch' | 'create'
+const overlayMode  = ref<OverlayMode>('mismatch')
+const newTeamName  = ref('')
+
+// Reset to the mismatch view whenever the overlay is dismissed (access granted)
+watch(hasCountryAccess, (access) => {
+  if (access) overlayMode.value = 'mismatch'
+})
+
+function openCreate() {
+  const code = activeCountry.value.toUpperCase()
+  newTeamName.value = appContext.value.userType === 'landlord'
+    ? `Nhood ${code}`
+    : (activeTeam.value?.name ?? 'My Company')
+  overlayMode.value = 'create'
+}
+
+function submitCreateTeam() {
+  const name = newTeamName.value.trim()
+  if (!name) return
+  createTeamInCountry(activeCountry.value, name)
+  overlayMode.value = 'mismatch'
+  // Navigate to Teams so the user can start adding members
+  nextTick(() => router.push('/preview/teams'))
+}
 
 const props = withDefaults(defineProps<{
   activeItem?: string
@@ -74,7 +118,7 @@ const allMainNav = [
   { id: 'dashboard',    icon: IconLayoutGrid,   label: 'Dashboard' },
   { id: 'bookings',     icon: IconBook,         label: 'Bookings' },
   { id: 'calendar',     icon: IconCalendar,     label: 'Calendar' },
-  { id: 'messages',     icon: IconMessage,      label: 'Messages', badge: 3 },
+  { id: 'messages',     icon: IconMessage,      label: 'Messages', route: '/preview/messages', badge: 3 },
   { id: 'create-link',  icon: IconLink,         label: 'Booking links', route: '/preview/booking-links' },
   { id: 'transactions', icon: IconReceipt,      label: 'Transactions', route: '/preview/transactions' },
   // Tenant only
@@ -154,6 +198,57 @@ function saveLanguage() {
 
     <SidebarContent>
       <SidebarGroup>
+
+        <!-- Country switcher — eLeaseLoop landlords only, sits above team switcher -->
+        <div v-if="appContext.platform === 'eleaseloop' && appContext.userType === 'landlord'" class="pb-2">
+          <DropdownMenu v-model:open="countrySwitcherOpen">
+            <DropdownMenuTrigger as-child>
+              <button
+                type="button"
+                :disabled="userCountries.length <= 1"
+                class="flex w-full items-center gap-2.5 rounded-md px-2 py-2 text-sm text-sidebar-foreground transition-colors"
+                :class="userCountries.length > 1 ? 'hover:bg-sidebar-accent cursor-pointer' : 'cursor-default'"
+              >
+                <span
+                  class="fi fis shrink-0 overflow-hidden rounded-sm"
+                  :class="`fi-${activeCountry}`"
+                  style="width: 1rem; height: 1rem; font-size: 1rem;"
+                />
+                <span class="flex-1 truncate text-left font-medium leading-none">
+                  {{ countryInfo(activeCountry).name }}
+                </span>
+                <IconChevronRight
+                  v-if="userCountries.length > 1"
+                  :size="13"
+                  stroke-width="2"
+                  class="shrink-0 text-sidebar-foreground/40 transition-transform duration-200"
+                  :class="{ 'rotate-90': countrySwitcherOpen }"
+                />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" side="bottom" :side-offset="4" class="w-48">
+              <DropdownMenuLabel class="text-xs font-normal text-muted-foreground">Switch country</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                v-for="code in userCountries"
+                :key="code"
+                class="flex cursor-pointer items-center gap-3 py-2"
+                :class="{ 'font-medium': code === activeCountry }"
+                @click="setActiveCountry(code)"
+              >
+                <span
+                  class="fi fis shrink-0 overflow-hidden rounded-sm"
+                  :class="`fi-${code}`"
+                  style="width: 1.25rem; height: 1.25rem; font-size: 1.25rem;"
+                />
+                <span class="flex-1 truncate">{{ countryInfo(code).name }}</span>
+                <IconCheck v-if="code === activeCountry" :size="13" stroke-width="2.5" class="text-foreground" />
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+        <SidebarSeparator v-if="appContext.platform === 'eleaseloop' && appContext.userType === 'landlord'" class="mx-0 mb-2" />
+
         <!-- Team switcher — sits above nav, visually grouped with content not logo -->
         <div class="pb-2">
           <DropdownMenu v-model:open="teamSwitcherOpen">
@@ -326,6 +421,144 @@ function saveLanguage() {
     </SidebarFooter>
 
   </Sidebar>
+
+  <!-- ── Country mismatch overlay ─────────────────────────────────────── -->
+  <Teleport to="body">
+    <Transition name="lang-modal">
+      <div
+        v-if="appContext.platform === 'eleaseloop' && !hasCountryAccess"
+        class="fixed inset-0 z-50 flex items-center justify-center p-12"
+      >
+        <div class="fixed inset-0 bg-black/60" />
+        <div class="relative z-10 w-full max-w-[440px] rounded-xl border border-border bg-background shadow-2xl overflow-hidden">
+
+          <!-- ── View: mismatch ────────────────────────────────────────── -->
+          <template v-if="overlayMode === 'mismatch'">
+
+            <!-- Flag + heading -->
+            <div class="px-6 pt-7 pb-5 text-center">
+              <div class="mb-4 flex justify-center">
+                <span
+                  class="fi fis overflow-hidden rounded"
+                  :class="`fi-${activeCountry}`"
+                  style="width: 3rem; height: 3rem; font-size: 3rem;"
+                />
+              </div>
+              <h2 class="text-lg font-semibold text-foreground">
+                You're not a member of a {{ countryInfo(activeCountry).name }} team
+              </h2>
+              <p class="mt-2 text-sm text-muted-foreground leading-relaxed">
+                Your account isn't linked to any team on
+                <strong class="font-medium text-foreground">eleaseloop.com/{{ activeCountry }}</strong>.
+                Switch to one of your active countries or create a new team here.
+              </p>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex flex-col gap-2 px-6 pb-6">
+              <!-- Switch to an accessible country -->
+              <button
+                v-for="code in userCountries"
+                :key="code"
+                type="button"
+                class="flex w-full items-center gap-3 rounded-lg border border-border px-4 py-3 text-left transition-colors hover:bg-muted/60"
+                @click="setActiveCountry(code)"
+              >
+                <span
+                  class="fi fis shrink-0 overflow-hidden rounded-sm"
+                  :class="`fi-${code}`"
+                  style="width: 1.5rem; height: 1.5rem; font-size: 1.5rem;"
+                />
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-foreground">Switch to {{ countryInfo(code).name }}</p>
+                  <p class="text-xs text-muted-foreground">Go to eleaseloop.com/{{ code }}</p>
+                </div>
+                <IconChevronRight :size="15" stroke-width="2" class="shrink-0 text-muted-foreground" />
+              </button>
+
+              <div class="my-1 flex items-center gap-3">
+                <div class="h-px flex-1 bg-border" />
+                <span class="text-[11px] text-muted-foreground">or</span>
+                <div class="h-px flex-1 bg-border" />
+              </div>
+
+              <!-- Create a team in the active country -->
+              <button
+                type="button"
+                class="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-border px-4 py-3 text-sm font-medium text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
+                @click="openCreate"
+              >
+                Create a {{ countryInfo(activeCountry).name }} team
+              </button>
+            </div>
+
+          </template>
+
+          <!-- ── View: create team ─────────────────────────────────────── -->
+          <template v-else>
+
+            <!-- Header with back button -->
+            <div class="flex items-center gap-3 border-b border-border px-5 py-4">
+              <button
+                type="button"
+                class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                @click="overlayMode = 'mismatch'"
+              >
+                <IconArrowLeft :size="16" stroke-width="1.75" />
+              </button>
+              <h2 class="text-base font-semibold text-foreground">
+                Create a team in {{ countryInfo(activeCountry).name }}
+              </h2>
+            </div>
+
+            <!-- Country context banner -->
+            <div class="px-6 pt-5">
+              <div class="flex items-center gap-3 rounded-lg bg-muted/60 px-4 py-3">
+                <span
+                  class="fi fis shrink-0 overflow-hidden rounded-sm"
+                  :class="`fi-${activeCountry}`"
+                  style="width: 1.25rem; height: 1.25rem; font-size: 1.25rem;"
+                />
+                <p class="text-sm text-muted-foreground leading-snug">
+                  This team will be linked to
+                  <strong class="font-medium text-foreground">eleaseloop.com/{{ activeCountry }}</strong>
+                </p>
+              </div>
+            </div>
+
+            <!-- Team name field -->
+            <div class="px-6 py-5">
+              <label class="mb-1.5 block text-xs font-medium text-muted-foreground">
+                Team name
+              </label>
+              <input
+                v-model="newTeamName"
+                type="text"
+                class="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground transition-colors focus:border-foreground/40 focus:outline-none focus:ring-1 focus:ring-ring/30"
+                placeholder="Enter a team name…"
+                @keydown.enter="submitCreateTeam"
+              />
+            </div>
+
+            <!-- Footer -->
+            <div class="flex items-center justify-end gap-3 border-t border-border px-6 py-4">
+              <Button variant="ghost" size="sm" @click="overlayMode = 'mismatch'">Cancel</Button>
+              <Button
+                size="sm"
+                class="px-5"
+                :disabled="!newTeamName.trim()"
+                @click="submitCreateTeam"
+              >
+                Create team
+              </Button>
+            </div>
+
+          </template>
+
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
 
   <!-- ── Language overlay ──────────────────────────────────────────────── -->
   <Teleport to="body">

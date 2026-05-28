@@ -19,6 +19,21 @@
               <TooltipProvider :delay-duration="300">
                 <Tooltip>
                   <TooltipTrigger as-child>
+                    <span :class="!can('edit:team') ? 'cursor-not-allowed' : ''">
+                      <Button variant="outline" size="sm" class="disabled:pointer-events-none" :disabled="!can('edit:team') || !selectedTeam" @click="selectedTeam && openEditTeam(selectedTeam)">
+                        Edit team
+                      </Button>
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent v-if="!can('edit:team')" side="top">
+                    <p class="text-xs">This action can only be taken by admins</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
+              <TooltipProvider :delay-duration="300">
+                <Tooltip>
+                  <TooltipTrigger as-child>
                     <span :class="!can('create:team') ? 'cursor-not-allowed' : ''">
                       <Button variant="outline" size="sm" class="disabled:pointer-events-none" :disabled="!can('create:team')" @click="createTeamOpen = true">
                         + Create team
@@ -135,69 +150,24 @@
             </div>
           </div>
 
-          <!-- Team selector -->
-          <DropdownMenu v-model:open="teamOpen">
-            <DropdownMenuTrigger as-child>
-              <button
-                type="button"
-                class="flex h-10 w-fit items-center gap-3 rounded-lg border border-border bg-background px-4 text-sm font-medium text-foreground transition-colors hover:bg-muted"
-              >
-                <div
-                  class="flex h-6 w-6 shrink-0 items-center justify-center rounded text-xs font-bold text-white"
-                  :style="{ backgroundColor: selectedTeam?.logo ?? '#2563eb' }"
-                >
-                  {{ selectedTeam?.name?.charAt(0).toUpperCase() }}
-                </div>
-                <span>{{ selectedTeam?.name }}</span>
-                <IconChevronDown
-                  :size="14"
-                  stroke-width="2"
-                  class="shrink-0 text-muted-foreground transition-transform duration-200"
-                  :class="{ 'rotate-180': teamOpen }"
-                />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" class="w-56 p-2">
-              <DropdownMenuItem
-                v-for="team in allTeams"
-                :key="team.id"
-                class="flex cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-sm"
-                @click="setActiveTeam(team.id)"
-              >
-                <div class="flex items-center gap-3">
-                  <div
-                    class="flex h-6 w-6 shrink-0 items-center justify-center rounded text-xs font-bold text-white"
-                    :style="{ backgroundColor: team.logo ?? '#2563eb' }"
-                  >
-                    {{ team.name?.charAt(0).toUpperCase() }}
-                  </div>
-                  <span class="font-medium">{{ team.name }}</span>
-                </div>
-                <TooltipProvider :delay-duration="300">
-                  <Tooltip>
-                    <TooltipTrigger as-child>
-                      <span :class="!can('edit:team') ? 'cursor-not-allowed' : ''">
-                        <button
-                          type="button"
-                          class="rounded p-0.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-30"
-                          :disabled="!can('edit:team')"
-                          @click.stop="openEditTeam(team)"
-                        >
-                          <IconPencil :size="14" stroke-width="1.5" />
-                        </button>
-                      </span>
-                    </TooltipTrigger>
-                    <TooltipContent v-if="!can('edit:team')" side="top">
-                      <p class="text-xs">This action can only be taken by admins</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <!-- Empty state -->
+          <template v-if="!hasTeamData">
+            <div class="flex flex-col items-center gap-3 py-20 text-center">
+              <div class="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+                <IconInbox :size="22" class="text-muted-foreground" />
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-foreground">Nothing here yet</p>
+                <p class="mt-1 text-xs text-muted-foreground max-w-xs mx-auto leading-relaxed">
+                  This team is new — start by inviting your first member.
+                </p>
+              </div>
+              <Button size="sm" class="mt-4" @click="inviteUserOpen = true">Invite member</Button>
+            </div>
+          </template>
 
           <!-- Tabs -->
-          <Tabs v-model="activeTab" class="flex flex-col gap-0">
+          <Tabs v-else v-model="activeTab" class="flex flex-col gap-0">
             <TabsList class="h-auto w-full justify-start gap-0 rounded-none border-b border-border bg-transparent p-0">
               <TabsTrigger
                 v-for="tab in tabs"
@@ -337,7 +307,7 @@
                     </TableCell>
                     <TableCell class="py-3 pr-0 text-center">
                       <div class="inline-flex items-center gap-2">
-                        <TooltipProvider v-if="allTeams.length > 1" :delay-duration="300">
+                        <TooltipProvider v-if="otherTeams.length > 0" :delay-duration="300">
                           <Tooltip>
                             <TooltipTrigger as-child>
                               <span :class="!can('move:centre-team') ? 'cursor-not-allowed' : ''">
@@ -803,7 +773,7 @@
                       </span>
                     </TableCell>
                     <TableCell class="py-3 pr-0 text-right">
-                      <TooltipProvider v-if="allTeams.length > 1" :delay-duration="300">
+                      <TooltipProvider v-if="otherTeams.length > 0" :delay-duration="300">
                         <Tooltip>
                           <TooltipTrigger as-child>
                             <span :class="!can('move:centre-team') ? 'cursor-not-allowed' : ''">
@@ -1535,16 +1505,10 @@
 import { ref, computed, reactive, onMounted, resolveComponent } from 'vue'
 
 const NuxtLink = resolveComponent('NuxtLink')
-import { IconCheck, IconX, IconChevronDown, IconChevronUp, IconPencil, IconSelector, IconAlertTriangle, IconLock, IconInfoCircle } from '@tabler/icons-vue'
+import { IconCheck, IconX, IconChevronDown, IconChevronUp, IconPencil, IconSelector, IconAlertTriangle, IconLock, IconInfoCircle, IconInbox } from '@tabler/icons-vue'
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar'
 import { Button } from '@/components/ui/button'
 import { FloatingLabelInput } from '@/components/ui/input'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   Table,
@@ -1586,7 +1550,7 @@ import { useTeamContext } from '@/composables/useTeamContext'
 
 const { pushNotification } = useRightPanel()
 const { context: appContext, isUserType, can, isRole } = useAppContext()
-const { activeTeamId, setActiveTeam } = useTeamContext()
+const { activeTeamId, setActiveTeam, activeTeam: activeTeamSummary } = useTeamContext()
 
 // ── Country flag helper ───────────────────────────────────────
 const COUNTRY_CODES: Record<string, string> = {
@@ -1654,6 +1618,7 @@ interface Team {
   name: string
   logo: string
   platform?: string
+  country?: string
   members: Member[]
   pendingInvites: PendingInvite[]
   signatories: Signatory[]
@@ -1692,7 +1657,6 @@ function sortRows<T extends Record<string, any>>(rows: T[], state: SortState): T
 
 // ── Team data (API-backed) ────────────────────────────────────
 const teamsData = ref<TeamsData>({ teams: [] })
-const teamOpen = ref(false)
 const rolesSheetOpen = ref(false)
 
 // ── Roles & Permissions sheet data ────────────────────────────────────────────
@@ -1810,8 +1774,21 @@ const allTeams     = computed(() => {
   }
   return teamsData.value.teams.filter(t => t.platform === appContext.value.platform)
 })
+
+const hasTeamData = computed(() => {
+  if (!activeTeamId.value) return false
+  return allTeams.value.some(t => t.id === activeTeamId.value)
+})
 const selectedTeam = computed(() => allTeams.value.find(t => t.id === activeTeamId.value) ?? allTeams.value[0])
-const otherTeams   = computed(() => allTeams.value.filter(t => t.id !== activeTeamId.value))
+const otherTeams   = computed(() => {
+  const others = allTeams.value.filter(t => t.id !== activeTeamId.value)
+  // On eLeaseLoop, only allow switching within the same country
+  if (appContext.value.platform === 'eleaseloop') {
+    const currentCountry = activeTeamSummary.value?.country
+    return others.filter(t => t.country === currentCountry)
+  }
+  return others
+})
 const activeMembers  = computed(() => selectedTeam.value?.members ?? [])
 const pendingInvites = computed(() => selectedTeam.value?.pendingInvites ?? [])
 const signatories    = computed(() => selectedTeam.value?.signatories ?? [])

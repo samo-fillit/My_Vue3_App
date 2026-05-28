@@ -31,6 +31,22 @@
             </TooltipProvider>
           </div>
 
+          <!-- Empty state -->
+          <template v-if="!hasTeamData">
+            <div class="flex flex-col items-center gap-3 py-20 text-center">
+              <div class="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+                <IconInbox :size="22" class="text-muted-foreground" />
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-foreground">Nothing here yet</p>
+                <p class="mt-1 text-xs text-muted-foreground max-w-xs mx-auto leading-relaxed">
+                  No spaces have been added for this team yet.
+                </p>
+              </div>
+            </div>
+          </template>
+          <template v-else>
+
           <div class="flex flex-col gap-6">
 
             <!-- Toolbar: Team selector + Centre selector + Search -->
@@ -211,6 +227,8 @@
             </Table>
 
           </div>
+          </template><!-- end v-else -->
+
         </div>
       </div>
 
@@ -485,6 +503,7 @@ import {
   IconCheck,
   IconPlus,
   IconBuildingStore,
+  IconInbox,
 } from '@tabler/icons-vue'
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar'
 import { Button } from '@/components/ui/button'
@@ -616,6 +635,11 @@ const teamFilteredCentres = computed(() => {
   if (teams.value.length <= 1) return sortedCentresAlpha.value
   const ids = getTeamCentreIds(activeTeamId.value)
   return sortedCentresAlpha.value.filter(c => ids.includes(c.id))
+})
+
+const hasTeamData = computed(() => {
+  if (!activeTeamId.value) return false
+  return teamFilteredCentres.value.length > 0
 })
 
 async function saveSpaces() {

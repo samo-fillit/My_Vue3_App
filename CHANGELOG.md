@@ -1,5 +1,36 @@
 # Changelog
 
+## 2026-05-28 — Country system, messaging redesign, and empty states
+
+### Country / multi-market architecture
+- **Country selector** added to the eLeaseLoop sidebar (landlord + tenant) above the team switcher. Shows only countries where the user has active teams. Uses square CSS flag icons (`flag-icons` library, `fi fis fi-{code}`) matching the team avatar shape. A `SidebarSeparator` divides it from the team switcher
+- **Country-scoped teams** — `useTeamContext` extended with `activeCountry`, `userCountries`, `hasCountryAccess`, `setActiveCountry`, and `createTeamInCountry`. `teams` computed is now filtered to the active country; `allUserTeams` covers all countries for mismatch detection
+- **Country mismatch overlay** — when a user lands on a country where they have no team (landlord or tenant), a full-page overlay appears offering: switch to one of their active countries, or create a new team in the current country. Applies to both user types on eLeaseLoop
+- **Inline team creation** — the overlay switches to a create-team form (with back arrow to return to the mismatch view) that pre-fills a sensible team name. On creation, the app navigates to `/preview/teams` and the new team starts with empty data on every page
+- **DevSwitcher site-country section** — new segment in the DevSwitcher (eLeaseLoop only) to simulate switching URL country (`.com/es`, `.com/fr`, etc.) for testing the mismatch flow
+- **Nhood FR North + FR South** — France now has two teams (`team-france` → "Nhood FR North", new `team-france-south` → "Nhood FR South", color `#1a5276`) to demonstrate multi-team country demo. Both teams in the default landlord membership
+- **Team names updated**: Spain → Nhood ES, France → Nhood FR North/South, Italy → Nhood IT, Poland → Nhood PL (Germany removed from country list)
+
+### Teams page
+- **Team selector removed** from the page — team is now controlled solely via the sidebar. An **Edit team** button added to the page header in its place
+- **Switch team scoped to country** — the "Switch team" dialog for both members and centres now only lists teams in the same country (eLeaseLoop). The button is hidden when there are no same-country targets (`otherTeams` computed is country-filtered)
+- **Switch team button guard** changed from `allTeams.length > 1` to `otherTeams.length > 0`
+
+### Messages — inbox card redesign
+- **Conversation types** — `Conversation` now has `type: 'enquiry' | 'general' | 'booking'` plus `centreName`, `centreColor`, `bookingId`, `orgName`, `orgColor` fields
+- **Airbnb-style composite avatars** — enquiry and booking conversations show a square centre logo with a floating circular org logo overlay (16×16, `border-2 border-background` ring). General conversations use a plain circle
+- **Three-line inbox layout**: Line 1 = entity name (centre / org / company), Line 2 = contextual detail (booking ID, person name, or blank non-breaking space to preserve layout), Line 3 = message preview with "You:" prefix and unread badge
+- **Landlord view display rules**: enquiry + general → circle (tenant org), line 1 = company, line 2 = person; booking → composite (centre square + tenant org float), line 1 = company, line 2 = booking ID
+- **Tenant view display rules**: enquiry → composite (centre + own org float), line 1 = centre; booking → composite (centre + landlord org float), line 1 = centre, line 2 = booking ID; general → plain circle (landlord org), line 1 = org name
+- **Thread header** updated to use the same composite avatar and display logic
+- **Tenant conversations** — 3 new threads added for `team-tenant` (Fresh Co.): one enquiry, one booking (#10099), one general message from Nhood ES / Carlos García
+- **All 11 existing conversations** tagged with type, centre, and org fields; France team threads updated to reference "Nhood FR North"
+
+### Empty states and data isolation
+- **`hasTeamData` bug fixed** across transactions, invoices, booking-links, centres, spaces, and teams pages — the `if (!activeTeamId.value) return true` short-circuit was causing all mock data to show on countries with no team. Changed to `return false` so pages correctly show "Nothing here yet" when no team is active
+- **`teamId === null` guard removed** from transactions, invoices, and booking-links — changed from `t.teamId === null || t.teamId === activeTeamId.value` to strict `t.teamId === activeTeamId.value` so legacy unassigned records don't pollute new-team empty states
+- **Nuxt `useState` shallow reactivity fix** — `setPlatform`, `setUserType`, `setRole` in `useAppContext` now replace the full `context.value` object (`{ ...context.value, key: v }`) instead of mutating a property, ensuring DevSwitcher labels re-render correctly
+
 ## 2026-05-27 — Search, centre filters, bookings data model, and UI consistency
 
 - **Search bars** added to Transactions (landlord), Booking links, and Invoices (tenant) pages — same style as the Centres page search. Searches: Booking ID + tenant on transactions; tenant name, company, and booking ID on booking links; booking ID + company on invoices

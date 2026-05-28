@@ -58,6 +58,22 @@
             </div>
           </div>
 
+          <!-- Empty state -->
+          <template v-if="!hasTeamData">
+            <div class="flex flex-col items-center gap-3 py-20 text-center">
+              <div class="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+                <IconInbox :size="22" class="text-muted-foreground" />
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-foreground">Nothing here yet</p>
+                <p class="mt-1 text-xs text-muted-foreground max-w-xs mx-auto leading-relaxed">
+                  No booking links have been created for this team yet.
+                </p>
+              </div>
+            </div>
+          </template>
+          <template v-else>
+
           <!-- Status tabs -->
           <div class="flex items-end border-b border-border">
             <button
@@ -215,6 +231,8 @@
               </TableRow>
             </TableBody>
           </Table>
+
+          </template><!-- end v-else -->
 
         </div>
       </div>
@@ -378,6 +396,7 @@ import {
   IconSearch,
   IconBuilding,
   IconCheck,
+  IconInbox,
 } from '@tabler/icons-vue'
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar'
 import { Button } from '@/components/ui/button'
@@ -460,6 +479,11 @@ const { data: bookingLinksData } = await useAsyncData<BookingLink[]>(
 
 // Mutable local copy so newly created links appear without a page refresh
 const bookingLinks = ref<BookingLink[]>(bookingLinksData.value ?? [])
+
+const hasTeamData = computed(() => {
+  if (!activeTeamId.value) return false
+  return bookingLinks.value.some(l => l.teamId === activeTeamId.value)
+})
 
 // ─── Sort ─────────────────────────────────────────────────────────────────────
 

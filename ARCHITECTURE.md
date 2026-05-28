@@ -28,6 +28,8 @@ The app supports two platforms (`fillit`, `eleaseloop`) and two user types (`lan
 
 **Nav items** (`NavItemId`): `dashboard`, `bookings`, `calendar`, `messages`, `create-link`, `transactions`, `invoices`, `analytics`, `crm`
 
+**Country system (eLeaseLoop only):** The sidebar exposes a country selector above the team switcher, scoped to countries where the user has active teams. Switching country filters the team switcher and re-scopes all page data. If the user has no team in the active country a full-page mismatch overlay is shown, offering a country-switch or inline team-creation flow. Country state lives in `useTeamContext` (`activeCountry`, `userCountries`, `hasCountryAccess`, `setActiveCountry`, `createTeamInCountry`). Country codes are ISO 3166-1 alpha-2; flag icons use the `flag-icons` CSS library with `fi fis fi-{code}` classes.
+
 **Org items** (`OrgItemId`): `account-profile`, `account-teams`, `account-centres`, `account-spaces`, `account-lease-info`, `account-payments`, `account-notifications`
 
 | Platform | User type | Nav items | Org items |
@@ -68,6 +70,7 @@ The app supports two platforms (`fillit`, `eleaseloop`) and two user types (`lan
 | `/preview/transactions` | `pages/preview/transactions.vue` | Transactions list with team filter, date range picker, centre filter, search bar, and sortable table (landlord) |
 | `/preview/invoices` | `pages/preview/invoices.vue` | Invoices list with date range picker, search bar, and sortable table (tenant) |
 | `/preview/booking-links` | `pages/preview/booking-links.vue` | Booking links history with Create booking overlay, centre filter, and search bar; linked from "Create Link" sidebar item |
+| `/preview/messages` | `pages/preview/messages.vue` | Messaging inbox with Airbnb-style composite avatars, three-line layout, conversation types (enquiry / booking / general), and team/country-scoped filtering |
 
 ## Shared components
 
@@ -84,7 +87,7 @@ The app supports two platforms (`fillit`, `eleaseloop`) and two user types (`lan
 
 ### `DevSwitcher`
 - **File:** `components/DevSwitcher.vue`
-- **Purpose:** Development-only overlay that lets engineers switch platform, user type, and role at runtime to preview different sidebar configurations.
+- **Purpose:** Development-only overlay that lets engineers switch platform, user type, role, and (on eLeaseLoop) site country at runtime to preview different sidebar configurations and country-mismatch flows.
 
 ### `FloatingLabelInput`
 - **File:** `components/ui/input/FloatingLabelInput.vue`
@@ -116,12 +119,18 @@ The app supports two platforms (`fillit`, `eleaseloop`) and two user types (`lan
 
 ### `useTeamContext`
 - **File:** `composables/useTeamContext.ts`
-- **Purpose:** Global singleton holding the list of teams the user belongs to and the currently selected team. Seeded from mock data matching `server/data/teams.json`; in production this would come from the authenticated session.
+- **Purpose:** Global singleton holding the teams the user belongs to, the active team, and (on eLeaseLoop) the active country and country-access state.
 - **Key exports:**
-  - `teams` — reactive `TeamSummary[]` (`id`, `name`, `color`)
+  - `teams` — reactive `TeamSummary[]` scoped to the active country (eLeaseLoop) or platform (Fillit)
+  - `allUserTeams` — all teams across all countries the user belongs to
   - `activeTeamId` — currently selected team ID
   - `activeTeam` — computed `TeamSummary | null`
   - `setActiveTeam(id: string)` — switches the active team
+  - `activeCountry` — active ISO country code (eLeaseLoop only)
+  - `userCountries` — countries where the user has active teams
+  - `hasCountryAccess` — `true` when the user has at least one team in `activeCountry`
+  - `setActiveCountry(code: string)` — switches country and resets active team
+  - `createTeamInCountry(country, name)` — creates a fresh team with a predictable ID (`team-new-{country}` / `team-tenant-{country}`) that never matches mock API data, ensuring new teams start with empty pages
 
 ### `useRightPanel`
 - **File:** `composables/useRightPanel.ts`
@@ -220,4 +229,12 @@ All booking IDs are 5-digit numeric strings (e.g. `"10042"`, `"11001"`). No pref
 ### Dark mode
 Handled entirely through CSS variable tokens in `assets/css/tailwind.css`. Semantic Tailwind classes (`bg-background`, `text-foreground`, etc.) adapt automatically under the `.dark` class. No `dark:` color prefixes are used in component templates.
 
-_Last updated: 2026-05-27 (session 3)_
+### Messages inbox card pattern
+Conversations have a `type` field (`'enquiry' | 'general' | 'booking'`) that drives avatar shape and line-layout:
+- **Composite avatar** (enquiry / booking): 40×40 square main logo (centre) + 20×20 floating circle overlay (org logo), separated by `border-2 border-background`
+- **Simple circle** (general): plain 40×40 circle
+- **Three-line layout**: entity name → contextual detail (booking ID or person name) → message preview
+
+Display varies by viewer role — see `getConvDisplay()` in `pages/preview/messages.vue` for the full mapping.
+
+_Last updated: 2026-05-28 (session 4)_

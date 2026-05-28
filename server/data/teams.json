@@ -239,7 +239,7 @@
   ,
     {
       "id": "team-spain",
-      "name": "Spain",
+      "name": "Nhood ES",
       "country": "es",
       "logo": "#c0392b",
       "platform": "eleaseloop",
@@ -260,7 +260,7 @@
     },
     {
       "id": "team-france",
-      "name": "France",
+      "name": "Nhood FR North",
       "country": "fr",
       "logo": "#2980b9",
       "platform": "eleaseloop",
@@ -280,8 +280,29 @@
       ]
     },
     {
+      "id": "team-france-south",
+      "name": "Nhood FR South",
+      "country": "fr",
+      "logo": "#1a5276",
+      "platform": "eleaseloop",
+      "organisationId": "org-eleaseloop",
+      "members": [
+        { "name": "Élodie Bernard",  "email": "e.bernard@eleaseloop.fr",  "role": "Admin",    "status": "Active", "signatoryCentres": ["Grand Place Grenoble", "Polygone Riviera"] },
+        { "name": "Lucas Moreau",    "email": "l.moreau@eleaseloop.fr",   "role": "Member",   "status": "Active", "signatoryCentres": [] },
+        { "name": "Marie-Claire Dubois", "email": "mc.dubois@eleaseloop.fr", "role": "Accounts", "status": "Active", "signatoryCentres": [] }
+      ],
+      "pendingInvites": [],
+      "signatories": [
+        { "name": "Élodie Bernard", "email": "e.bernard@eleaseloop.fr", "centres": ["Grand Place Grenoble", "Polygone Riviera"], "addedBy": "Sam O'Brien", "addedOn": "01 Mar 2026" }
+      ],
+      "centres": [
+        { "id": "centre-grand-place",      "name": "Grand Place Grenoble", "location": "Grenoble",    "status": "Listed" },
+        { "id": "centre-polygone-riviera", "name": "Polygone Riviera",     "location": "Cagnes-sur-Mer", "status": "Listed" }
+      ]
+    },
+    {
       "id": "team-italy",
-      "name": "Italy",
+      "name": "Nhood IT",
       "country": "it",
       "logo": "#27ae60",
       "platform": "eleaseloop",
@@ -301,7 +322,7 @@
     },
     {
       "id": "team-poland",
-      "name": "Poland",
+      "name": "Nhood PL",
       "country": "pl",
       "logo": "#8e44ad",
       "platform": "eleaseloop",

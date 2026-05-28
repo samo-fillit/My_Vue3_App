@@ -10,12 +10,15 @@ import {
   type UserType,
   type Role,
 } from '@/composables/useAppContext'
+import { useTeamContext } from '@/composables/useTeamContext'
+import { ELEASELOOP_COUNTRIES } from '@/config/countries'
 
 const { context, setPlatform, setUserType, setRole } = useAppContext()
+const { activeCountry, setActiveCountry } = useTeamContext()
 
-const openMenu = ref<'platform' | 'userType' | 'role' | null>(null)
+const openMenu = ref<'platform' | 'userType' | 'role' | 'country' | null>(null)
 
-function toggle(menu: 'platform' | 'userType' | 'role') {
+function toggle(menu: 'platform' | 'userType' | 'role' | 'country') {
   openMenu.value = openMenu.value === menu ? null : menu
 }
 
@@ -26,6 +29,7 @@ function close() {
 const platformLabel = computed(() => PLATFORMS.find(p => p.value === context.value.platform)?.label ?? '')
 const userTypeLabel = computed(() => USER_TYPES.find(u => u.value === context.value.userType)?.label ?? '')
 const roleLabel     = computed(() => ROLES.find(r => r.value === context.value.role)?.label ?? '')
+const countryEmoji  = computed(() => ELEASELOOP_COUNTRIES.find(c => c.code === activeCountry.value)?.flag ?? '🌐')
 </script>
 
 <template>
@@ -96,11 +100,11 @@ const roleLabel     = computed(() => ROLES.find(r => r.value === context.value.r
     </div>
 
     <!-- Role selector -->
-    <div class="relative">
+    <div class="relative" :class="context.platform === 'eleaseloop' ? 'border-r border-white/20' : ''">
       <button
         type="button"
-        class="dev-btn flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-white/80 transition-colors rounded-r-2xl"
-        :class="{ 'bg-white/20': openMenu === 'role' }"
+        class="dev-btn flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-white/80 transition-colors"
+        :class="[{ 'bg-white/20': openMenu === 'role' }, context.platform !== 'eleaseloop' ? 'rounded-r-2xl' : '']"
         @click="toggle('role')"
       >
         {{ roleLabel }}
@@ -117,6 +121,38 @@ const roleLabel     = computed(() => ROLES.find(r => r.value === context.value.r
           >
             {{ opt.label }}
             <IconCheck v-if="context.role === opt.value" :size="11" stroke-width="3" class="text-white/50" />
+          </button>
+        </div>
+      </Transition>
+    </div>
+
+    <!-- Site country — eLeaseLoop only: simulates the URL subdomain (e.g. eleaseloop.com/es) -->
+    <div v-if="context.platform === 'eleaseloop'" class="relative">
+      <button
+        type="button"
+        class="dev-btn flex items-center gap-1.5 rounded-r-2xl px-3 py-1.5 text-xs font-semibold text-white/80 transition-colors"
+        :class="{ 'bg-white/20': openMenu === 'country' }"
+        @click="toggle('country')"
+      >
+        <span class="text-sm leading-none">{{ countryEmoji }}</span>
+        <span class="text-[10px] uppercase tracking-wider text-white/50">.com/{{ activeCountry }}</span>
+        <IconChevronDown :size="10" stroke-width="3" class="text-white/40 transition-transform duration-150" :class="{ 'rotate-180': openMenu === 'country' }" />
+      </button>
+      <Transition name="dropdown">
+        <div v-if="openMenu === 'country'" class="dev-dropdown absolute bottom-full right-0 mb-2 min-w-[160px] overflow-hidden rounded-xl">
+          <div class="border-b border-white/10 px-3.5 py-2 text-[10px] font-semibold uppercase tracking-widest text-white/30">Site country</div>
+          <button
+            v-for="c in ELEASELOOP_COUNTRIES" :key="c.code"
+            type="button"
+            class="flex w-full items-center justify-between gap-3 px-3.5 py-2 text-xs font-medium transition-colors hover:bg-white/20"
+            :class="activeCountry === c.code ? 'text-white' : 'text-white/50'"
+            @click="setActiveCountry(c.code); close()"
+          >
+            <span class="flex items-center gap-2">
+              <span class="text-sm leading-none">{{ c.flag }}</span>
+              {{ c.name }}
+            </span>
+            <IconCheck v-if="activeCountry === c.code" :size="11" stroke-width="3" class="text-white/50" />
           </button>
         </div>
       </Transition>

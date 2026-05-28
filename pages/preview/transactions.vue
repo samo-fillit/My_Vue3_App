@@ -101,6 +101,22 @@
             </div>
           </div>
 
+          <!-- Empty state -->
+          <template v-if="!hasTeamData">
+            <div class="flex flex-col items-center gap-3 py-20 text-center">
+              <div class="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+                <IconInbox :size="22" class="text-muted-foreground" />
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-foreground">Nothing here yet</p>
+                <p class="mt-1 text-xs text-muted-foreground max-w-xs mx-auto leading-relaxed">
+                  This team doesn't have any transactions yet.
+                </p>
+              </div>
+            </div>
+          </template>
+          <template v-else>
+
           <!-- Summary stats -->
           <div class="grid grid-cols-3 gap-8">
             <div class="flex flex-col gap-1.5">
@@ -412,6 +428,8 @@
             </TableBody>
           </Table>
 
+          </template><!-- end v-else -->
+
         </div>
       </div>
 
@@ -562,6 +580,7 @@ import {
   IconX,
   IconSearch,
   IconBuilding,
+  IconInbox,
 } from '@tabler/icons-vue'
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar'
 import { Button } from '@/components/ui/button'
@@ -824,6 +843,10 @@ const { data: transactions } = await useAsyncData<Transaction[]>(
   () => $fetch('/api/transactions'),
 )
 
+const hasTeamData = computed(() => {
+  if (!activeTeamId.value) return false
+  return (transactions.value ?? []).some(t => t.teamId === activeTeamId.value)
+})
 
 // ─── Filters + sort ───────────────────────────────────────────────────────────
 

@@ -60,6 +60,22 @@
             </div>
           </div>
 
+          <!-- Empty state -->
+          <template v-if="!hasTeamData">
+            <div class="flex flex-col items-center gap-3 py-20 text-center">
+              <div class="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+                <IconInbox :size="22" class="text-muted-foreground" />
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-foreground">Nothing here yet</p>
+                <p class="mt-1 text-xs text-muted-foreground max-w-xs mx-auto leading-relaxed">
+                  There are no invoices for this team yet.
+                </p>
+              </div>
+            </div>
+          </template>
+          <template v-else>
+
           <!-- Status filter tabs + export -->
           <div class="flex items-end justify-between border-b border-border">
             <div class="flex items-center">
@@ -242,6 +258,8 @@
               </TableRow>
             </TableBody>
           </Table>
+
+          </template><!-- end v-else -->
 
         </div>
       </div>
@@ -520,6 +538,7 @@ import {
   IconX,
   IconAlertTriangle,
   IconPlus,
+  IconInbox,
 } from '@tabler/icons-vue'
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar'
 import { Button } from '@/components/ui/button'
@@ -543,6 +562,7 @@ import AppSidebar from '@/components/app-sidebar.vue'
 import RightPanel from '@/components/right-panel.vue'
 import { FloatingLabelInput } from '@/components/ui/input'
 import { useAppContext } from '@/composables/useAppContext'
+import { useTeamContext } from '@/composables/useTeamContext'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -611,6 +631,7 @@ const savedBankAccounts: SavedBankAccount[] = [
 // ─── Permissions ──────────────────────────────────────────────────────────────
 
 const { can } = useAppContext()
+const { activeTeamId } = useTeamContext()
 
 // ─── Date range ───────────────────────────────────────────────────────────────
 
@@ -658,6 +679,11 @@ const { data: fetchedTransactions } = await useAsyncData<Transaction[]>(
 )
 
 const transactions = ref<Transaction[]>(fetchedTransactions.value ?? [])
+
+const hasTeamData = computed(() => {
+  if (!activeTeamId.value) return false
+  return transactions.value.some(t => t.teamId === activeTeamId.value)
+})
 
 // ─── Filters + sort ───────────────────────────────────────────────────────────
 
