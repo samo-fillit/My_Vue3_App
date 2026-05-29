@@ -34,7 +34,7 @@ The app supports two platforms (`fillit`, `eleaseloop`) and two user types (`lan
 
 | Platform | User type | Nav items | Org items |
 |----------|-----------|-----------|-----------|
-| fillit | landlord | dashboard, bookings, calendar, messages, create-link, transactions | profile, teams, centres, spaces, payments, notifications |
+| fillit | landlord | dashboard, bookings, calendar, messages, create-link, transactions | profile, teams, centres, spaces, notifications |
 | fillit | tenant | dashboard, bookings, calendar, messages, invoices | profile, teams, lease-info, notifications |
 | eleaseloop | landlord | dashboard, bookings, calendar, messages, create-link, transactions, **analytics**, **crm** | profile, teams, centres, spaces, payments, notifications |
 | eleaseloop | tenant | dashboard, bookings, calendar, messages, invoices | profile, teams, lease-info, notifications |
@@ -64,8 +64,8 @@ The app supports two platforms (`fillit`, `eleaseloop`) and two user types (`lan
 | `/preview/lease-details` | `pages/preview/lease-details.vue` | Organisation — lease details (tenant) |
 | `/preview/teams` | `pages/preview/teams.vue` | Organisation — teams and member permissions management |
 | `/preview/centres` | `pages/preview/centres.vue` | Organisation — shopping centres list with sortable table |
-| `/preview/spaces` | `pages/preview/spaces.vue` | Organisation — rentable spaces within centres |
-| `/preview/payments` | `pages/preview/payments.vue` | Organisation — payout settings and bank details |
+| `/preview/spaces` | `pages/preview/spaces.vue` | Organisation — rentable spaces within centres; on eLeaseLoop, new spaces require a payout account assignment (auto-suggested when all existing centre spaces share one account) |
+| `/preview/payouts` | `pages/preview/payouts.vue` | Organisation — payout accounts with banking/company details, Manage Spaces assignment UI, and multi-account unassigned-spaces flow (eLeaseLoop only) |
 | `/preview/notifications-settings` | `pages/preview/notifications-settings.vue` | Organisation — notification preferences |
 | `/preview/transactions` | `pages/preview/transactions.vue` | Transactions list with team filter, date range picker, centre filter, search bar, and sortable table (landlord) |
 | `/preview/invoices` | `pages/preview/invoices.vue` | Invoices list with date range picker, search bar, and sortable table (tenant) |
@@ -134,13 +134,25 @@ The app supports two platforms (`fillit`, `eleaseloop`) and two user types (`lan
 
 ### `useRightPanel`
 - **File:** `composables/useRightPanel.ts`
-- **Purpose:** Module-level singleton (plain `ref`s, not `useState`) controlling the right panel's open/closed state, active tab, notification list, chat messages, and toast overlay.
+- **Purpose:** Module-level singleton (plain `ref`s, not `useState`) controlling the right panel's open/closed state, active tab, notification list, chat messages, and toast overlay. Notification seed data and assistant prompts/replies are role-aware — switching `userType` via the DevSwitcher swaps the feed automatically.
 - **Key exports:**
   - `isOpen`, `activeTab` (`'notifications' | 'assistant'`), `notifications`, `messages`, `unreadCount`, `toastNotification`
   - `open(tab?)`, `close()`, `toggle(tab)` — panel visibility
   - `markRead(id)`, `markAllRead()` — notification read state
   - `pushNotification(n)` — adds a new notification and triggers a 5-second toast
   - `dismissToast()` — clears the toast immediately
+  - `resetNotificationsForUserType(userType)` — swaps the notification feed to the landlord or tenant seed set
+  - `clearMessages()` — resets the assistant chat history
+
+### `usePayoutAccounts`
+- **File:** `composables/usePayoutAccounts.ts`
+- **Purpose:** Module-level singleton holding all payout account data, shared between the Payouts settings page and the Add Space form. Also holds a supplementary `masterSpaces` ref for within-session space additions that haven't yet been written to the JSON.
+- **Key exports:**
+  - `allAccounts: ref<PayoutAccount[]>` — reactive list of all payout accounts across all countries; mutated directly by the Payouts page (add, edit, remove, manage spaces)
+  - `masterSpaces: ref<Record<string, …>>` — in-session supplement; starts empty; populated by `addToMasterSpaces` when a space is created without a page reload
+  - `addToMasterSpaces(country, centreName, spaceName)` — registers a newly created space so the Manage Spaces dialog sees it immediately within the same session
+- **Types exported:** `PayoutAccount`, `PayoutCentre`
+- **Space assignment flow:** the Payouts page derives its `masterSpacesForCountry` from the live `/api/spaces` + `/api/teams` API data (fetched on mount) so it always reflects the JSON files. In-session additions are merged on top from `masterSpaces`. The Spaces page calls `addToMasterSpaces` after saving a new space so the Payouts page doesn't need a reload.
 
 ### `notifications.registry.ts`
 - **File:** `composables/notifications.registry.ts`
@@ -229,6 +241,12 @@ All booking IDs are 5-digit numeric strings (e.g. `"10042"`, `"11001"`). No pref
 ### Dark mode
 Handled entirely through CSS variable tokens in `assets/css/tailwind.css`. Semantic Tailwind classes (`bg-background`, `text-foreground`, etc.) adapt automatically under the `.dark` class. No `dark:` color prefixes are used in component templates.
 
+### Non-dismissable dialogs
+When a dialog must be completed before the user can continue (e.g. the "Assign unassigned spaces" overlay on the Payouts page), pass `:hide-close="true"` to `DialogContent` (suppresses the × button) and bind `:open` one-way with `@update:open="() => {}"` to block overlay-click dismissal. Only use this for mandatory gates — most dialogs should remain freely dismissable.
+
+### Payout account — Manage Spaces pattern
+The Manage Spaces dialog on the Payouts page uses a `draftSpaces: ref<Set<string>>` of `centreName::spaceName` keys as working state. On open the set is seeded from the account's current `centres` array. Custom `<button>` checkboxes (not Reka UI `Checkbox`) drive selection to avoid controlled-state sync issues. Centre headers show a partial/full state indicator (dash vs tick) and toggle all child spaces. On save, claimed spaces are stripped from other accounts to prevent duplicates; any spaces that end up in no account trigger the "Assign unassigned spaces" overlay, which is non-dismissable until every orphaned space is assigned. The master space list is derived from the live API (not hardcoded) so newly created spaces appear automatically.
+
 ### Messages inbox card pattern
 Conversations have a `type` field (`'enquiry' | 'general' | 'booking'`) that drives avatar shape and line-layout:
 - **Composite avatar** (enquiry / booking): 40×40 square main logo (centre) + 20×20 floating circle overlay (org logo), separated by `border-2 border-background`
@@ -237,4 +255,4 @@ Conversations have a `type` field (`'enquiry' | 'general' | 'booking'`) that dri
 
 Display varies by viewer role — see `getConvDisplay()` in `pages/preview/messages.vue` for the full mapping.
 
-_Last updated: 2026-05-28 (session 4)_
+_Last updated: 2026-05-29 (session 5)_

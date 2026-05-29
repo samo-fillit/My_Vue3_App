@@ -447,6 +447,16 @@
                   </div>
                 </section>
 
+                <!-- Payout account (eLeaseLoop, create only) -->
+                <section v-if="spaceModalMode === 'create' && isPlatform('eleaseloop')" class="flex flex-col gap-6">
+                  <h3 class="text-sm font-semibold text-foreground">Payout account</h3>
+                  <FloatingLabelSelect v-model="spaceDraft.payoutAccountId" label="Payout account" :required="true">
+                    <SelectItem v-for="acct in countryPayoutAccounts" :key="acct.id" :value="acct.id">
+                      {{ acct.title }}
+                    </SelectItem>
+                  </FloatingLabelSelect>
+                </section>
+
               </div>
             </div>
           </div>
@@ -493,7 +503,7 @@
 </style>
 
 <script setup lang="ts">
-import { ref, computed, reactive, onMounted, nextTick } from 'vue'
+import { ref, computed, reactive, onMounted, nextTick, watch } from 'vue'
 import {
   IconSearch,
   IconChevronDown,
@@ -536,6 +546,7 @@ import AppSidebar from '@/components/app-sidebar.vue'
 import RightPanel from '@/components/right-panel.vue'
 import { useTeamContext } from '@/composables/useTeamContext'
 import { useAppContext } from '@/composables/useAppContext'
+import { usePayoutAccounts } from '@/composables/usePayoutAccounts'
 
 interface Space {
   id: string
@@ -582,8 +593,9 @@ const teams = ref<Team[]>([])
 const selectedCentreId = ref('')
 const centreAutoSelected = ref(false)
 
-const { activeTeamId } = useTeamContext()
-const { can } = useAppContext()
+const { activeTeamId, activeCountry } = useTeamContext()
+const { can, isPlatform } = useAppContext()
+const { allAccounts: payoutAccounts, addToMasterSpaces } = usePayoutAccounts()
 
 onMounted(async () => {
   const [spacesData, centresData, teamsData] = await Promise.all([
@@ -771,6 +783,7 @@ type SpaceDraftShape = {
   pricePerWeek: number
   pricePerMonth: number
   amenities: string[]
+  payoutAccountId: string
 }
 
 const blankSpaceDraft = (): SpaceDraftShape => ({
@@ -789,20 +802,42 @@ const blankSpaceDraft = (): SpaceDraftShape => ({
   pricePerWeek: 0,
   pricePerMonth: 0,
   amenities: [],
+  payoutAccountId: '',
 })
 
 const spaceDraft = ref<SpaceDraftShape>(blankSpaceDraft())
 
+const countryPayoutAccounts = computed(() =>
+  payoutAccounts.value.filter(a => a.country === activeCountry.value)
+)
+
+function getSuggestedPayoutAccount(centreId: string): string {
+  if (!centreId) return ''
+  const centre = centres.value.find(c => c.id === centreId)
+  if (!centre) return ''
+  const centreName = centre.name
+  const accts = payoutAccounts.value.filter(a => a.country === activeCountry.value)
+  const withSpaces = accts.filter(a => a.centres.some(c => c.name === centreName && c.spaces.length > 0))
+  return withSpaces.length === 1 ? withSpaces[0].id : ''
+}
+
+watch(() => spaceDraft.value.centreId, (newCentreId) => {
+  if (spaceModalMode.value !== 'create' || !isPlatform('eleaseloop')) return
+  spaceDraft.value.payoutAccountId = getSuggestedPayoutAccount(newCentreId)
+})
+
 const isSpaceFormValid = computed(() => {
   const d = spaceDraft.value
   const imageOk = spaceModalMode.value === 'create' ? d.images.length >= 3 : true
+  const payoutOk = !isPlatform('eleaseloop') || spaceModalMode.value === 'edit' || !!d.payoutAccountId
   return (
     !!d.centreId &&
     !!d.name.trim() &&
     !!d.floor &&
     !!d.type &&
     !!d.description.trim() &&
-    imageOk
+    imageOk &&
+    payoutOk
   )
 })
 
@@ -821,6 +856,7 @@ function openAddSpace() {
   spaceModalMode.value = 'create'
   editSpaceTarget.value = null
   spaceDraft.value = blankSpaceDraft()
+  spaceDraft.value.payoutAccountId = getSuggestedPayoutAccount(spaceDraft.value.centreId)
   extraSpaceAmenities.value = []
   newSpaceAmenity.value = ''
   editSpaceOpen.value = true
@@ -845,6 +881,7 @@ function openEditSpace(space: Space) {
     pricePerWeek: space.pricePerWeek ?? 0,
     pricePerMonth: space.pricePerMonth ?? 0,
     amenities: [...(space.amenities ?? space.features ?? [])],
+    payoutAccountId: '',
   }
   extraSpaceAmenities.value = []
   newSpaceAmenity.value = ''
@@ -882,6 +919,27 @@ function saveSpaceEdit() {
       amenities: d.amenities,
     })
     saveSpaces()
+
+    // Assign new space to selected payout account and master list (eLeaseLoop only)
+    if (isPlatform('eleaseloop') && d.payoutAccountId) {
+      const centre = centres.value.find(c => c.id === d.centreId)
+      if (centre) {
+        // Register in master spaces so the Manage Spaces dialog sees it
+        addToMasterSpaces(activeCountry.value, centre.name, d.name)
+
+        // Add to the chosen payout account's centre list
+        const account = payoutAccounts.value.find(a => a.id === d.payoutAccountId)
+        if (account) {
+          const existingCentre = account.centres.find(c => c.name === centre.name)
+          if (existingCentre) {
+            existingCentre.spaces.push(d.name)
+          } else {
+            account.centres.push({ name: centre.name, spaces: [d.name] })
+          }
+        }
+      }
+    }
+
     editSpaceOpen.value = false
     editSpaceTarget.value = null
     // Switch to the relevant centre and pulse the new row

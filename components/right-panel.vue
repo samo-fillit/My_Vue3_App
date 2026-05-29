@@ -17,6 +17,7 @@ import {
 } from '@tabler/icons-vue'
 import { useRightPanel } from '@/composables/useRightPanel'
 import type { AppNotification } from '@/composables/useRightPanel'
+import { useAppContext } from '@/composables/useAppContext'
 
 const {
   isOpen,
@@ -31,7 +32,17 @@ const {
   markRead,
   dismissToast,
   pushNotification,
+  resetNotificationsForUserType,
+  clearMessages,
 } = useRightPanel()
+
+const { context } = useAppContext()
+
+// Swap notification feed and clear assistant history when user type changes
+watch(() => context.value.userType, (userType) => {
+  resetNotificationsForUserType(userType)
+  clearMessages()
+}, { immediate: false })
 
 
 // ── Assistant state ────────────────────────────────────────────────────────────
@@ -72,12 +83,22 @@ function removeAttachment(id: string) {
   attachments.value = attachments.value.filter(a => a.id !== id)
 }
 
-const suggestedPrompts = [
-  'How do I invite a new team member?',
-  'Where can I view upcoming bookings?',
-  'How do I set up a new space?',
-  'How does the enquiry process work?',
-]
+const suggestedPrompts = computed(() => {
+  if (context.value.userType === 'tenant') {
+    return [
+      'How do I create an enquiry?',
+      'Where can I find my invoices?',
+      'How do I track a booking status?',
+      'How do I update my company profile?',
+    ]
+  }
+  return [
+    'Where can I check a transaction status?',
+    'How do I create a booking link?',
+    'How do I invite a team member?',
+    'How do I add a new space?',
+  ]
+})
 
 // Maps event type prefix → icon (all events in a category share one icon)
 const notificationIcon: Record<string, typeof IconBell> = {
@@ -94,32 +115,76 @@ function getNotificationIcon(type: string) {
   return notificationIcon[prefix] ?? IconBell
 }
 
-const mockReplies: { keywords: string[]; reply: string }[] = [
+const landlordReplies: { keywords: string[]; reply: string }[] = [
   {
-    keywords: ['invite', 'team member', 'add user'],
-    reply: 'To invite a team member, go to Account → Teams, then click "Invite member". Enter their email and they\'ll receive an invitation to join.',
+    keywords: ['transaction', 'transaction status', 'payment status'],
+    reply: 'You can check transaction statuses under Transactions in the sidebar. Use the date range picker, team selector, or centre filter to narrow down specific records.',
+  },
+  {
+    keywords: ['booking link', 'create booking', 'invite tenant'],
+    reply: 'To create a booking link, click "Create Link" in the sidebar. Enter the tenant\'s email, set the booking period and space, then send — the tenant receives an email to complete the enquiry.',
+  },
+  {
+    keywords: ['invite', 'team member', 'add user', 'add member'],
+    reply: 'Go to Organisation → Teams and click "Invite member". Enter their email and choose their role. They\'ll receive an invitation to join the team.',
+  },
+  {
+    keywords: ['space', 'new space', 'add space', 'set up space'],
+    reply: 'To add a space, go to Organisation → Spaces and click "+ Add new space". Set the centre, floor, dimensions, available rates, and upload images.',
+  },
+  {
+    keywords: ['enquiry', 'enquiries', 'enquiry process'],
+    reply: 'Enquiries arrive when tenants submit interest in one of your spaces. You\'ll be notified and can view, respond to, or decline them from the Bookings section.',
+  },
+  {
+    keywords: ['analytics', 'report', 'occupancy', 'revenue'],
+    reply: 'Analytics are available in the Analytics section of the sidebar. View occupancy rates, revenue breakdowns, and trend reports — filter by centre and date range.',
   },
   {
     keywords: ['booking', 'upcoming', 'calendar'],
-    reply: 'You can view all bookings from the Bookings section in the sidebar, or switch to the Calendar view for a timeline overview.',
+    reply: 'View all active bookings from the Bookings section in the sidebar, or use the Calendar view for a timeline overview across spaces.',
   },
   {
-    keywords: ['space', 'new space', 'add space'],
-    reply: 'To add a new space, go to Account → Spaces and click "+ Add new space". You\'ll be able to set the centre, floor, dimensions, rates, and images.',
+    keywords: ['payment', 'payout', 'bank account'],
+    reply: 'Payout settings and bank account details are managed under Organisation → Payments. You can add or update bank accounts and view your payout history.',
+  },
+]
+
+const tenantReplies: { keywords: string[]; reply: string }[] = [
+  {
+    keywords: ['enquiry', 'create enquiry', 'submit enquiry', 'make enquiry'],
+    reply: 'To create an enquiry, browse available spaces and click "Enquire now". Fill in your preferred dates, budget, and any other details. The landlord will respond within a few business days.',
   },
   {
-    keywords: ['enquiry', 'enquiries'],
-    reply: 'Enquiries come in when tenants submit interest in one of your spaces. You\'ll receive a notification and can view and respond from the Enquiries section.',
+    keywords: ['invoice', 'invoices', 'find invoice', 'billing'],
+    reply: 'Your invoices are listed under the Invoices section in the sidebar. Filter by date range or search by booking ID to find a specific record.',
   },
   {
-    keywords: ['payment', 'invoice', 'billing'],
-    reply: 'Payment records are available under Account → Payments. You can view received payments and any outstanding invoices there.',
+    keywords: ['booking', 'track booking', 'booking status'],
+    reply: 'All your bookings and their current status are in the Bookings section of the sidebar. Click any booking to see full details, documents, and payment history.',
+  },
+  {
+    keywords: ['profile', 'company profile', 'update profile', 'company details'],
+    reply: 'Update your company details under Organisation → Profile. Changes apply immediately and are visible to landlords on any active bookings.',
+  },
+  {
+    keywords: ['document', 'sign', 'signature', 'docusign'],
+    reply: 'When a document needs your signature you\'ll receive a notification with a direct link. Click "Sign document" to open the signing flow. Completed documents are stored in your booking records.',
+  },
+  {
+    keywords: ['payment', 'pay invoice', 'overdue', 'outstanding'],
+    reply: 'Payment due dates are shown on each invoice. If a payment is overdue, visit the Invoices section to view the outstanding amount and settle it.',
+  },
+  {
+    keywords: ['booking link', 'invitation', 'enquiry request'],
+    reply: 'When a landlord sends you a booking invitation you\'ll receive a notification. Click "Complete enquiry" to review the proposed space and submit your details.',
   },
 ]
 
 function getReply(input: string): string {
   const lower = input.toLowerCase()
-  for (const { keywords, reply } of mockReplies) {
+  const replies = context.value.userType === 'tenant' ? tenantReplies : landlordReplies
+  for (const { keywords, reply } of replies) {
     if (keywords.some(k => lower.includes(k))) return reply
   }
   return "I don't have a specific answer for that yet, but I'm here to help. You can also check the help documentation or reach out to support."

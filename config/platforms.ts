@@ -84,7 +84,7 @@ export const platformConfig: PlatformConfig = {
   fillit: {
     landlord: {
       nav: ['dashboard', 'bookings', 'calendar', 'messages', 'create-link', 'transactions'],
-      org: ['account-profile', 'account-teams', 'account-centres', 'account-spaces', 'account-payments', 'account-notifications'],
+      org: ['account-profile', 'account-teams', 'account-centres', 'account-spaces', 'account-notifications'],
     },
     tenant: {
       nav: ['dashboard', 'bookings', 'calendar', 'messages', 'invoices'],

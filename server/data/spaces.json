@@ -328,7 +328,12 @@
       "pricePerDay": 310,
       "pricePerWeek": 1750,
       "minDurationDays": 7,
-      "features": ["Power", "Wi-Fi", "Storage", "Lighting"]
+      "features": [
+        "Power",
+        "Wi-Fi",
+        "Storage",
+        "Lighting"
+      ]
     },
     {
       "id": "space-xnd-002",
@@ -342,7 +347,10 @@
       "pricePerDay": 165,
       "pricePerWeek": 890,
       "minDurationDays": 3,
-      "features": ["Power", "Wi-Fi"]
+      "features": [
+        "Power",
+        "Wi-Fi"
+      ]
     },
     {
       "id": "space-xnd-003",
@@ -356,7 +364,10 @@
       "pricePerDay": 220,
       "pricePerWeek": 1200,
       "minDurationDays": 7,
-      "features": ["Digital display", "Lighting"]
+      "features": [
+        "Digital display",
+        "Lighting"
+      ]
     },
     {
       "id": "space-maq-001",
@@ -370,7 +381,13 @@
       "pricePerDay": 650,
       "pricePerWeek": 3800,
       "minDurationDays": 1,
-      "features": ["Power", "Wi-Fi", "AV rig", "Storage", "Lighting"]
+      "features": [
+        "Power",
+        "Wi-Fi",
+        "AV rig",
+        "Storage",
+        "Lighting"
+      ]
     },
     {
       "id": "space-maq-002",
@@ -384,7 +401,11 @@
       "pricePerDay": 190,
       "pricePerWeek": 1020,
       "minDurationDays": 3,
-      "features": ["Power", "Wi-Fi", "Storage"]
+      "features": [
+        "Power",
+        "Wi-Fi",
+        "Storage"
+      ]
     },
     {
       "id": "space-maq-003",
@@ -398,7 +419,9 @@
       "pricePerDay": 130,
       "pricePerWeek": 700,
       "minDurationDays": 1,
-      "features": ["Power"]
+      "features": [
+        "Power"
+      ]
     },
     {
       "id": "space-qt-001",
@@ -412,7 +435,13 @@
       "pricePerDay": 380,
       "pricePerWeek": 2200,
       "minDurationDays": 7,
-      "features": ["Power", "Wi-Fi", "Storage", "Lighting", "A/C"]
+      "features": [
+        "Power",
+        "Wi-Fi",
+        "Storage",
+        "Lighting",
+        "A/C"
+      ]
     },
     {
       "id": "space-qt-002",
@@ -426,7 +455,10 @@
       "pricePerDay": 210,
       "pricePerWeek": 1100,
       "minDurationDays": 3,
-      "features": ["Power", "Wi-Fi"]
+      "features": [
+        "Power",
+        "Wi-Fi"
+      ]
     },
     {
       "id": "space-qt-003",
@@ -440,7 +472,13 @@
       "pricePerDay": 950,
       "pricePerWeek": 5500,
       "minDurationDays": 1,
-      "features": ["Power", "Wi-Fi", "AV rig", "Lighting", "Outdoor access"]
+      "features": [
+        "Power",
+        "Wi-Fi",
+        "AV rig",
+        "Lighting",
+        "Outdoor access"
+      ]
     },
     {
       "id": "space-pd-001",
@@ -454,7 +492,12 @@
       "pricePerDay": 295,
       "pricePerWeek": 1650,
       "minDurationDays": 7,
-      "features": ["Power", "Wi-Fi", "Storage", "Lighting"]
+      "features": [
+        "Power",
+        "Wi-Fi",
+        "Storage",
+        "Lighting"
+      ]
     },
     {
       "id": "space-pd-002",
@@ -468,7 +511,10 @@
       "pricePerDay": 145,
       "pricePerWeek": 780,
       "minDurationDays": 1,
-      "features": ["Power", "Wi-Fi"]
+      "features": [
+        "Power",
+        "Wi-Fi"
+      ]
     },
     {
       "id": "space-pd-003",
@@ -482,7 +528,10 @@
       "pricePerDay": 260,
       "pricePerWeek": 1400,
       "minDurationDays": 7,
-      "features": ["Digital display", "Lighting"]
+      "features": [
+        "Digital display",
+        "Lighting"
+      ]
     },
     {
       "id": "space-oric-001",
@@ -496,7 +545,12 @@
       "pricePerDay": 245,
       "pricePerWeek": 1380,
       "minDurationDays": 7,
-      "features": ["Power", "Wi-Fi", "Storage", "Lighting"]
+      "features": [
+        "Power",
+        "Wi-Fi",
+        "Storage",
+        "Lighting"
+      ]
     },
     {
       "id": "space-oric-002",
@@ -510,7 +564,10 @@
       "pricePerDay": 155,
       "pricePerWeek": 830,
       "minDurationDays": 3,
-      "features": ["Power", "Wi-Fi"]
+      "features": [
+        "Power",
+        "Wi-Fi"
+      ]
     },
     {
       "id": "space-oric-003",
@@ -524,7 +581,13 @@
       "pricePerDay": 520,
       "pricePerWeek": 2900,
       "minDurationDays": 1,
-      "features": ["Power", "Wi-Fi", "AV rig", "Lighting", "Storage"]
+      "features": [
+        "Power",
+        "Wi-Fi",
+        "AV rig",
+        "Lighting",
+        "Storage"
+      ]
     },
     {
       "id": "space-adg-001",
@@ -538,7 +601,12 @@
       "pricePerDay": 210,
       "pricePerWeek": 1150,
       "minDurationDays": 7,
-      "features": ["Power", "Wi-Fi", "Storage", "Lighting"]
+      "features": [
+        "Power",
+        "Wi-Fi",
+        "Storage",
+        "Lighting"
+      ]
     },
     {
       "id": "space-adg-002",
@@ -552,7 +620,9 @@
       "pricePerDay": 115,
       "pricePerWeek": 620,
       "minDurationDays": 1,
-      "features": ["Power"]
+      "features": [
+        "Power"
+      ]
     },
     {
       "id": "space-adg-003",
@@ -566,7 +636,11 @@
       "pricePerDay": 175,
       "pricePerWeek": 940,
       "minDurationDays": 3,
-      "features": ["Power", "Wi-Fi", "Outdoor access"]
+      "features": [
+        "Power",
+        "Wi-Fi",
+        "Outdoor access"
+      ]
     },
     {
       "id": "space-gmok-001",
@@ -580,7 +654,12 @@
       "pricePerDay": 275,
       "pricePerWeek": 1550,
       "minDurationDays": 7,
-      "features": ["Power", "Wi-Fi", "Storage", "Lighting"]
+      "features": [
+        "Power",
+        "Wi-Fi",
+        "Storage",
+        "Lighting"
+      ]
     },
     {
       "id": "space-gmok-002",
@@ -594,7 +673,11 @@
       "pricePerDay": 195,
       "pricePerWeek": 1050,
       "minDurationDays": 3,
-      "features": ["Power", "Wi-Fi", "Storage"]
+      "features": [
+        "Power",
+        "Wi-Fi",
+        "Storage"
+      ]
     },
     {
       "id": "space-gmok-003",
@@ -608,7 +691,10 @@
       "pricePerDay": 230,
       "pricePerWeek": 1250,
       "minDurationDays": 7,
-      "features": ["Digital display", "Lighting"]
+      "features": [
+        "Digital display",
+        "Lighting"
+      ]
     },
     {
       "id": "space-sil-001",
@@ -622,7 +708,12 @@
       "pricePerDay": 290,
       "pricePerWeek": 1640,
       "minDurationDays": 7,
-      "features": ["Power", "Wi-Fi", "Storage", "Lighting"]
+      "features": [
+        "Power",
+        "Wi-Fi",
+        "Storage",
+        "Lighting"
+      ]
     },
     {
       "id": "space-sil-002",
@@ -636,7 +727,14 @@
       "pricePerDay": 780,
       "pricePerWeek": 4400,
       "minDurationDays": 1,
-      "features": ["Power", "Wi-Fi", "AV rig", "Lighting", "Storage", "Gallery access"]
+      "features": [
+        "Power",
+        "Wi-Fi",
+        "AV rig",
+        "Lighting",
+        "Storage",
+        "Gallery access"
+      ]
     },
     {
       "id": "space-sil-003",
@@ -650,7 +748,73 @@
       "pricePerDay": 125,
       "pricePerWeek": 670,
       "minDurationDays": 1,
-      "features": ["Power", "Wi-Fi"]
+      "features": [
+        "Power",
+        "Wi-Fi"
+      ]
+    },
+    {
+      "id": "space-1780067691037",
+      "centreId": "centre-xanadu",
+      "name": "Test",
+      "type": "Pop-up",
+      "floor": "Ground",
+      "zone": "",
+      "sqm": 1,
+      "status": "Available",
+      "listed": true,
+      "pricePerDay": 100,
+      "pricePerWeek": 100,
+      "pricePerWeekend": 100,
+      "pricePerMonth": 100,
+      "minDurationDays": 1,
+      "features": [
+        "Power outlets",
+        "Wi-Fi access",
+        "Storage"
+      ],
+      "description": "aaa",
+      "images": [
+        "blob:http://localhost:3000/fc57578e-63ba-4c60-bbbf-5b2df12a3b23",
+        "blob:http://localhost:3000/98577fdf-68f9-43fa-b527-29d42f3a0124",
+        "blob:http://localhost:3000/cd7f0c28-e3a7-453d-a493-c06068eaf90b"
+      ],
+      "thumbnailIndex": 0,
+      "length": 1,
+      "width": 1,
+      "height": 1,
+      "amenities": [
+        "Power outlets",
+        "Wi-Fi access",
+        "Storage"
+      ]
+    },
+    {
+      "id": "space-1780069586497",
+      "centreId": "centre-xanadu",
+      "name": "Pottery House",
+      "type": "Pop-up",
+      "floor": "Ground",
+      "zone": "",
+      "sqm": null,
+      "status": "Available",
+      "listed": true,
+      "pricePerDay": 0,
+      "pricePerWeek": 0,
+      "minDurationDays": 1,
+      "features": [
+        "Power outlets"
+      ],
+      "description": "afsaf",
+      "images": [
+        "blob:http://localhost:3000/7058107a-c440-45eb-9df4-c5151e6ba761",
+        "blob:http://localhost:3000/1d7480c8-fa1f-45f3-9720-6420e6c2b827",
+        "blob:http://localhost:3000/6efe18a0-1e92-4109-b8c4-4094ee2a2b72"
+      ],
+      "thumbnailIndex": 0,
+      "amenities": [
+        "Power outlets"
+      ]
     }
   ]
 }

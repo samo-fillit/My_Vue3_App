@@ -162,7 +162,7 @@ const groups: Group[] = [
         tags: ['tenant'],
       },
       {
-        path: '/preview/payments',
+        path: '/preview/payouts',
         label: 'Payouts',
         description: 'Payout account management — Stripe Connect or bank transfer, with centre/space assignment per account.',
         status: 'In progress',

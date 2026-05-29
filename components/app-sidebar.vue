@@ -135,7 +135,7 @@ const allOrgItems = [
   { id: 'account-centres',       label: 'Centres',       route: '/preview/centres' },
   { id: 'account-spaces',        label: 'Spaces',        route: '/preview/spaces' },
   { id: 'account-lease-info',    label: 'Lease Info',    route: '/preview/lease-details' },
-  { id: 'account-payments',      label: 'Payouts',       route: '/preview/payments' },
+  { id: 'account-payments',      label: 'Payouts',       route: '/preview/payouts' },
   { id: 'account-notifications', label: 'Notifications', route: '/preview/notifications-settings' },
 ]
 
