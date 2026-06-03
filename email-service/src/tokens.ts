@@ -6,16 +6,20 @@
 
 export type Platform = 'fillit' | 'eleaseloop'
 
+// Logos are inlined as base64 data URIs so they render in the React Email
+// dev preview without needing a static file server, and work in any email
+// client that supports <img>. For production, swap these for hosted PNG URLs
+// (e.g. https://cdn.fillit.com/email/logo.png) in platformConfig below.
+import { FILLIT_LOGO_URI, ELEASELOOP_LOGO_URI } from './logo-data'
+
 export const platformConfig: Record<Platform, { logoUrl: string; siteUrl: string; siteName: string }> = {
   fillit: {
-    // Dev: served from email-service/static/ by `npm run dev`
-    // Prod: replace with absolute CDN URL, e.g. https://cdn.fillit.com/email/logo.png
-    logoUrl:  '/static/fillit-logo.svg',
+    logoUrl:  FILLIT_LOGO_URI,
     siteUrl:  'https://fillit.com',
     siteName: 'fillit.com',
   },
   eleaseloop: {
-    logoUrl:  '/static/eleaseloop-logo.svg',
+    logoUrl:  ELEASELOOP_LOGO_URI,
     siteUrl:  'https://eleaseloop.com',
     siteName: 'eleaseloop.com',
   },
