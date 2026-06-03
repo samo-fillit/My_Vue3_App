@@ -1,0 +1,26 @@
+{
+  "name": "fillit-email-service",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "email dev --dir src/templates --port 3001",
+    "build": "tsc --noEmit",
+    "server": "tsx server.ts",
+    "export": "email export --dir src/templates --outDir dist"
+  },
+  "dependencies": {
+    "@react-email/components": "^0.0.34",
+    "hono": "^4.6.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@react-email/render": "^1.0.3",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@types/node": "^22.9.0",
+    "react-email": "^3.0.4",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}
