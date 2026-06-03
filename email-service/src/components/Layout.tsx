@@ -6,14 +6,19 @@ import {
   Font,
   Preview,
 } from '@react-email/components'
-import { tokens } from '../tokens'
+import { tokens, platformConfig, type Platform } from '../tokens'
+import { Header } from './Header'
+import { Footer } from './Footer'
 
 interface LayoutProps {
-  preview: string
-  children: React.ReactNode
+  preview:   string
+  platform?: Platform
+  children:  React.ReactNode
 }
 
-export function Layout({ preview, children }: LayoutProps) {
+export function Layout({ preview, platform = 'fillit', children }: LayoutProps) {
+  const { logoUrl, siteUrl, siteName } = platformConfig[platform]
+
   return (
     <Html lang="en">
       <Head>
@@ -57,18 +62,9 @@ export function Layout({ preview, children }: LayoutProps) {
             overflow: 'hidden',
           }}
         >
+          <Header logoUrl={logoUrl} />
           {children}
-        </Container>
-
-        {/* Outer footer — company address etc. (below the card) */}
-        <Container
-          style={{
-            maxWidth: tokens.containerWidth,
-            margin: '0 auto',
-            padding: '20px 0 0',
-            textAlign: 'center',
-          }}
-        >
+          <Footer siteUrl={siteUrl} siteName={siteName} />
         </Container>
       </Body>
     </Html>

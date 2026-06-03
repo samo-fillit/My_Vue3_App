@@ -1,10 +1,9 @@
 import { Layout }    from '../components/Layout'
-import { Header }    from '../components/Header'
 import { EmailBody } from '../components/Body'
-import { Footer }    from '../components/Footer'
 import { Paragraph } from '../components/Paragraph'
 import { DataCard }  from '../components/DataCard'
 import { Divider }   from '../components/Divider'
+import type { Platform } from '../tokens'
 
 export interface SignatoryAddedProps {
   /** Full name of the signatory being notified */
@@ -17,6 +16,8 @@ export interface SignatoryAddedProps {
   addedByName: string
   /** Email address of the person who added them (for follow-up questions) */
   addedByEmail: string
+  /** Platform brand — determines logo and site URL in header/footer */
+  platform?: Platform
 }
 
 export default function SignatoryAdded({
@@ -25,13 +26,13 @@ export default function SignatoryAdded({
   teamName      = 'Nhood ES',
   addedByName   = 'Carlos García',
   addedByEmail  = 'c.garcia@eleaseloop.es',
+  platform      = 'eleaseloop',
 }: SignatoryAddedProps) {
   return (
     <Layout
       preview={`You've been added as a DocuSign signatory for ${centreName}`}
+      platform={platform}
     >
-      <Header />
-
       <EmailBody>
         <Paragraph>Hi {signatoryName},</Paragraph>
 
@@ -66,8 +67,6 @@ export default function SignatoryAdded({
           .
         </Paragraph>
       </EmailBody>
-
-      <Footer />
     </Layout>
   )
 }

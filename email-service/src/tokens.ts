@@ -4,6 +4,23 @@
  * Email clients don't support CSS variables, so we inline these directly.
  */
 
+export type Platform = 'fillit' | 'eleaseloop'
+
+export const platformConfig: Record<Platform, { logoUrl: string; siteUrl: string; siteName: string }> = {
+  fillit: {
+    // Dev: served from email-service/static/ by `npm run dev`
+    // Prod: replace with absolute CDN URL, e.g. https://cdn.fillit.com/email/logo.png
+    logoUrl:  '/static/fillit-logo.svg',
+    siteUrl:  'https://fillit.com',
+    siteName: 'fillit.com',
+  },
+  eleaseloop: {
+    logoUrl:  '/static/eleaseloop-logo.svg',
+    siteUrl:  'https://eleaseloop.com',
+    siteName: 'eleaseloop.com',
+  },
+}
+
 export const tokens = {
   // Typography
   fontFamily: 'Inter, Arial, sans-serif',

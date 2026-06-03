@@ -1,12 +1,12 @@
 import { Section, Row, Column, Link, Text, Hr } from '@react-email/components'
 import { tokens } from '../tokens'
 
-const socialLinks = [
-  { label: 'LinkedIn',  href: 'https://linkedin.com/company/fillit' },
-  { label: 'Instagram', href: 'https://instagram.com/fillit' },
-]
+interface FooterProps {
+  siteUrl:  string
+  siteName: string
+}
 
-export function Footer() {
+export function Footer({ siteUrl, siteName }: FooterProps) {
   return (
     <>
       <Hr style={{ borderColor: tokens.colorBorder, margin: 0 }} />
@@ -18,7 +18,7 @@ export function Footer() {
                 fontFamily: tokens.fontFamily,
                 fontSize: tokens.fontSizeMicro,
                 color: tokens.colorMuted,
-                margin: '0 0 8px',
+                margin: '0 0 4px',
                 lineHeight: '1.5',
               }}
             >
@@ -33,18 +33,12 @@ export function Footer() {
                 lineHeight: '1.5',
               }}
             >
-              {socialLinks.map((link, i) => (
-                <>
-                  <Link
-                    key={link.label}
-                    href={link.href}
-                    style={{ color: tokens.colorMuted, textDecoration: 'underline' }}
-                  >
-                    {link.label}
-                  </Link>
-                  {i < socialLinks.length - 1 && '  ·  '}
-                </>
-              ))}
+              <Link
+                href={siteUrl}
+                style={{ color: tokens.colorMuted, textDecoration: 'underline' }}
+              >
+                {siteName}
+              </Link>
             </Text>
           </Column>
         </Row>

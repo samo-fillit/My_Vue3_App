@@ -1,10 +1,9 @@
 import { Layout }    from '../components/Layout'
-import { Header }    from '../components/Header'
 import { EmailBody } from '../components/Body'
-import { Footer }    from '../components/Footer'
 import { Paragraph } from '../components/Paragraph'
 import { Button }    from '../components/Button'
 import { Divider }   from '../components/Divider'
+import type { Platform } from '../tokens'
 
 export interface TeamInviteProps {
   /** First name of the person being invited */
@@ -15,6 +14,8 @@ export interface TeamInviteProps {
   teamName: string
   /** Invite accept URL */
   inviteUrl: string
+  /** Platform brand — determines logo and site URL in header/footer */
+  platform?: Platform
 }
 
 export default function TeamInvite({
@@ -22,11 +23,13 @@ export default function TeamInvite({
   inviterName   = 'Carlos García',
   teamName      = 'Nhood ES',
   inviteUrl     = 'https://app.fillit.com/invite/abc123',
+  platform      = 'fillit',
 }: TeamInviteProps) {
   return (
-    <Layout preview={`${inviterName} has invited you to join ${teamName} on Fillit`}>
-      <Header />
-
+    <Layout
+      preview={`${inviterName} has invited you to join ${teamName} on Fillit`}
+      platform={platform}
+    >
       <EmailBody>
         <Paragraph>Hi {recipientName},</Paragraph>
 
@@ -50,8 +53,6 @@ export default function TeamInvite({
           after 7 days.
         </Paragraph>
       </EmailBody>
-
-      <Footer />
     </Layout>
   )
 }
