@@ -15,8 +15,8 @@ export function Header({ logoUrl }: HeaderProps) {
     >
       <Img
         src={logoUrl}
-        width={120}
-        height={90}
+        width={60}
+        height={45}
         alt="Fillit"
         style={{ display: 'block' }}
       />
