@@ -8,20 +8,31 @@ import { PreviewMeta } from './PreviewMeta'
 import { EMAIL_MODULES } from '../emails/modules'
 
 const RADIO = 'loc'
-const SCHEME = 'scheme'
 
 interface LocaleTabsProps {
   email: string
   brand: Brand
 }
 
-/**
- * One preview entry per email × brand. Shows the metadata card (with the
- * language toggle) and every language stacked. Switching is a pure-CSS
- * radio-button toggle — no links, no URL hash, so the preview iframe never
- * navigates (which previously duplicated the whole app). Preview-only;
- * production sends a single brand+locale via the email's default export.
- */
+// Persistent light/dark toggle. The preview iframe is a same-origin srcdoc, so
+// localStorage is shared across every email — flip it once and it stays as you
+// move between emails. The button is fixed to the top-right of the preview.
+const SCHEME_SCRIPT = `(function(){try{
+  var K='email-preview-scheme';
+  function apply(d){
+    document.documentElement.classList.toggle('scheme-dark', d);
+    var b=document.getElementById('scheme-toggle');
+    if(b) b.textContent = d ? '🌙 Dark' : '☀️ Light';
+  }
+  var dark = localStorage.getItem(K)==='dark';
+  apply(dark);
+  window.__toggleScheme=function(){ dark=!dark; localStorage.setItem(K, dark?'dark':'light'); apply(dark); };
+}catch(e){}})();`
+
+const SCHEME_BUTTON = `<button id="scheme-toggle" type="button"
+  onclick="window.__toggleScheme&&window.__toggleScheme()"
+  style="position:fixed;top:14px;right:14px;z-index:2147483647;font-family:Inter,Arial,sans-serif;font-size:12px;font-weight:600;color:#ffffff;background:#313d4f;border:none;border-radius:999px;padding:9px 15px;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,0.25)">☀️ Light</button>`
+
 export function LocaleTabs({ email, brand }: LocaleTabsProps) {
   const mod = EMAIL_MODULES[email]
   const locales = BRAND_LOCALES[brand]
@@ -37,18 +48,13 @@ export function LocaleTabs({ email, brand }: LocaleTabsProps) {
       (l) =>
         `#${RADIO}-${l}:checked ~ .meta-wrap .langpill-${l} { background: ${accent} !important; color: #ffffff !important; border-color: transparent !important; font-weight: 700 !important; }`,
     ),
-    // active appearance pill
-    `#${SCHEME}-light:checked ~ .meta-wrap .schemepill-light,`,
-    `#${SCHEME}-dark:checked ~ .meta-wrap .schemepill-dark { background: #313d4f !important; color: #ffffff !important; border-color: transparent !important; font-weight: 700 !important; }`,
-    // ── Dark-mode email simulation (when the dark radio is checked) ──
-    `#${SCHEME}-dark:checked ~ .loc-stack { background: #15171c !important; }`,
-    `#${SCHEME}-dark:checked ~ .loc-stack .email-card { background: #1f2329 !important; }`,
-    `#${SCHEME}-dark:checked ~ .loc-stack .email-card p,`,
-    `#${SCHEME}-dark:checked ~ .loc-stack .email-card a,`,
-    `#${SCHEME}-dark:checked ~ .loc-stack .email-card span,`,
-    `#${SCHEME}-dark:checked ~ .loc-stack .email-card strong { color: #e5e7eb !important; }`,
-    `#${SCHEME}-dark:checked ~ .loc-stack .email-rule { border-color: #363b44 !important; }`,
-    `#${SCHEME}-dark:checked ~ .loc-stack .email-datacard { background: #2a2f37 !important; border-color: #363b44 !important; }`,
+    // ── Dark-mode email simulation (toggled by the fixed button → .scheme-dark on <html>) ──
+    '.scheme-dark, .scheme-dark body { background: #15171c !important; }',
+    '.scheme-dark .loc-stack { background: #15171c !important; }',
+    '.scheme-dark .email-card { background: #1f2329 !important; }',
+    '.scheme-dark .email-card p, .scheme-dark .email-card a, .scheme-dark .email-card span, .scheme-dark .email-card strong { color: #e5e7eb !important; }',
+    '.scheme-dark .email-rule { border-color: #363b44 !important; }',
+    '.scheme-dark .email-datacard { background: #2a2f37 !important; border-color: #363b44 !important; }',
   ].join('\n')
 
   return (
@@ -59,19 +65,19 @@ export function LocaleTabs({ email, brand }: LocaleTabsProps) {
       </Head>
       <Preview>{mod.previewText(brand, first)}</Preview>
       <Body style={{ backgroundColor: '#f3f4f6', fontFamily: tokens.fontFamily, margin: 0, padding: '40px 0' }}>
+        {/* Persistent light/dark toggle — fixed top-right of the preview */}
+        <div dangerouslySetInnerHTML={{ __html: SCHEME_BUTTON }} />
+
         <div className="lang-root">
           {/* Hidden radios — language (first locale checked by default) */}
           {locales.map((l) => (
             <input key={l} type="radio" name={RADIO} id={`${RADIO}-${l}`} className="locradio" defaultChecked={l === first} />
           ))}
-          {/* Hidden radios — appearance (light checked by default) */}
-          <input type="radio" name={SCHEME} id={`${SCHEME}-light`} className="locradio" defaultChecked />
-          <input type="radio" name={SCHEME} id={`${SCHEME}-dark`} className="locradio" />
 
-          {/* Metadata card with the language + appearance toggles */}
+          {/* Metadata card with the language toggle */}
           <div className="meta-wrap">
             <Container style={{ maxWidth: tokens.containerWidth, margin: '0 auto 20px', padding: 0 }}>
-              <PreviewMeta {...mod.meta} brand={brand} locale={first} locales={locales} radioName={RADIO} schemeRadio={SCHEME} />
+              <PreviewMeta {...mod.meta} brand={brand} locale={first} locales={locales} radioName={RADIO} />
             </Container>
           </div>
 
@@ -84,6 +90,9 @@ export function LocaleTabs({ email, brand }: LocaleTabsProps) {
             ))}
           </div>
         </div>
+
+        {/* Apply persisted scheme on load (srcdoc iframe executes this) */}
+        <script dangerouslySetInnerHTML={{ __html: SCHEME_SCRIPT }} />
       </Body>
     </Html>
   )

@@ -17,9 +17,6 @@ export interface PreviewMetaProps {
   /** When set, render pills as <label for="{radioName}-{locale}"> for a
    *  pure-CSS radio toggle (no navigation). Takes precedence over hrefFor. */
   radioName?: string
-  /** When set, render a Light/Dark appearance toggle wired to
-   *  <input id="{schemeRadio}-light|dark">. */
-  schemeRadio?: string
 }
 
 const tagColor: Record<BrandTag, string> = {
@@ -37,7 +34,7 @@ const LOCALE_FLAG: Record<Locale, string> = {
  * Surfaces the email's metadata (title, context, trigger page) and the active
  * brand / language. NOT rendered in production sends (only when `preview`).
  */
-export function PreviewMeta({ id, title, context, trigger, tag, brand, locale, locales, hrefFor, radioName, schemeRadio }: PreviewMetaProps) {
+export function PreviewMeta({ id, title, context, trigger, tag, brand, locale, locales, hrefFor, radioName }: PreviewMetaProps) {
   const linkFor = hrefFor ?? ((l: Locale) => `#lang-${l}`)
   const pillColor = tagColor[tag === 'general' ? brand : tag]
   return (
@@ -51,7 +48,7 @@ export function PreviewMeta({ id, title, context, trigger, tag, brand, locale, l
       }}
     >
       <Row>
-        <Column>
+        <Column style={{ verticalAlign: 'top' }}>
           <Text style={{ margin: 0, fontFamily: tokens.fontFamily, fontSize: '10px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#94a3b8' }}>
             Preview · not part of the email
           </Text>
@@ -67,12 +64,9 @@ export function PreviewMeta({ id, title, context, trigger, tag, brand, locale, l
             </Text>
           )}
         </Column>
-      </Row>
-
-      {/* Brand chip */}
-      <Row style={{ marginTop: '12px' }}>
-        <Column>
-          <span style={{ display: 'inline-block', backgroundColor: tagColor[tag], color: '#ffffff', fontFamily: tokens.fontFamily, fontSize: '11px', fontWeight: 700, borderRadius: '999px', padding: '3px 10px' }}>
+        {/* Brand tag — top right of the card */}
+        <Column style={{ verticalAlign: 'top', textAlign: 'right', width: '150px' }}>
+          <span style={{ display: 'inline-block', backgroundColor: tagColor[tag], color: '#ffffff', fontFamily: tokens.fontFamily, fontSize: '11px', fontWeight: 700, borderRadius: '999px', padding: '4px 11px', whiteSpace: 'nowrap' }}>
             {BRAND_TAG_LABEL[tag]}
           </span>
         </Column>
@@ -112,37 +106,6 @@ export function PreviewMeta({ id, title, context, trigger, tag, brand, locale, l
       </Row>
 
       {/* Appearance (light / dark) toggle */}
-      {schemeRadio && (
-        <Row style={{ marginTop: '14px' }}>
-          <Column>
-            <Text style={{ margin: '0 0 8px', fontFamily: tokens.fontFamily, fontSize: '10px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#94a3b8' }}>
-              Appearance
-            </Text>
-            {([['light', '☀️ Light'], ['dark', '🌙 Dark']] as const).map(([scheme, label]) => (
-              <label
-                key={scheme}
-                htmlFor={`${schemeRadio}-${scheme}`}
-                className={`schemepill schemepill-${scheme}`}
-                style={{
-                  display: 'inline-block',
-                  marginRight: '6px',
-                  cursor: 'pointer',
-                  fontFamily: tokens.fontFamily,
-                  fontSize: '12px',
-                  fontWeight: 500,
-                  color: '#334155',
-                  backgroundColor: '#ffffff',
-                  border: '1px solid #cbd5e1',
-                  borderRadius: '8px',
-                  padding: '6px 12px',
-                }}
-              >
-                {label}
-              </label>
-            ))}
-          </Column>
-        </Row>
-      )}
     </Section>
   )
 }
