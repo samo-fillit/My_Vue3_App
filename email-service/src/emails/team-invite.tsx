@@ -73,24 +73,44 @@ export default function TeamInvite({
   teamName      = 'Nhood ES',
   inviteUrl     = 'https://app.example.com/invite/abc123',
 }: TeamInviteProps) {
-  const cfg = BRANDS[brand]
-  const t = T[locale]({ recipientName, inviterName, teamName, brandName: cfg.name })
-
   return (
     <Layout
-      preview={t.previewText}
+      preview={previewText(brand, locale)}
       brand={brand}
       lang={locale}
       meta={preview ? { ...meta, brand, locale, locales: BRAND_LOCALES[brand] } : undefined}
     >
-      <EmailBody>
-        <Paragraph>{t.greeting}</Paragraph>
-        <Paragraph>{t.intro}</Paragraph>
-        <Paragraph>{t.body}</Paragraph>
-        <Button href={inviteUrl} color={cfg.primary}>{t.cta}</Button>
-        <Divider />
-        <Paragraph muted small>{t.disclaimer}</Paragraph>
-      </EmailBody>
+      <Content brand={brand} locale={locale} recipientName={recipientName} inviterName={inviterName} teamName={teamName} inviteUrl={inviteUrl} />
     </Layout>
   )
 }
+
+/** Preview/subject line for a given brand + locale. */
+export function previewText(brand: Brand, locale: Locale) {
+  return T[locale]({ recipientName: '', inviterName: 'Carlos García', teamName: 'Nhood ES', brandName: BRANDS[brand].name }).previewText
+}
+
+/** Email body only (no <Html> shell) — reused by the locale-tabs preview. */
+export function Content({
+  brand         = 'fillit',
+  locale        = 'en',
+  recipientName = 'Sarah',
+  inviterName   = 'Carlos García',
+  teamName      = 'Nhood ES',
+  inviteUrl     = 'https://app.example.com/invite/abc123',
+}: TeamInviteProps) {
+  const cfg = BRANDS[brand]
+  const t = T[locale]({ recipientName, inviterName, teamName, brandName: cfg.name })
+  return (
+    <EmailBody>
+      <Paragraph>{t.greeting}</Paragraph>
+      <Paragraph>{t.intro}</Paragraph>
+      <Paragraph>{t.body}</Paragraph>
+      <Button href={inviteUrl} color={cfg.primary}>{t.cta}</Button>
+      <Divider />
+      <Paragraph muted small>{t.disclaimer}</Paragraph>
+    </EmailBody>
+  )
+}
+
+export { meta }

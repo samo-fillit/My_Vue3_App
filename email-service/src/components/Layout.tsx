@@ -7,11 +7,30 @@ import {
   Preview,
 } from '@react-email/components'
 import { tokens } from '../tokens'
-import { BRANDS, type Brand } from '../brand'
+import { type Brand } from '../brand'
 import type { Locale } from '../i18n'
-import { Header } from './Header'
-import { Footer } from './Footer'
+import { EmailCard } from './EmailCard'
 import { PreviewMeta, type PreviewMetaProps } from './PreviewMeta'
+
+/** Shared <Head> font injection — used by Layout and the locale-tabs preview. */
+export const EmailFonts = () => (
+  <>
+    <Font
+      fontFamily="Inter"
+      fallbackFontFamily="Arial"
+      webFont={{ url: 'https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2', format: 'woff2' }}
+      fontWeight={400}
+      fontStyle="normal"
+    />
+    <Font
+      fontFamily="Inter"
+      fallbackFontFamily="Arial"
+      webFont={{ url: 'https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuI6fAZ9hiJ-Ek-_EeA.woff2', format: 'woff2' }}
+      fontWeight={600}
+      fontStyle="normal"
+    />
+  </>
+)
 
 interface LayoutProps {
   preview:  string
@@ -23,31 +42,10 @@ interface LayoutProps {
 }
 
 export function Layout({ preview, brand = 'fillit', lang = 'en', meta, children }: LayoutProps) {
-  const { logoUri, siteUrl, siteName } = BRANDS[brand]
-
   return (
     <Html lang={lang}>
       <Head>
-        <Font
-          fontFamily="Inter"
-          fallbackFontFamily="Arial"
-          webFont={{
-            url: 'https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2',
-            format: 'woff2',
-          }}
-          fontWeight={400}
-          fontStyle="normal"
-        />
-        <Font
-          fontFamily="Inter"
-          fallbackFontFamily="Arial"
-          webFont={{
-            url: 'https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuI6fAZ9hiJ-Ek-_EeA.woff2',
-            format: 'woff2',
-          }}
-          fontWeight={600}
-          fontStyle="normal"
-        />
+        <EmailFonts />
       </Head>
       <Preview>{preview}</Preview>
       <Body
@@ -65,20 +63,7 @@ export function Layout({ preview, brand = 'fillit', lang = 'en', meta, children 
           </Container>
         )}
 
-        <Container
-          style={{
-            backgroundColor: tokens.colorBackground,
-            borderRadius: tokens.borderRadius,
-            maxWidth: tokens.containerWidth,
-            margin: '0 auto',
-            padding: 0,
-            overflow: 'hidden',
-          }}
-        >
-          <Header logoUrl={logoUri} />
-          {children}
-          <Footer siteUrl={siteUrl} siteName={siteName} />
-        </Container>
+        <EmailCard brand={brand}>{children}</EmailCard>
       </Body>
     </Html>
   )

@@ -12,6 +12,8 @@ export interface PreviewMetaProps {
   brand: Brand
   locale: Locale
   locales: Locale[]
+  /** Builds the href for each language pill. Defaults to in-page #anchors. */
+  hrefFor?: (locale: Locale) => string
 }
 
 const tagColor: Record<BrandTag, string> = {
@@ -29,7 +31,8 @@ const LOCALE_FLAG: Record<Locale, string> = {
  * Surfaces the email's metadata (title, context, trigger page) and the active
  * brand / language. NOT rendered in production sends (only when `preview`).
  */
-export function PreviewMeta({ id, title, context, trigger, tag, brand, locale, locales }: PreviewMetaProps) {
+export function PreviewMeta({ id, title, context, trigger, tag, brand, locale, locales, hrefFor }: PreviewMetaProps) {
+  const linkFor = hrefFor ?? ((l: Locale) => `#lang-${l}`)
   return (
     <Section
       style={{
@@ -79,8 +82,7 @@ export function PreviewMeta({ id, title, context, trigger, tag, brand, locale, l
             return (
               <a
                 key={l}
-                href={`/preview/${brand}/${id}/${l}`}
-                target="_top"
+                href={linkFor(l)}
                 style={{
                   display: 'inline-block',
                   marginRight: '6px',

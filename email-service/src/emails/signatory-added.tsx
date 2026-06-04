@@ -78,30 +78,50 @@ export default function SignatoryAdded({
   addedByName   = 'Carlos García',
   addedByEmail  = 'c.garcia@eleaseloop.es',
 }: SignatoryAddedProps) {
-  const cfg = BRANDS[brand]
-  const t = T[locale]({ signatoryName, centreName, teamName, addedByName })
-
   return (
     <Layout
-      preview={t.previewText}
+      preview={previewText(brand, locale)}
       brand={brand}
       lang={locale}
       meta={preview ? { ...meta, brand, locale, locales: BRAND_LOCALES[brand] } : undefined}
     >
-      <EmailBody>
-        <Paragraph>{t.greeting}</Paragraph>
-        <Paragraph>{t.intro}</Paragraph>
-        <Paragraph>{t.body}</Paragraph>
-        <DataCard
-          rows={[
-            { label: t.labelCentre,  value: centreName },
-            { label: t.labelTeam,    value: teamName },
-            { label: t.labelAddedBy, value: addedByName },
-          ]}
-        />
-        <Divider />
-        <Paragraph muted small>{t.footer(addedByEmail)}</Paragraph>
-      </EmailBody>
+      <Content brand={brand} locale={locale} signatoryName={signatoryName} centreName={centreName} teamName={teamName} addedByName={addedByName} addedByEmail={addedByEmail} />
     </Layout>
   )
 }
+
+/** Preview/subject line for a given brand + locale. */
+export function previewText(brand: Brand, locale: Locale) {
+  return T[locale]({ signatoryName: '', centreName: 'Centro Comercial Xanadú', teamName: 'Nhood ES', addedByName: 'Carlos García' }).previewText
+}
+
+/** Email body only (no <Html> shell) — reused by the locale-tabs preview. */
+export function Content({
+  brand         = 'eleaseloop',
+  locale        = 'en',
+  signatoryName = 'James Miller',
+  centreName    = 'Centro Comercial Xanadú',
+  teamName      = 'Nhood ES',
+  addedByName   = 'Carlos García',
+  addedByEmail  = 'c.garcia@eleaseloop.es',
+}: SignatoryAddedProps) {
+  const t = T[locale]({ signatoryName, centreName, teamName, addedByName })
+  return (
+    <EmailBody>
+      <Paragraph>{t.greeting}</Paragraph>
+      <Paragraph>{t.intro}</Paragraph>
+      <Paragraph>{t.body}</Paragraph>
+      <DataCard
+        rows={[
+          { label: t.labelCentre,  value: centreName },
+          { label: t.labelTeam,    value: teamName },
+          { label: t.labelAddedBy, value: addedByName },
+        ]}
+      />
+      <Divider />
+      <Paragraph muted small>{t.footer(addedByEmail)}</Paragraph>
+    </EmailBody>
+  )
+}
+
+export { meta }

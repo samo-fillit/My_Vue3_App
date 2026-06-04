@@ -78,18 +78,21 @@ themes itself from the brand config.
 
 ### Preview toggles
 
-The sidebar is grouped **by brand** (`fillit/`, `eleaseloop/`) and then **by
-email**, so each email shows once as a collapsible group (the brand is the
-sidebar toggle). Language is switched **in the preview itself**: every email
-renders a dev-only metadata card above it showing the **title**, a **context**
-line, the **page it's triggered from**, the brand tag, and a **country/language
-toggle** — clickable flag + language pills for every language the email exists
-in. Clicking one re-renders the preview in that language.
+The sidebar shows a **`fillit/` and `eleaseloop/` folder** (the brand axis),
+each containing **one entry per email** — `fillit/team-invite`,
+`eleaseloop/team-invite`, `eleaseloop/signatory-added`, etc.
+
+Language is switched **inside the preview**: each entry renders a dev-only
+metadata card showing the **title**, a **context** line, the **page it's
+triggered from**, the brand tag, and a **country/language toggle** (clickable
+flag + language pills for every language the email exists in). Under the hood
+every language is rendered and a pure-CSS `:target` toggle shows the selected
+one — no extra sidebar entries, no JavaScript.
 
 Preview entries are auto-generated from the registry:
 
 ```bash
-npm run generate   # writes src/templates/<brand>/<email>/<locale>.tsx
+npm run generate   # writes one src/templates/<brand>/<email>.tsx per email/brand
 npm run dev        # regenerates, then starts the preview
 ```
 
