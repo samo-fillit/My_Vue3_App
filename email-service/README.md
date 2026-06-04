@@ -76,18 +76,20 @@ Every email is tagged `fillit`, `eleaseloop`, or `general` (both) in
 takes `{ brand, locale }`, pulls copy from its co-located translation table, and
 themes itself from the brand config.
 
-### Preview toggles (the sidebar)
+### Preview toggles
 
-The React Email preview lists generated entries **grouped by brand folder**
-(`fillit/`, `eleaseloop/`) with **one entry per language** — that folder/file
-structure *is* the brand + language toggle. Every preview also renders a
-dev-only metadata banner above the email showing the **title**, a **context**
-line, and the **page it's triggered from**, plus the brand and language chips.
+The sidebar is grouped **by brand** (`fillit/`, `eleaseloop/`) and then **by
+email**, so each email shows once as a collapsible group (the brand is the
+sidebar toggle). Language is switched **in the preview itself**: every email
+renders a dev-only metadata card above it showing the **title**, a **context**
+line, the **page it's triggered from**, the brand tag, and a **country/language
+toggle** — clickable flag + language pills for every language the email exists
+in. Clicking one re-renders the preview in that language.
 
-These preview entries are auto-generated from the registry:
+Preview entries are auto-generated from the registry:
 
 ```bash
-npm run generate   # writes src/templates/<brand>/<email>-<locale>.tsx
+npm run generate   # writes src/templates/<brand>/<email>/<locale>.tsx
 npm run dev        # regenerates, then starts the preview
 ```
 
