@@ -6,21 +6,27 @@ import {
   Font,
   Preview,
 } from '@react-email/components'
-import { tokens, platformConfig, type Platform } from '../tokens'
+import { tokens } from '../tokens'
+import { BRANDS, type Brand } from '../brand'
+import type { Locale } from '../i18n'
 import { Header } from './Header'
 import { Footer } from './Footer'
+import { PreviewMeta, type PreviewMetaProps } from './PreviewMeta'
 
 interface LayoutProps {
-  preview:   string
-  platform?: Platform
-  children:  React.ReactNode
+  preview:  string
+  brand?:   Brand
+  lang?:    Locale
+  /** When set, renders the dev metadata banner above the email (preview only). */
+  meta?:    PreviewMetaProps
+  children: React.ReactNode
 }
 
-export function Layout({ preview, platform = 'fillit', children }: LayoutProps) {
-  const { logoUrl, siteUrl, siteName } = platformConfig[platform]
+export function Layout({ preview, brand = 'fillit', lang = 'en', meta, children }: LayoutProps) {
+  const { logoUri, siteUrl, siteName } = BRANDS[brand]
 
   return (
-    <Html lang="en">
+    <Html lang={lang}>
       <Head>
         <Font
           fontFamily="Inter"
@@ -52,6 +58,13 @@ export function Layout({ preview, platform = 'fillit', children }: LayoutProps) 
           padding: '40px 0',
         }}
       >
+        {/* Dev metadata banner — preview only */}
+        {meta && (
+          <Container style={{ maxWidth: tokens.containerWidth, margin: '0 auto 20px', padding: 0 }}>
+            <PreviewMeta {...meta} />
+          </Container>
+        )}
+
         <Container
           style={{
             backgroundColor: tokens.colorBackground,
@@ -62,7 +75,7 @@ export function Layout({ preview, platform = 'fillit', children }: LayoutProps) 
             overflow: 'hidden',
           }}
         >
-          <Header logoUrl={logoUrl} />
+          <Header logoUrl={logoUri} />
           {children}
           <Footer siteUrl={siteUrl} siteName={siteName} />
         </Container>

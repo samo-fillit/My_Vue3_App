@@ -6,9 +6,11 @@ interface ButtonProps {
   children: React.ReactNode
   variant?: 'primary' | 'outline'
   align?: 'left' | 'center'
+  /** Brand primary colour for the filled button (defaults to coral). */
+  color?: string
 }
 
-export function Button({ href, children, variant = 'primary', align = 'left' }: ButtonProps) {
+export function Button({ href, children, variant = 'primary', align = 'left', color = tokens.colorPrimary }: ButtonProps) {
   const isPrimary = variant === 'primary'
 
   return (
@@ -20,7 +22,7 @@ export function Button({ href, children, variant = 'primary', align = 'left' }: 
           fontSize: tokens.fontSizeSmall,
           fontWeight: 600,
           color: isPrimary ? tokens.colorPrimaryForeground : tokens.colorForeground,
-          backgroundColor: isPrimary ? tokens.colorPrimary : 'transparent',
+          backgroundColor: isPrimary ? color : 'transparent',
           border: isPrimary ? 'none' : `1.5px solid ${tokens.colorBorder}`,
           borderRadius: tokens.borderRadiusSm,
           padding: '12px 24px',

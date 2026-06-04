@@ -15,17 +15,18 @@ import { Hono }   from 'hono'
 import { render } from '@react-email/render'
 import React      from 'react'
 
-// ── Template registry ─────────────────────────────────────────────────────────
-// Import every template here; the registry keys are used in POST /render bodies.
+// ── Email registry ────────────────────────────────────────────────────────────
+// Import every email here; the keys are used in POST /render bodies. Brand and
+// locale are passed as props: { template, props: { brand, locale, ...data } }.
 
-import TeamInvite,      { type TeamInviteProps }      from './src/templates/team-invite'
-import SignatoryAdded,  { type SignatoryAddedProps }   from './src/templates/signatory-added'
+import TeamInvite      from './src/emails/team-invite'
+import SignatoryAdded  from './src/emails/signatory-added'
 
 type AnyProps = Record<string, unknown>
 
 const templates: Record<string, (props: AnyProps) => React.ReactElement> = {
-  'team-invite':      (p) => React.createElement(TeamInvite,     p as unknown as TeamInviteProps),
-  'signatory-added':  (p) => React.createElement(SignatoryAdded, p as unknown as SignatoryAddedProps),
+  'team-invite':      (p) => React.createElement(TeamInvite,     p),
+  'signatory-added':  (p) => React.createElement(SignatoryAdded, p),
 }
 
 // ── Server ────────────────────────────────────────────────────────────────────

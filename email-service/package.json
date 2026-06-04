@@ -3,10 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "email dev --dir src/templates --port 3001",
+    "generate": "tsx scripts/generate-previews.ts",
+    "dev": "npm run generate && email dev --dir src/templates --port 3001",
     "build": "tsc --noEmit",
     "server": "tsx server.ts",
-    "export": "email export --dir src/templates --outDir dist"
+    "export": "npm run generate && email export --dir src/templates --outDir dist"
   },
   "dependencies": {
     "@react-email/components": "^0.0.34",

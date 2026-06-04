@@ -58,35 +58,61 @@ Returns `{ html: string, text: string }`.
 
 ## Templates
 
-| Key | File | Trigger |
-|-----|------|---------|
-| `team-invite` | `src/templates/team-invite.tsx` | User invited to join a team |
-| `signatory-added` | `src/templates/signatory-added.tsx` | External signatory added for a centre |
+| Email | Tag | Trigger |
+|-------|-----|---------|
+| `team-invite` | General (both brands) | Teams page → "Invite user" |
+| `signatory-added` | eLeaseLoop | Teams page → centre signatories → "Add signatory" |
 
-## Adding a new template
+## Brand & language
 
-1. Create `src/templates/your-template.tsx` — default export a React component, named export for the props interface
-2. Register it in `server.ts` (two lines: import + entry in `templates` map)
-3. Run `npm run dev` to preview it
+Every email is tagged `fillit`, `eleaseloop`, or `general` (both) in
+`src/registry.ts`. Each email is rendered per brand and per language:
+
+- **Fillit** → English, Spanish
+- **eLeaseLoop** → English, Spanish, French, Italian, Polish
+
+`src/brand.ts` holds the per-brand theme (coral vs teal), logo and site;
+`src/i18n.ts` holds the brand→locale map. Each email component (`src/emails/*`)
+takes `{ brand, locale }`, pulls copy from its co-located translation table, and
+themes itself from the brand config.
+
+### Preview toggles (the sidebar)
+
+The React Email preview lists generated entries **grouped by brand folder**
+(`fillit/`, `eleaseloop/`) with **one entry per language** — that folder/file
+structure *is* the brand + language toggle. Every preview also renders a
+dev-only metadata banner above the email showing the **title**, a **context**
+line, and the **page it's triggered from**, plus the brand and language chips.
+
+These preview entries are auto-generated from the registry:
+
+```bash
+npm run generate   # writes src/templates/<brand>/<email>-<locale>.tsx
+npm run dev        # regenerates, then starts the preview
+```
+
+## Adding a new email
+
+1. Create `src/emails/your-email.tsx` — default export a component taking
+   `{ brand, locale, preview, ...data }`, with a per-locale translation table.
+2. Add its metadata (id, title, context, trigger, tag) to `src/registry.ts`.
+3. Register it in `server.ts` for the render API.
+4. `npm run generate && npm run dev` — variants appear in the sidebar.
 
 ## File structure
 
 ```
 email-service/
   src/
-    components/      # Shared building blocks
-      Layout.tsx     # Outer shell — font injection, body bg, card wrapper
-      Header.tsx     # Logo mark
-      Body.tsx       # Content padding wrapper
-      Footer.tsx     # Social links + company name
-      Paragraph.tsx  # Body text block
-      Button.tsx     # Primary (coral) or outline CTA
-      Divider.tsx    # 1px rule separator
-      DataCard.tsx   # Key–value summary card (bookings, spaces, etc.)
-    templates/       # One file per email
-    tokens.ts        # Design token constants
-  server.ts          # Hono render server
-  README.md
-  package.json
-  tsconfig.json
+    components/      # Shared building blocks (Layout, Header, Footer, Button,
+                     #   Paragraph, Divider, DataCard, PreviewMeta)
+    emails/          # Source emails — brand + locale aware, with translations
+    templates/       # AUTO-GENERATED preview entries (<brand>/<email>-<locale>)
+    brand.ts         # Brand themes, logos, sites, tag → brands
+    i18n.ts          # Locales + brand → locale map
+    registry.ts      # Email list + tags (single source of truth)
+    tokens.ts        # Shared design tokens
+  scripts/
+    generate-previews.ts  # Emits the per-brand/locale preview files
+  server.ts          # Hono render server (POST /render { template, props:{brand,locale,…} })
 ```
