@@ -12,8 +12,11 @@ export interface PreviewMetaProps {
   brand: Brand
   locale: Locale
   locales: Locale[]
-  /** Builds the href for each language pill. Defaults to in-page #anchors. */
+  /** Builds the href for each language pill (link mode). */
   hrefFor?: (locale: Locale) => string
+  /** When set, render pills as <label for="{radioName}-{locale}"> for a
+   *  pure-CSS radio toggle (no navigation). Takes precedence over hrefFor. */
+  radioName?: string
 }
 
 const tagColor: Record<BrandTag, string> = {
@@ -31,8 +34,9 @@ const LOCALE_FLAG: Record<Locale, string> = {
  * Surfaces the email's metadata (title, context, trigger page) and the active
  * brand / language. NOT rendered in production sends (only when `preview`).
  */
-export function PreviewMeta({ id, title, context, trigger, tag, brand, locale, locales, hrefFor }: PreviewMetaProps) {
+export function PreviewMeta({ id, title, context, trigger, tag, brand, locale, locales, hrefFor, radioName }: PreviewMetaProps) {
   const linkFor = hrefFor ?? ((l: Locale) => `#lang-${l}`)
+  const pillColor = tagColor[tag === 'general' ? brand : tag]
   return (
     <Section
       style={{
@@ -78,28 +82,27 @@ export function PreviewMeta({ id, title, context, trigger, tag, brand, locale, l
             Language · {locales.length} available
           </Text>
           {locales.map((l) => {
-            const active = l === locale
-            return (
-              <a
-                key={l}
-                href={linkFor(l)}
-                style={{
-                  display: 'inline-block',
-                  marginRight: '6px',
-                  marginBottom: '6px',
-                  textDecoration: 'none',
-                  fontFamily: tokens.fontFamily,
-                  fontSize: '12px',
-                  fontWeight: active ? 700 : 500,
-                  color: active ? '#ffffff' : '#334155',
-                  backgroundColor: active ? tagColor[tag === 'general' ? brand : tag] : '#ffffff',
-                  border: `1px solid ${active ? 'transparent' : '#cbd5e1'}`,
-                  borderRadius: '8px',
-                  padding: '6px 12px',
-                }}
-              >
-                <span style={{ marginRight: '6px' }}>{LOCALE_FLAG[l]}</span>{LOCALE_LABEL[l]}
-              </a>
+            const active = !radioName && l === locale
+            const baseStyle = {
+              display: 'inline-block',
+              marginRight: '6px',
+              marginBottom: '6px',
+              textDecoration: 'none',
+              cursor: 'pointer',
+              fontFamily: tokens.fontFamily,
+              fontSize: '12px',
+              fontWeight: active ? 700 : 500,
+              color: active ? '#ffffff' : '#334155',
+              backgroundColor: active ? pillColor : '#ffffff',
+              border: `1px solid ${active ? 'transparent' : '#cbd5e1'}`,
+              borderRadius: '8px',
+              padding: '6px 12px',
+            } as const
+            const inner = <><span style={{ marginRight: '6px' }}>{LOCALE_FLAG[l]}</span>{LOCALE_LABEL[l]}</>
+            return radioName ? (
+              <label key={l} htmlFor={`${radioName}-${l}`} className={`langpill langpill-${l}`} style={baseStyle}>{inner}</label>
+            ) : (
+              <a key={l} href={linkFor(l)} style={baseStyle}>{inner}</a>
             )
           })}
         </Column>
