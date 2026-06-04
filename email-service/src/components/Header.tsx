@@ -8,6 +8,7 @@ interface HeaderProps {
 export function Header({ logoUrl }: HeaderProps) {
   return (
     <Section
+      className="email-rule"
       style={{
         padding: '32px 40px 28px',
         borderBottom: `1px solid ${tokens.colorBorder}`,

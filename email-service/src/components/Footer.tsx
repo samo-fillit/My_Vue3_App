@@ -9,7 +9,7 @@ interface FooterProps {
 export function Footer({ siteUrl, siteName }: FooterProps) {
   return (
     <>
-      <Hr style={{ borderColor: tokens.colorBorder, margin: 0 }} />
+      <Hr className="email-rule" style={{ borderColor: tokens.colorBorder, margin: 0 }} />
       <Section style={{ padding: '24px 40px' }}>
         <Row>
           <Column>

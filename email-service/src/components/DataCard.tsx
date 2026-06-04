@@ -14,6 +14,7 @@ interface DataCardProps {
 export function DataCard({ title, rows }: DataCardProps) {
   return (
     <Section
+      className="email-datacard"
       style={{
         backgroundColor: tokens.colorSurface,
         borderRadius: tokens.borderRadiusSm,

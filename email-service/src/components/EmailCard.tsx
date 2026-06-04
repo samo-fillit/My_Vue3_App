@@ -16,6 +16,7 @@ export function EmailCard({ brand, children }: EmailCardProps) {
   const { logoUri, siteUrl, siteName } = BRANDS[brand]
   return (
     <Container
+      className="email-card"
       style={{
         backgroundColor: tokens.colorBackground,
         borderRadius: tokens.borderRadius,
