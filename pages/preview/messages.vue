@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, nextTick, watch } from 'vue'
+import { ref, computed, nextTick, watch, onMounted } from 'vue'
 import AppSidebar from '@/components/app-sidebar.vue'
 import RightPanel from '@/components/right-panel.vue'
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar'
@@ -35,9 +35,11 @@ import {
 } from '@tabler/icons-vue'
 import { useAppContext } from '@/composables/useAppContext'
 import { useTeamContext } from '@/composables/useTeamContext'
+import { useRightPanel } from '@/composables/useRightPanel'
 
 const { context } = useAppContext()
 const { activeTeam } = useTeamContext()
+const { pushNotification } = useRightPanel()
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -742,6 +744,41 @@ function selectConversation(id: string) {
   nextTick(scrollToBottom)
 }
 
+// ─── Notification helpers ─────────────────────────────────────────────────────
+
+const AUTO_REPLIES = [
+  'Thanks for the update — I\'ll review and come back to you shortly.',
+  'Got it, appreciate the quick response!',
+  'Perfect, that\'s exactly what we needed. We\'ll confirm our end soon.',
+  'Understood — I\'ll check with the team and get back to you.',
+  'Great, thanks for sorting that. Will keep you posted.',
+]
+
+function simulateReply(convId: string) {
+  const conv = conversations.value.find(c => c.id === convId)
+  if (!conv) return
+  const body = AUTO_REPLIES[Math.floor(Math.random() * AUTO_REPLIES.length)]
+  conv.messages.push({
+    id: `m-auto-${Date.now()}`,
+    senderId: conv.participantId,
+    body,
+    sentAt: new Date().toISOString(),
+    read: activeConvId.value === convId, // mark read if the thread is already open
+  })
+  // Only toast if the thread isn't the one currently open
+  if (activeConvId.value !== convId) nextTick(scrollToBottom)
+  else nextTick(scrollToBottom)
+  const display = getConvDisplay(conv)
+  pushNotification({
+    type: 'message.received',
+    title: `New message from ${display.line1}`,
+    body,
+    actionLabel: 'View message',
+  })
+}
+
+// ─── Actions ──────────────────────────────────────────────────────────────────
+
 function sendMessage() {
   const body = messageInput.value.trim()
   if (!body && !pendingAttachments.value.length) return
@@ -762,6 +799,10 @@ function sendMessage() {
   messageInput.value = ''
   pendingAttachments.value = []
   nextTick(scrollToBottom)
+
+  // Simulate the other party replying after a short delay
+  const convId = conv.id
+  setTimeout(() => simulateReply(convId), 2500)
 }
 
 function handleKeydown(e: KeyboardEvent) {
@@ -938,6 +979,29 @@ function attachmentIcon(type: Attachment['type']) {
   return IconFile
 }
 
+// On mount: notify for unread conversations in the active team (max 2, staggered)
+onMounted(() => {
+  const teamId = activeTeam.value?.id ?? null
+  const unread = conversations.value
+    .filter(c => teamId ? c.teamId === teamId : true)
+    .filter(c => unreadCount(c) > 0)
+    .slice(0, 2)
+
+  unread.forEach((conv, i) => {
+    const last = [...conv.messages].reverse().find(m => m.senderId !== ME)
+    if (!last) return
+    const display = getConvDisplay(conv)
+    setTimeout(() => {
+      pushNotification({
+        type: 'message.received',
+        title: `New message from ${display.line1}`,
+        body: last.body,
+        actionLabel: 'View message',
+      })
+    }, i * 1200)
+  })
+})
+
 watch(activeConvId, () => {
   nextTick(scrollToBottom)
 })
@@ -1054,7 +1118,7 @@ watch(() => activeTeam.value?.id, () => {
                 <!-- Floating org circle — only shown for composite convs -->
                 <div
                   v-if="getConvDisplay(conv).floatColor"
-                  class="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-background text-[8px] font-bold text-white"
+                  class="absolute -bottom-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full border-2 border-background text-xs font-bold text-white"
                   :style="{ backgroundColor: getConvDisplay(conv).floatColor }"
                 >
                   {{ getConvDisplay(conv).floatInitials }}
@@ -1130,7 +1194,7 @@ watch(() => activeTeam.value?.id, () => {
                   </div>
                   <div
                     v-if="getConvDisplay(activeConversation).floatColor"
-                    class="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full border-2 border-background text-[7px] font-bold text-white"
+                    class="absolute -bottom-1.5 -right-1.5 flex h-6 w-6 items-center justify-center rounded-full border-2 border-background text-[10px] font-bold text-white"
                     :style="{ backgroundColor: getConvDisplay(activeConversation).floatColor }"
                   >
                     {{ getConvDisplay(activeConversation).floatInitials }}
