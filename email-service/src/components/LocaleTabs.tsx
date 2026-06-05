@@ -10,6 +10,7 @@ import { fixturesFor } from '../fixtures'
 
 const RADIO = 'loc'
 const SCENARIO = 'scen'
+const VIEW = 'view'
 
 const SCHEME_SCRIPT = `(function(){try{
   var K='email-preview-scheme';
@@ -53,6 +54,18 @@ export function LocaleTabs({ email, brand }: { email: string; brand: Brand }) {
     ...fixtures.map((f) =>
       `#${SCENARIO}-${f.id}:checked ~ .meta-wrap .scenpill-${f.id} { background: ${accent} !important; color: #fff !important; border-color: transparent !important; font-weight: 700 !important; }`
     ),
+    // ── Data / Variables view ─────────────────────────────────────────────────
+    // Default: data view shown, vars hidden
+    '.view-vars { display: none; }',
+    '.view-data { display: block; }',
+    // When vars radio checked: flip
+    `#${VIEW}-vars:checked ~ .stacks .view-vars { display: block; }`,
+    `#${VIEW}-vars:checked ~ .stacks .view-data { display: none; }`,
+    // Active view pills
+    `#${VIEW}-data:checked ~ .meta-wrap .viewpill-data { background: #475569 !important; color: #fff !important; border-color: transparent !important; font-weight: 700 !important; }`,
+    `#${VIEW}-vars:checked ~ .meta-wrap .viewpill-vars { background: #f59e0b !important; color: #fff !important; border-color: transparent !important; font-weight: 700 !important; }`,
+    // Amber border on email card in vars mode so it's clearly not a real preview
+    `#${VIEW}-vars:checked ~ .stacks .email-card { outline: 2px solid #f59e0b !important; outline-offset: 2px !important; }`,
     // ── Dark mode ─────────────────────────────────────────────────────────────
     '.scheme-dark, .scheme-dark body { background: #15171c !important; }',
     '.scheme-dark .stacks { background: #15171c !important; }',
@@ -81,6 +94,9 @@ export function LocaleTabs({ email, brand }: { email: string; brand: Brand }) {
           {fixtures.map((f) => (
             <input key={f.id} type="radio" name={SCENARIO} id={`${SCENARIO}-${f.id}`} className="locradio" defaultChecked={f.id === firstScenario.id} />
           ))}
+          {/* View radios — data (default) or variables */}
+          <input type="radio" name={VIEW} id={`${VIEW}-data`} className="locradio" defaultChecked />
+          <input type="radio" name={VIEW} id={`${VIEW}-vars`} className="locradio" />
 
           {/* Metadata card */}
           <div className="meta-wrap">
@@ -93,23 +109,35 @@ export function LocaleTabs({ email, brand }: { email: string; brand: Brand }) {
                 radioName={RADIO}
                 fixtures={fixtures}
                 scenarioRadio={SCENARIO}
+                viewRadio={VIEW}
               />
             </Container>
           </div>
 
           {/* Stacked scenario × locale grid (CSS shows the active combination) */}
           <div className="stacks" style={{ padding: '24px 0' }}>
-            {fixtures.map((f) => (
-              <div key={f.id} className={`scen scen-${f.id}`}>
-                {locales.map((locale) => (
-                  <div key={locale} className={`loc loc-${locale}`}>
-                    <EmailCard brand={brand}>
-                      {mod.Content({ brand, locale, ...f.props })}
-                    </EmailCard>
-                  </div>
-                ))}
-              </div>
-            ))}
+            {fixtures.map((f) => {
+              // Variables version: every fixture prop becomes {propName}
+              const varsProps = Object.fromEntries(
+                Object.keys(f.props).map((k) => [k, `{${k}}`])
+              )
+              return (
+                <div key={f.id} className={`scen scen-${f.id}`}>
+                  {locales.map((locale) => (
+                    <div key={locale} className={`loc loc-${locale}`}>
+                      {/* Data view */}
+                      <div className="view-data">
+                        <EmailCard brand={brand}>{mod.Content({ brand, locale, ...f.props })}</EmailCard>
+                      </div>
+                      {/* Variables view — {propName} in place of values */}
+                      <div className="view-vars">
+                        <EmailCard brand={brand}>{mod.Content({ brand, locale, ...varsProps })}</EmailCard>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )
+            })}
           </div>
         </div>
 
