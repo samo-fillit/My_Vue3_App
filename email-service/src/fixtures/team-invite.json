@@ -1,0 +1,42 @@
+[
+  {
+    "id": "nhood-es",
+    "label": "Nhood ES → Sarah",
+    "props": {
+      "inviterName": "Carlos García",
+      "teamName": "Nhood ES",
+      "recipientName": "Sarah",
+      "inviteUrl": "https://app.eleaseloop.com/invite/abc123"
+    }
+  },
+  {
+    "id": "nhood-fr",
+    "label": "Nhood FR → Marc",
+    "props": {
+      "inviterName": "Jean Dupont",
+      "teamName": "Nhood FR North",
+      "recipientName": "Marc",
+      "inviteUrl": "https://app.eleaseloop.com/invite/def456"
+    }
+  },
+  {
+    "id": "nhood-it",
+    "label": "Nhood IT → Giulia",
+    "props": {
+      "inviterName": "Marco Rossi",
+      "teamName": "Nhood IT",
+      "recipientName": "Giulia",
+      "inviteUrl": "https://app.eleaseloop.com/invite/ghi789"
+    }
+  },
+  {
+    "id": "fillit-team",
+    "label": "Team One → Alice",
+    "props": {
+      "inviterName": "Tom D",
+      "teamName": "Team One",
+      "recipientName": "Alice",
+      "inviteUrl": "https://app.fillit.com/invite/jkl012"
+    }
+  }
+]

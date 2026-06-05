@@ -7,7 +7,8 @@ import * as signatoryAdded from './signatory-added'
 
 export interface EmailModule {
   meta: EmailMeta
-  Content: (props: { brand?: Brand; locale?: Locale }) => React.ReactElement
+  /** Accepts brand + locale + any fixture props (spread from Fixture.props). */
+  Content: (props: { brand?: Brand; locale?: Locale; [key: string]: unknown }) => React.ReactElement
   previewText: (brand: Brand, locale: Locale) => string
 }
 

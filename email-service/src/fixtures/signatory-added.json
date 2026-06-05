@@ -1,0 +1,46 @@
+[
+  {
+    "id": "xanadu-es",
+    "label": "Xanadú · James Miller",
+    "props": {
+      "signatoryName": "James Miller",
+      "centreName": "Centro Comercial Xanadú",
+      "teamName": "Nhood ES",
+      "addedByName": "Carlos García",
+      "addedByEmail": "c.garcia@eleaseloop.es"
+    }
+  },
+  {
+    "id": "la-maquinista-es",
+    "label": "La Maquinista · Sophie Laurent",
+    "props": {
+      "signatoryName": "Sophie Laurent",
+      "centreName": "La Maquinista",
+      "teamName": "Nhood ES",
+      "addedByName": "Carlos García",
+      "addedByEmail": "c.garcia@eleaseloop.es"
+    }
+  },
+  {
+    "id": "quatre-temps-fr",
+    "label": "Les Quatre Temps · Pierre Martin",
+    "props": {
+      "signatoryName": "Pierre Martin",
+      "centreName": "Les Quatre Temps",
+      "teamName": "Nhood FR North",
+      "addedByName": "Jean Dupont",
+      "addedByEmail": "j.dupont@eleaseloop.fr"
+    }
+  },
+  {
+    "id": "porta-di-roma-it",
+    "label": "Porta di Roma · Luca Ferrari",
+    "props": {
+      "signatoryName": "Luca Ferrari",
+      "centreName": "Porta di Roma",
+      "teamName": "Nhood IT",
+      "addedByName": "Marco Rossi",
+      "addedByEmail": "m.rossi@eleaseloop.it"
+    }
+  }
+]
