@@ -2,8 +2,6 @@ import { Section, Row, Column, Text } from '@react-email/components'
 import { tokens } from '../tokens'
 import { BRAND_TAG_LABEL, type BrandTag, type Brand } from '../brand'
 import { LOCALE_LABEL, type Locale } from '../i18n'
-import type { Fixture } from '../fixtures'
-
 export interface PreviewMetaProps {
   id: string
   title: string
@@ -13,12 +11,6 @@ export interface PreviewMetaProps {
   brand: Brand
   locale: Locale
   locales: Locale[]
-  /** Named test scenarios to show in the Scenario toggle. */
-  fixtures?: Fixture[]
-  /** Radio name for the scenario toggle (CSS-driven, no navigation). */
-  scenarioRadio?: string
-  /** Radio name for the data/variables view toggle. */
-  viewRadio?: string
   /** Builds the href for each language pill (link mode). */
   hrefFor?: (locale: Locale) => string
   /** When set, render pills as <label for="{radioName}-{locale}"> for a
@@ -41,7 +33,7 @@ const LOCALE_FLAG: Record<Locale, string> = {
  * Surfaces the email's metadata (title, context, trigger page) and the active
  * brand / language. NOT rendered in production sends (only when `preview`).
  */
-export function PreviewMeta({ id, title, context, trigger, tag, brand, locale, locales, fixtures, scenarioRadio, viewRadio, hrefFor, radioName }: PreviewMetaProps) {
+export function PreviewMeta({ id, title, context, trigger, tag, brand, locale, locales, hrefFor, radioName }: PreviewMetaProps) {
   const linkFor = hrefFor ?? ((l: Locale) => `#lang-${l}`)
   const pillColor = tagColor[tag === 'general' ? brand : tag]
   return (
@@ -79,41 +71,7 @@ export function PreviewMeta({ id, title, context, trigger, tag, brand, locale, l
         </Column>
       </Row>
 
-      {/* Scenario toggle — switches test data without changing locale */}
-      {fixtures && fixtures.length > 1 && scenarioRadio && (
-        <Row style={{ marginTop: '14px' }}>
-          <Column>
-            <Text style={{ margin: '0 0 8px', fontFamily: tokens.fontFamily, fontSize: '10px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#94a3b8' }}>
-              Scenario · {fixtures.length} fixtures
-            </Text>
-            {fixtures.map((f) => (
-              <label
-                key={f.id}
-                htmlFor={`${scenarioRadio}-${f.id}`}
-                className={`scenpill scenpill-${f.id}`}
-                style={{
-                  display: 'inline-block',
-                  marginRight: '6px',
-                  marginBottom: '6px',
-                  cursor: 'pointer',
-                  fontFamily: tokens.fontFamily,
-                  fontSize: '12px',
-                  fontWeight: 500,
-                  color: '#334155',
-                  backgroundColor: '#ffffff',
-                  border: '1px solid #cbd5e1',
-                  borderRadius: '8px',
-                  padding: '6px 12px',
-                }}
-              >
-                {f.label}
-              </label>
-            ))}
-          </Column>
-        </Row>
-      )}
-
-      {/* Country / language toggle — clickable links that switch the preview locale */}
+      {/* Country / language toggle */}
       <Row style={{ marginTop: '14px' }}>
         <Column>
           <Text style={{ margin: '0 0 8px', fontFamily: tokens.fontFamily, fontSize: '10px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#94a3b8' }}>
@@ -146,38 +104,6 @@ export function PreviewMeta({ id, title, context, trigger, tag, brand, locale, l
         </Column>
       </Row>
 
-      {/* Data / Variables view toggle */}
-      {viewRadio && (
-        <Row style={{ marginTop: '14px' }}>
-          <Column>
-            <Text style={{ margin: '0 0 8px', fontFamily: tokens.fontFamily, fontSize: '10px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#94a3b8' }}>
-              View
-            </Text>
-            {(['data', 'vars'] as const).map((v) => (
-              <label
-                key={v}
-                htmlFor={`${viewRadio}-${v}`}
-                className={`viewpill viewpill-${v}`}
-                style={{
-                  display: 'inline-block',
-                  marginRight: '6px',
-                  cursor: 'pointer',
-                  fontFamily: tokens.fontFamily,
-                  fontSize: '12px',
-                  fontWeight: 500,
-                  color: '#334155',
-                  backgroundColor: '#ffffff',
-                  border: '1px solid #cbd5e1',
-                  borderRadius: '8px',
-                  padding: '6px 12px',
-                }}
-              >
-                {v === 'data' ? '💾 Data' : '🔤 Variables'}
-              </label>
-            ))}
-          </Column>
-        </Row>
-      )}
     </Section>
   )
 }
