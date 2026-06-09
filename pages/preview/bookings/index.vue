@@ -245,7 +245,19 @@
                 </TableCell>
 
                 <TableCell class="pl-8">
-                  <StatusDot :label="statusMeta(b).label" :dot-class="statusMeta(b).dotClass" :pulse="statusMeta(b).live" />
+                  <div class="flex flex-col items-start gap-1">
+                    <StatusDot :label="statusMeta(b).label" :dot-class="statusMeta(b).dotClass" :pulse="statusMeta(b).live" />
+                    <TooltipProvider v-if="b.autoChanged" :delay-duration="150">
+                      <Tooltip>
+                        <TooltipTrigger as-child>
+                          <span class="rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Auto</span>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom">
+                          <p class="text-xs">{{ autoChangedLabel(b.autoChanged) }}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                 </TableCell>
 
                 <TableCell class="w-[44px] text-center">
@@ -357,6 +369,16 @@
           <div class="flex-1 overflow-y-auto px-6 py-6">
             <div class="flex flex-col gap-7">
 
+              <!-- Closed reason (declined / cancelled) -->
+              <div v-if="closedSummary(selectedBooking)" class="flex items-start gap-2.5 rounded-lg bg-muted px-4 py-3">
+                <IconAlertTriangle :size="16" stroke-width="1.5" class="mt-0.5 shrink-0 text-muted-foreground" />
+                <div class="flex flex-col gap-0.5">
+                  <span class="text-sm font-medium text-foreground">{{ closedSummary(selectedBooking)!.title }}</span>
+                  <span v-if="closedSummary(selectedBooking)!.detail" class="text-xs text-muted-foreground">{{ closedSummary(selectedBooking)!.detail }}</span>
+                  <span v-if="refundLine(selectedBooking)" class="text-xs text-muted-foreground">{{ refundLine(selectedBooking) }}</span>
+                </div>
+              </div>
+
               <!-- Key facts -->
               <section class="flex flex-col gap-4">
                 <div class="grid grid-cols-2 gap-4">
@@ -444,6 +466,14 @@
                       <div class="flex items-center gap-4">
                         <span class="text-sm font-medium tabular-nums text-foreground">{{ formatAmount(p.amount) }}</span>
                         <StatusDot :label="paymentMeta(p.status).label" :dot-class="paymentMeta(p.status).dotClass" />
+                        <button
+                          v-if="isLandlord && selectedBooking.status === 'confirmed' && p.status !== 'paid' && p.status !== 'refunded'"
+                          type="button"
+                          class="text-xs font-medium text-foreground transition-colors hover:text-primary"
+                          @click="openMarkPaid(p)"
+                        >
+                          Mark paid
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -581,6 +611,10 @@
           <!-- Footer: status-aware CTAs -->
           <div class="flex shrink-0 flex-col gap-2.5 border-t border-border px-6 py-5">
             <p v-if="detailWaitingHint(selectedBooking)" class="text-xs text-muted-foreground">{{ detailWaitingHint(selectedBooking) }}</p>
+            <p v-if="cancelLocked(selectedBooking)" class="flex items-start gap-1.5 text-xs text-muted-foreground">
+              <IconInfoCircle :size="13" stroke-width="1.5" class="mt-0.5 shrink-0" />
+              This lease is signed and can't be cancelled here. Use messaging to request a change.
+            </p>
             <div class="flex flex-wrap items-center justify-end gap-3">
               <Button
                 v-for="cta in detailActions(selectedBooking)"
@@ -594,6 +628,136 @@
             </div>
           </div>
 
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
+
+  <!-- Action modal: cancel / withdraw / decline / report -->
+  <Teleport to="body">
+    <Transition name="modal">
+      <div v-if="actionModal && selectedBooking" class="fixed inset-0 z-[60] flex items-center justify-center p-6">
+        <div class="absolute inset-0 bg-black/50" @click="closeActionModal" />
+        <div class="relative z-10 flex w-full max-w-[440px] flex-col rounded-xl border border-border bg-background shadow-2xl">
+          <div class="flex items-start justify-between gap-4 border-b border-border px-6 py-4">
+            <h2 class="text-base font-semibold text-foreground">{{ actionModal.title }}</h2>
+            <button type="button" class="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground" @click="closeActionModal">
+              <IconX :size="18" stroke-width="1.5" />
+            </button>
+          </div>
+          <div class="flex flex-col gap-4 px-6 py-5">
+            <p class="text-sm text-muted-foreground">{{ actionModal.description }}</p>
+
+            <!-- Refund window (cancelling a confirmed booking) -->
+            <div v-if="actionModal.showRefund" class="flex items-start gap-2.5 rounded-lg bg-muted px-4 py-3">
+              <IconInfoCircle :size="16" stroke-width="1.5" class="mt-0.5 shrink-0 text-muted-foreground" />
+              <div class="flex flex-col gap-0.5">
+                <span class="text-sm font-medium text-foreground">{{ refundWindow(selectedBooking).beforeCutoff ? 'Eligible for a full refund' : 'No refund' }}</span>
+                <span class="text-xs text-muted-foreground">
+                  {{ refundWindow(selectedBooking).beforeCutoff
+                    ? 'Cancelling now refunds ' + formatAmount(refundWindow(selectedBooking).amount) + ' in full.'
+                    : 'The free-cancellation deadline (' + formatDate(refundWindow(selectedBooking).cutoffIso) + ') has passed — no refund will be issued.' }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Reason picker -->
+            <div class="flex flex-col gap-2">
+              <span class="text-xs font-medium text-muted-foreground">{{ actionModal.reasonLabel }}</span>
+              <button
+                v-for="r in actionModal.reasons"
+                :key="r"
+                type="button"
+                class="flex items-center gap-2.5 rounded-lg border px-3 py-2 text-left text-sm transition-colors"
+                :class="actionReason === r ? 'border-foreground bg-muted text-foreground' : 'border-border text-foreground hover:border-foreground'"
+                @click="actionReason = r"
+              >
+                <span class="flex h-4 w-4 shrink-0 items-center justify-center rounded-full border" :class="actionReason === r ? 'border-foreground' : 'border-border'">
+                  <span v-if="actionReason === r" class="h-2 w-2 rounded-full bg-foreground" />
+                </span>
+                {{ r }}
+              </button>
+              <textarea
+                v-if="actionReason === 'Other'"
+                v-model="actionOther"
+                rows="2"
+                placeholder="Tell us more…"
+                class="mt-1 w-full resize-none rounded-md border border-border bg-background p-2.5 text-sm text-foreground outline-none transition-colors focus:border-foreground"
+              />
+            </div>
+          </div>
+          <div class="flex items-center justify-end gap-2 border-t border-border px-6 py-4">
+            <Button variant="ghost" size="sm" @click="closeActionModal">Back</Button>
+            <Button :variant="actionModal.confirmVariant" size="sm" :disabled="!actionReady" @click="confirmActionModal">{{ actionModal.confirmLabel }}</Button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
+
+  <!-- Mark payment received -->
+  <Teleport to="body">
+    <Transition name="modal">
+      <div v-if="markPaidPayment && selectedBooking" class="fixed inset-0 z-[60] flex items-center justify-center p-6">
+        <div class="absolute inset-0 bg-black/50" @click="closeMarkPaid" />
+        <div class="relative z-10 flex w-full max-w-[440px] flex-col rounded-xl border border-border bg-background shadow-2xl">
+          <div class="flex items-start justify-between gap-4 border-b border-border px-6 py-4">
+            <h2 class="text-base font-semibold text-foreground">Record payment</h2>
+            <button type="button" class="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground" @click="closeMarkPaid">
+              <IconX :size="18" stroke-width="1.5" />
+            </button>
+          </div>
+          <div class="flex flex-col gap-4 px-6 py-5">
+            <div class="flex items-center justify-between gap-3 rounded-lg bg-muted px-4 py-3">
+              <div class="flex flex-col gap-0.5">
+                <span class="text-sm text-foreground">{{ markPaidPayment.label }}</span>
+                <span class="text-xs tabular-nums text-muted-foreground">Due {{ formatDate(markPaidPayment.dueDate) }}</span>
+              </div>
+              <span class="text-sm font-semibold tabular-nums text-foreground">{{ formatAmount(markPaidPayment.amount) }}</span>
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <span class="text-xs font-medium text-muted-foreground">Date received</span>
+              <input
+                v-model="markPaidDate"
+                type="date"
+                :max="TODAY_ISO"
+                class="h-9 w-fit rounded-md border border-border bg-background px-2 text-sm tabular-nums text-foreground outline-none transition-colors focus:border-foreground"
+              />
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <span class="text-xs font-medium text-muted-foreground">Payment method</span>
+              <div class="flex flex-wrap gap-2">
+                <button
+                  v-for="m in paymentMethods"
+                  :key="m.value"
+                  type="button"
+                  class="rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors"
+                  :class="markPaidMethod === m.value ? 'border-foreground bg-muted text-foreground' : 'border-border text-muted-foreground hover:border-foreground'"
+                  @click="markPaidMethod = m.value"
+                >
+                  {{ m.label }}
+                </button>
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <span class="text-xs font-medium text-muted-foreground">Proof of payment <span class="font-normal">(optional)</span></span>
+              <label
+                class="flex cursor-pointer items-center gap-2.5 rounded-lg border border-dashed border-border px-4 py-3 text-sm transition-colors hover:border-foreground"
+                :class="markPaidProof ? 'text-foreground' : 'text-muted-foreground'"
+              >
+                <IconUpload :size="16" stroke-width="1.5" class="shrink-0" />
+                <span class="truncate">{{ markPaidProof || 'Upload a receipt or bank confirmation' }}</span>
+                <input type="file" class="hidden" @change="onProofChange" />
+              </label>
+            </div>
+          </div>
+          <div class="flex items-center justify-end gap-2 border-t border-border px-6 py-4">
+            <Button variant="ghost" size="sm" @click="closeMarkPaid">Cancel</Button>
+            <Button size="sm" :disabled="!markPaidDate" @click="confirmMarkPaid">Mark as received</Button>
+          </div>
         </div>
       </div>
     </Transition>
@@ -632,6 +796,9 @@ import {
   IconNote,
   IconPlus,
   IconTrash,
+  IconAlertTriangle,
+  IconInfoCircle,
+  IconUpload,
 } from '@tabler/icons-vue'
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar'
 import { Button } from '@/components/ui/button'
@@ -657,6 +824,7 @@ const router = useRouter()
 // Anchors the mock data's temporal states. The seed dates are framed around
 // this date (the app's simulated "today"), not the real system clock.
 const TODAY = new Date('2026-06-09T00:00:00Z')
+const TODAY_ISO = '2026-06-09'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -712,6 +880,7 @@ interface Booking {
   documents?: BookingDocument[]
   docusign?: { status: string | null; envelopeId: string | null; sentAt: string | null; completedAt: string | null }
   managerApproval?: { required: boolean; stage: string; status: string; approvers: ManagerApprover[] } | null
+  autoChanged?: string
   cancellation?: { by: string; reason: string; refund: string; at: string }
   decline?: { by: string; reason: string; at: string }
   actions?: BookingActivity[]
@@ -720,7 +889,7 @@ interface Booking {
 
 // ─── Context ──────────────────────────────────────────────────────────────────
 
-const { isUserType } = useAppContext()
+const { isUserType, isPlatform } = useAppContext()
 const { activeTeamId } = useTeamContext()
 
 const isLandlord = computed(() => isUserType('landlord'))
@@ -1092,6 +1261,7 @@ function paymentMeta(status: string): DotMeta {
     case 'paid':     return { label: 'Paid', dotClass: 'bg-green-500' }
     case 'pending':  return { label: 'Pending', dotClass: 'bg-blue-500' }
     case 'overdue':  return { label: 'Overdue', dotClass: 'bg-amber-500' }
+    case 'failed':   return { label: 'Failed', dotClass: 'bg-red-500' }
     case 'refunded': return { label: 'Refunded', dotClass: 'bg-muted-foreground' }
     default:         return { label: formatCategory(status), dotClass: 'bg-muted-foreground' }
   }
@@ -1130,12 +1300,14 @@ function detailActions(b: Booking): BookingCta[] {
         break
       case 'confirmed':
         a.push({ key: 'message', label: 'Message tenant', variant: 'ghost' })
-        if (t === 'upcoming') a.push({ key: 'cancel', label: 'Cancel booking', variant: 'ghost' })
+        a.push({ key: 'report', label: 'Report', variant: 'ghost' })
+        if (t === 'upcoming' && !cancelLocked(b)) a.push({ key: 'cancel', label: 'Cancel booking', variant: 'ghost' })
         a.push({ key: 'viewDocs', label: 'View documents', variant: 'outline' })
         if (overdue) a.push({ key: 'remind', label: 'Send payment reminder', variant: 'default' })
         break
       case 'declined':
       case 'cancelled':
+        a.push({ key: 'report', label: 'Report', variant: 'ghost' })
         a.push({ key: 'message', label: 'Message tenant', variant: 'outline' })
         break
     }
@@ -1159,13 +1331,15 @@ function detailActions(b: Booking): BookingCta[] {
         break
       case 'confirmed':
         a.push({ key: 'message', label: 'Message', variant: 'ghost' })
-        if (t === 'upcoming') a.push({ key: 'cancel', label: 'Cancel booking', variant: 'ghost' })
+        a.push({ key: 'report', label: 'Report', variant: 'ghost' })
+        if (t === 'upcoming' && !cancelLocked(b)) a.push({ key: 'cancel', label: 'Cancel booking', variant: 'ghost' })
         a.push({ key: 'viewDocs', label: 'View documents', variant: 'outline' })
         a.push({ key: 'invoice', label: 'Download invoice', variant: 'outline' })
         if (overdue) a.push({ key: 'pay', label: 'Pay now', variant: 'default' })
         break
       case 'declined':
       case 'cancelled':
+        a.push({ key: 'report', label: 'Report', variant: 'ghost' })
         a.push({ key: 'message', label: 'Message', variant: 'ghost' })
         a.push({ key: 'browse', label: 'Find another space', variant: 'outline' })
         break
@@ -1198,12 +1372,243 @@ function onCta(key: string) {
     case 'sendQuote': sendQuote(); break                                              // landlord: enquiry → quoted
     case 'accept': b.status = 'confirmed'; pushAction(b, 'quote_accepted', 'Quote accepted'); break   // tenant: quoted → confirmed
     case 'sign': b.status = 'confirmed'; pushAction(b, 'lease_signed', 'Lease signed'); break          // tenant: awaiting_signature → confirmed
-    case 'decline': b.status = 'declined'; pushAction(b, 'declined', 'Declined'); closeDetail(); break
-    case 'cancel': b.status = 'cancelled'; pushAction(b, 'cancelled', 'Booking cancelled'); closeDetail(); break
-    case 'withdraw': b.status = 'cancelled'; pushAction(b, 'cancelled', 'Enquiry withdrawn'); closeDetail(); break
+    case 'decline':  openActionModal('decline'); break
+    case 'cancel':   openActionModal('cancel'); break
+    case 'withdraw': openActionModal('withdraw'); break
+    case 'report':   openActionModal('report'); break
     // viewDocs / invoice / remind / pay / resend / edit / editEnquiry / browse / viewLease → prototype stubs
   }
 }
+
+// ─── Auto-status & closed reasons ──────────────────────────────────────────────
+// Production records *why* a booking changed automatically in an `autoChanged`
+// flag. We surface a human label on closed bookings (list badge + overlay banner).
+function autoChangedLabel(reason?: string): string {
+  switch (reason) {
+    case 'auto_decline':              return 'Auto-declined — no landlord response'
+    case 'auto_cancel':               return 'Auto-cancelled — no response'
+    case 'auto_cancel_no_card':       return 'Auto-cancelled — no card on file'
+    case 'auto_cancel_card_failed':   return 'Auto-cancelled — card payment failed'
+    case 'auto_declined_date_passed': return 'Auto-declined — booking dates passed'
+    default:                          return 'Automatically updated'
+  }
+}
+
+// Summary shown at the top of the overlay for declined/cancelled bookings.
+function closedSummary(b: Booking): { title: string; detail?: string } | null {
+  if (b.status !== 'declined' && b.status !== 'cancelled') return null
+  if (b.autoChanged) {
+    const info = b.cancellation ?? b.decline
+    return { title: autoChangedLabel(b.autoChanged), detail: info?.reason }
+  }
+  const info = b.status === 'declined' ? b.decline : b.cancellation
+  const verb = b.status === 'declined' ? 'Declined' : 'Cancelled'
+  const who = info?.by === 'landlord' ? 'the centre' : info?.by === 'tenant' ? 'the tenant' : info?.by === 'system' ? 'the system' : null
+  return { title: who ? `${verb} by ${who}` : verb, detail: info?.reason }
+}
+
+function refundLine(b: Booking): string {
+  if (b.status !== 'cancelled' || !b.cancellation) return ''
+  switch (b.cancellation.refund) {
+    case 'none': return 'No refund issued.'
+    case 'full': return 'Full refund issued.'
+    case 'n/a':  return ''
+    default:     return b.cancellation.refund ? `Refund: ${b.cancellation.refund}` : ''
+  }
+}
+
+// ─── Cancellation: refund window + post-signature lock ──────────────────────────
+// Forward-looking policy shown before cancelling a confirmed booking: a full
+// refund applies up to 14 days before the start date, none after.
+function refundWindow(b: Booking) {
+  const from = new Date(b.period.from + 'T00:00:00Z')
+  const cutoff = new Date(from)
+  cutoff.setUTCDate(cutoff.getUTCDate() - 14)
+  const beforeCutoff = TODAY < cutoff
+  const total = b.financials.total ?? b.financials.rate
+  return { beforeCutoff, amount: beforeCutoff ? total : 0, cutoffIso: cutoff.toISOString() }
+}
+
+// eLeaseLoop (Nhood) locks cancellation once the lease is signed — changes must
+// go through the centre. Surfaced as a footer hint instead of a Cancel button.
+function cancelLocked(b: Booking): boolean {
+  return isPlatform('eleaseloop') && b.status === 'confirmed' && b.docusign?.status === 'completed'
+}
+
+// ─── Action modal (cancel / withdraw / decline / report) ───────────────────────
+// One reusable confirm modal that collects a reason before a terminal transition.
+type ActionKind = 'cancel' | 'withdraw' | 'decline' | 'report'
+interface ActionModalConfig {
+  kind: ActionKind
+  title: string
+  description: string
+  reasonLabel: string
+  reasons: string[]
+  confirmLabel: string
+  confirmVariant: 'default' | 'destructive'
+  showRefund?: boolean
+}
+
+const actionModal = ref<ActionModalConfig | null>(null)
+const actionReason = ref('')
+const actionOther = ref('')
+
+const actionReady = computed(() => {
+  if (!actionModal.value || !actionReason.value) return false
+  if (actionReason.value === 'Other' && !actionOther.value.trim()) return false
+  return true
+})
+
+function openActionModal(kind: ActionKind) {
+  const b = selectedBooking.value
+  if (!b) return
+  const role = viewerRole.value
+  let cfg: ActionModalConfig
+  if (kind === 'cancel') {
+    cfg = {
+      kind,
+      title: 'Cancel booking',
+      description: "Let the other party know why you're cancelling. This can't be undone.",
+      reasonLabel: 'Reason for cancelling',
+      reasons: role === 'landlord'
+        ? ['Double-booked', 'Circumstances out of our control', 'Emergency closure', 'Other']
+        : ['No longer needed', 'Need a larger space', 'Double-booked', 'Other'],
+      confirmLabel: 'Cancel booking',
+      confirmVariant: 'destructive',
+      showRefund: b.status === 'confirmed',
+    }
+  } else if (kind === 'withdraw') {
+    cfg = {
+      kind,
+      title: 'Withdraw enquiry',
+      description: 'Withdraw this enquiry from the centre.',
+      reasonLabel: 'Reason',
+      reasons: ['No longer needed', 'Found another space', 'Changed my mind', 'Other'],
+      confirmLabel: 'Withdraw enquiry',
+      confirmVariant: 'destructive',
+    }
+  } else if (kind === 'decline') {
+    cfg = {
+      kind,
+      title: role === 'landlord' ? 'Decline enquiry' : 'Decline quote',
+      description: role === 'landlord'
+        ? "Let the tenant know why you can't take this booking."
+        : "Let the centre know why you're declining.",
+      reasonLabel: 'Reason for declining',
+      reasons: role === 'landlord'
+        ? ['Space no longer available', 'Product category not permitted', 'Dates unavailable', 'Other']
+        : ['Rate too high', 'No longer needed', 'Found another space', 'Other'],
+      confirmLabel: 'Decline',
+      confirmVariant: 'destructive',
+    }
+  } else {
+    cfg = {
+      kind,
+      title: 'Report a problem',
+      description: 'Flag an issue with this booking to the Fillit team.',
+      reasonLabel: "What's the problem?",
+      reasons: ['Payment issue', 'Dispute with the other party', 'Space condition', 'Other'],
+      confirmLabel: 'Submit report',
+      confirmVariant: 'default',
+    }
+  }
+  actionReason.value = ''
+  actionOther.value = ''
+  actionModal.value = cfg
+}
+
+function closeActionModal() {
+  actionModal.value = null
+}
+
+function confirmActionModal() {
+  const b = selectedBooking.value
+  const cfg = actionModal.value
+  if (!b || !cfg || !actionReady.value) return
+  const reason = actionReason.value === 'Other' ? actionOther.value.trim() : actionReason.value
+  const role = viewerRole.value
+  const at = TODAY.toISOString()
+  switch (cfg.kind) {
+    case 'cancel': {
+      const rw = b.status === 'confirmed' ? refundWindow(b) : null
+      b.status = 'cancelled'
+      b.cancellation = { by: role, reason, refund: rw ? (rw.beforeCutoff ? 'full' : 'none') : 'n/a', at }
+      pushAction(b, 'cancelled', `Booking cancelled — ${reason}`)
+      break
+    }
+    case 'withdraw':
+      b.status = 'cancelled'
+      b.cancellation = { by: role, reason, refund: 'n/a', at }
+      pushAction(b, 'withdrawn', `Enquiry withdrawn — ${reason}`)
+      break
+    case 'decline':
+      b.status = 'declined'
+      b.decline = { by: role, reason, at }
+      pushAction(b, 'declined', `Declined — ${reason}`)
+      break
+    case 'report':
+      pushAction(b, 'reported', `Reported to support — ${reason}`)
+      break
+  }
+  actionModal.value = null
+  if (cfg.kind !== 'report') closeDetail()
+}
+
+// ─── Mark payment received (landlord, "paid to centre") ────────────────────────
+// Records an offline payment against a scheduled instalment + optional proof.
+const paymentMethods = [
+  { value: 'bank_transfer', label: 'Bank transfer' },
+  { value: 'card',          label: 'Card' },
+  { value: 'direct_debit',  label: 'Direct debit' },
+  { value: 'sepa',          label: 'SEPA credit transfer' },
+  { value: 'cash',          label: 'Cash' },
+]
+const markPaidPayment = ref<BookingPayment | null>(null)
+const markPaidDate = ref('')
+const markPaidMethod = ref('bank_transfer')
+const markPaidProof = ref('')
+
+function openMarkPaid(p: BookingPayment) {
+  markPaidPayment.value = p
+  markPaidDate.value = TODAY.toISOString().slice(0, 10)
+  markPaidMethod.value = p.method ?? 'bank_transfer'
+  markPaidProof.value = ''
+}
+function closeMarkPaid() {
+  markPaidPayment.value = null
+}
+function onProofChange(e: Event) {
+  const file = (e.target as HTMLInputElement).files?.[0]
+  markPaidProof.value = file ? file.name : ''
+}
+function recomputePaymentStatus(b: Booking) {
+  const ps = b.payments ?? []
+  if (ps.length && ps.every(p => p.status === 'paid')) b.financials.paymentStatus = 'paid'
+  else if (ps.some(p => p.status === 'overdue')) b.financials.paymentStatus = 'overdue'
+  else b.financials.paymentStatus = 'pending'
+}
+function confirmMarkPaid() {
+  const b = selectedBooking.value
+  const p = markPaidPayment.value
+  if (!b || !p) return
+  const row = (b.payments ?? []).find(x => x.id === p.id)
+  if (row) {
+    row.status = 'paid'
+    row.paidOn = markPaidDate.value
+    row.method = markPaidMethod.value
+  }
+  recomputePaymentStatus(b)
+  pushAction(b, 'mark_paid', `Marked ${p.label} as received (${formatAmount(p.amount)})`)
+  closeMarkPaid()
+}
+
+// Switching team or viewer role (via the dev switcher) scopes out the current
+// booking — close any open overlay/modal so they can't show stale data.
+watch([activeTeamId, viewerRole], () => {
+  closeDetail()
+  actionModal.value = null
+  markPaidPayment.value = null
+})
 
 // ─── Transactions summary ────────────────────────────────────────────────────
 

@@ -264,12 +264,20 @@ The booking detail overlay footer shows actions driven by `detailActions(booking
 | `enquiry` | **Accept enquiry** · Decline · Message | Edit enquiry · Withdraw · Message — *waiting on the centre* |
 | `quoted` | Send reminder · Edit terms · Cancel · Message — *waiting on tenant* | **Accept quote** · Decline · Message |
 | `awaiting_signature` | Resend for signature · View lease · Cancel · Message — *waiting on tenant* | **Sign lease** · View lease · Cancel · Message |
-| `confirmed` (upcoming/active) | View documents · Cancel (upcoming only) · Message | Download invoice · View documents · Cancel (upcoming only) · Message |
+| `confirmed` (upcoming/active) | View documents · Cancel (upcoming only) · Report · Message | Download invoice · View documents · Cancel (upcoming only) · Report · Message |
 | `confirmed` + overdue | **Send payment reminder** (+ the above) | **Pay now** (+ the above) |
-| `confirmed` (completed) | View documents · Message | Download invoice · View documents · Message |
-| `declined` / `cancelled` | Message | Find another space · Message |
+| `confirmed` (completed) | View documents · Report · Message | Download invoice · View documents · Report · Message |
+| `declined` / `cancelled` | Report · Message | Find another space · Report · Message |
 
-Rules: an overdue payment always surfaces a payment-focused primary (landlord chases, tenant pays) even on completed bookings; **Cancel** appears only for cancellable states (upcoming confirmed + open pipeline), never for active/completed/terminal; terminal states collapse to view/message.
+Rules: an overdue payment always surfaces a payment-focused primary (landlord chases, tenant pays) even on completed bookings; **Cancel** appears only for cancellable states (upcoming confirmed + open pipeline), never for active/completed/terminal; terminal states collapse to view/report/message.
+
+**Reason modal** (`actionModal`): Cancel / Withdraw / Decline / Report don't transition immediately — they open a reusable centered confirm modal (`z-[60]`, above the detail overlay) that collects a role-specific reason (radio options + free-text "Other"). Cancelling a *confirmed* booking also shows a **refund-window** notice (`refundWindow`: full refund up to 14 days before start, none after). Confirming records the reason (and refund outcome for cancellations) on the booking and appends to the activity timeline; Report keeps the booking open, the others are terminal and close the overlay.
+
+**Post-signature cancel lock** (`cancelLocked`): on eLeaseLoop (Nhood), a confirmed booking with a signed lease (`docusign.status === 'completed'`) hides Cancel and shows a footer hint to use messaging — mirrors production `restrict_cancel`.
+
+**Mark payment received** (`markPaidPayment` modal): on a confirmed booking's payment schedule, each unpaid/overdue instalment shows a landlord-only "Mark paid" action that opens a record-payment modal (date received, method, optional proof upload). Confirming flips the row to Paid, recomputes `financials.paymentStatus` via `recomputePaymentStatus` (clears the overdue flag once fully settled), and logs to activity.
+
+**Auto-status badges** (`autoChanged` / `autoChangedLabel` / `closedSummary`): closed bookings changed by the system carry an `autoChanged` reason. The list renders a small "AUTO" tag (tooltip = full label) under the status dot; the overlay shows a top callout banner with the reason + refund line. The same banner also surfaces *manual* decline/cancel reasons (`closedSummary` reads `decline`/`cancellation`).
 
 ### Dark mode
 Handled entirely through CSS variable tokens in `assets/css/tailwind.css`. Semantic Tailwind classes (`bg-background`, `text-foreground`, etc.) adapt automatically under the `.dark` class. No `dark:` color prefixes are used in component templates.

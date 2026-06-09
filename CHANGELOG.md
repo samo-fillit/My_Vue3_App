@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-06-09 — Production gap analysis + bookings Wave 1 (landlord action polish & auto badges)
+
+Reviewed the production Fillit codebase for booking features/actions missing from the design-lab app (landlord vs tenant, Fillit vs eLeaseLoop/Nhood, edge cases) and produced a prioritized gap summary. Approved work is being built in waves; country/tax (IVA/IRPF, fiscal IDs) is deferred. **Wave 1:**
+
+- **Auto-status badges** — closed bookings that were changed automatically now carry an `autoChanged` reason. The list shows a small "AUTO" tag (tooltip = full reason) under the status; the detail overlay shows a callout banner at the top (e.g. "Auto-cancelled — card payment failed" + the underlying reason + refund line). Reasons mirror production: auto_decline / auto_cancel / auto_cancel_no_card / auto_cancel_card_failed / auto_declined_date_passed. Seeded two demo records (10079 auto-declined, 10068 auto-cancelled/card-failed)
+- **Closed-reason banner** — declined/cancelled bookings (manual or auto) now surface *why* they closed at the top of the overlay, with the reason and (for cancellations) the refund outcome
+- **Cancellation flow** — the bare cancel/decline/withdraw stubs now open a reusable reason modal: role-specific reason options (+ free-text "Other"), and for cancelling a *confirmed* booking a **refund-window** notice (full refund up to 14 days before start, none after). Confirming records the reason + refund outcome on the booking and logs it to the activity timeline
+- **Post-signature cancel lock** — on eLeaseLoop (Nhood), a confirmed booking whose lease is signed (`docusign.status === 'completed'`) hides the Cancel button and shows a footer hint to use messaging instead — mirrors production `restrict_cancel`
+- **Report a problem** — new Report CTA on confirmed/closed bookings opens the reason modal (Payment issue / Dispute / Space condition / Other); submitting logs to the activity timeline and keeps the booking open
+- **Mark payment received** ("paid to centre") — landlords can record an offline payment against a scheduled instalment of a confirmed booking: date received, payment method (bank transfer / card / direct debit / SEPA / cash), and an optional proof-of-payment upload. Flips the row to Paid, recomputes the booking payment status (clearing the overdue flag when settled), and logs it
+- Overlay/modal hygiene: switching team or viewer role (dev switcher) closes any open overlay so it can't show stale data. New reason/mark-paid modals reuse the centered-overlay pattern (z-[60] above the detail overlay), never slide-overs
+
 ## 2026-06-09 — Bookings page, data model & status taxonomy
 
 - Analyzed the production Fillit codebase (Rails, `vue3-vite-migration` branch) for the real booking lifecycle, then defined a redesigned 6-state taxonomy — `enquiry → quoted → awaiting_signature → confirmed`, plus `declined`/`cancelled` — with `upcoming`/`active`/`completed` derived from booking dates and action-ownership derived per viewer (replaces production's role-swapping status tabs)

@@ -1638,6 +1638,69 @@
         { "type": "lease_sent", "actor": "Lucía Fernández", "actorType": "landlord", "at": "2026-06-06T14:05:00Z", "description": "Lease sent — awaiting your signature" }
       ],
       "notes": { "landlord": null, "tenant": null }
+    },
+    {
+      "id": "10079",
+      "status": "declined",
+      "createdAt": "2026-05-26T09:00:00Z",
+      "submittedAt": "2026-05-26T09:00:00Z",
+      "respondedAt": null,
+      "confirmedAt": null,
+      "cancelledAt": null,
+      "preConfirmed": false,
+      "approvalType": "single",
+      "bookingLinkId": null,
+      "autoChanged": "auto_decline",
+      "period": { "from": "2026-07-13", "to": "2026-07-20" },
+      "landlord": { "teamId": "team-one", "teamName": "Team One", "teamColor": "#059669", "organisationName": "Westfield Group Ltd", "country": "GB" },
+      "tenant": { "teamId": null, "company": "Oatly", "contactName": "Petra Lindqvist", "email": "p.lindqvist@oatly.com", "phone": "+44 20 7946 0410", "isSelfEmployed": false },
+      "space": { "id": "s5", "title": "Sampling Stand S3", "type": "Sampling", "centreId": "centre-bluewater", "centreName": "Bluewater", "centreColor": "#0ea5e9", "dimensions": "3x3m" },
+      "enquiry": { "title": "Oatly barista sampling", "category": "product_sampling", "description": "Barista-style oat milk sampling near the food court.", "dimensions": "3x3m", "additionalInfo": null },
+      "financials": { "currency": "EUR", "rate": 2100, "vat": 441, "deposit": 300, "discount": 0, "fillitFee": 210, "total": 2541, "totalLandlord": 2331, "quote": 2100, "paymentStatus": "pending", "paidBy": null },
+      "payments": [],
+      "documents": [],
+      "docusign": { "status": null, "envelopeId": null, "sentAt": null, "completedAt": null },
+      "managerApproval": null,
+      "decline": { "by": "system", "reason": "No response within 96 hours", "at": "2026-05-30T09:00:00Z" },
+      "actions": [
+        { "type": "enquiry_submitted", "actor": "Petra Lindqvist", "actorType": "tenant", "at": "2026-05-26T09:00:00Z", "description": "Enquiry submitted" },
+        { "type": "auto_declined", "actor": "System", "actorType": "system", "at": "2026-05-30T09:00:00Z", "description": "Auto-declined — no landlord response" }
+      ],
+      "notes": { "landlord": null, "tenant": null }
+    },
+    {
+      "id": "10068",
+      "status": "cancelled",
+      "createdAt": "2026-04-02T09:00:00Z",
+      "submittedAt": "2026-04-02T09:00:00Z",
+      "respondedAt": "2026-04-04T10:00:00Z",
+      "confirmedAt": "2026-04-08T11:00:00Z",
+      "cancelledAt": "2026-05-02T06:00:00Z",
+      "preConfirmed": false,
+      "approvalType": "single",
+      "bookingLinkId": null,
+      "autoChanged": "auto_cancel_card_failed",
+      "period": { "from": "2026-05-18", "to": "2026-06-01" },
+      "landlord": { "teamId": "team-one", "teamName": "Team One", "teamColor": "#059669", "organisationName": "Westfield Group Ltd", "country": "GB" },
+      "tenant": { "teamId": null, "company": "Peloton", "contactName": "Greg Holt", "email": "g.holt@peloton.com", "phone": "+44 20 7946 0512", "isSelfEmployed": false },
+      "space": { "id": "s7", "title": "Event Space E2", "type": "Event", "centreId": "centre-bluewater", "centreName": "Bluewater", "centreColor": "#0ea5e9", "dimensions": "8x6m" },
+      "enquiry": { "title": "Peloton ride experience", "category": "brand_marketing", "description": "Interactive ride demo zone.", "dimensions": "8x6m", "additionalInfo": null },
+      "financials": { "currency": "EUR", "rate": 3360, "vat": 672, "deposit": 500, "discount": 0, "fillitFee": 336, "total": 4032, "totalLandlord": 3696, "quote": 3360, "paymentStatus": "failed", "paidBy": "card" },
+      "payments": [
+        { "id": "p-10068-1", "label": "Full payment", "amount": 4032, "dueDate": "2026-05-04", "status": "failed", "method": "card", "paidOn": null, "invoiceUrl": null }
+      ],
+      "documents": [
+        { "type": "lease", "name": "Lease agreement", "status": "voided", "url": "/docs/10068-lease.pdf", "signedAt": "2026-04-08T10:50:00Z" }
+      ],
+      "docusign": { "status": "voided", "envelopeId": "env-10068", "sentAt": "2026-04-05T10:00:00Z", "completedAt": "2026-04-08T10:50:00Z" },
+      "managerApproval": null,
+      "cancellation": { "by": "system", "reason": "Card payment failed after 3 attempts", "refund": "none", "at": "2026-05-02T06:00:00Z" },
+      "actions": [
+        { "type": "confirmed", "actor": "system", "actorType": "system", "at": "2026-04-08T11:00:00Z", "description": "Booking confirmed" },
+        { "type": "failed_payment", "actor": "System", "actorType": "system", "at": "2026-05-01T06:00:00Z", "description": "Card payment failed (3rd attempt)" },
+        { "type": "auto_cancelled", "actor": "System", "actorType": "system", "at": "2026-05-02T06:00:00Z", "description": "Auto-cancelled — card payment failed" }
+      ],
+      "notes": { "landlord": null, "tenant": null }
     }
   ]
 }
