@@ -294,8 +294,8 @@
                 {{ selectedBooking.space.centreName.charAt(0) }}
               </div>
               <div class="flex flex-col gap-0.5">
-                <span class="text-base font-semibold text-foreground">{{ selectedBooking.space.centreName }}</span>
-                <span class="text-sm text-muted-foreground">{{ selectedBooking.space.title }}</span>
+                <h2 class="text-lg font-semibold leading-tight text-foreground">{{ selectedBooking.space.centreName }}</h2>
+                <p class="text-sm text-muted-foreground">{{ selectedBooking.space.title }}</p>
               </div>
             </div>
             <button
@@ -326,16 +326,16 @@
               <section class="flex flex-col gap-4">
                 <div class="grid grid-cols-2 gap-4">
                   <div class="flex flex-col gap-0.5">
-                    <span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Dates</span>
+                    <span class="text-xs font-medium text-muted-foreground">Dates</span>
                     <span class="text-sm tabular-nums text-foreground">{{ formatDate(selectedBooking.period.from) }} – {{ formatDate(selectedBooking.period.to) }}</span>
                   </div>
                   <div class="flex flex-col gap-0.5">
-                    <span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Rate</span>
+                    <span class="text-xs font-medium text-muted-foreground">Rate</span>
                     <span class="text-sm font-medium tabular-nums text-foreground">{{ formatAmount(selectedBooking.financials.rate) }}</span>
                   </div>
                 </div>
                 <div class="flex flex-col gap-0.5">
-                  <span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{{ isLandlord ? 'Tenant' : 'Centre' }}</span>
+                  <span class="text-xs font-medium text-muted-foreground">{{ isLandlord ? 'Tenant' : 'Centre' }}</span>
                   <template v-if="isLandlord">
                     <span class="text-sm font-medium text-foreground">{{ selectedBooking.tenant.company }}</span>
                     <span class="text-xs text-muted-foreground">{{ selectedBooking.tenant.contactName }} · {{ selectedBooking.tenant.email }}</span>
@@ -349,7 +349,7 @@
 
               <!-- Financials -->
               <section class="flex flex-col gap-2 border-t border-border pt-6">
-                <span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Financials</span>
+                <h3 class="text-sm font-semibold text-foreground">Financials</h3>
                 <dl class="flex flex-col gap-1.5 text-sm">
                   <div class="flex items-center justify-between">
                     <dt class="text-muted-foreground">Rate</dt>
@@ -378,7 +378,7 @@
 
               <!-- Payment schedule -->
               <section v-if="selectedBooking.payments && selectedBooking.payments.length" class="flex flex-col gap-3 border-t border-border pt-6">
-                <span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Payment schedule</span>
+                <h3 class="text-sm font-semibold text-foreground">Payment schedule</h3>
                 <div class="flex flex-col gap-3">
                   <div v-for="p in selectedBooking.payments" :key="p.id" class="flex items-center justify-between gap-3">
                     <div class="flex flex-col gap-0.5">
@@ -395,7 +395,7 @@
 
               <!-- Documents -->
               <section v-if="selectedBooking.documents && selectedBooking.documents.length" class="flex flex-col gap-3 border-t border-border pt-6">
-                <span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Documents</span>
+                <h3 class="text-sm font-semibold text-foreground">Documents</h3>
                 <div class="flex flex-col gap-2">
                   <div v-for="(d, i) in selectedBooking.documents" :key="i" class="flex items-center justify-between gap-3 rounded-lg border border-border px-3 py-2.5">
                     <div class="flex items-center gap-2.5">
@@ -414,7 +414,7 @@
 
               <!-- Enquiry -->
               <section v-if="selectedBooking.enquiry" class="flex flex-col gap-2 border-t border-border pt-6">
-                <span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Enquiry</span>
+                <h3 class="text-sm font-semibold text-foreground">Enquiry</h3>
                 <span class="text-sm font-medium text-foreground">{{ selectedBooking.enquiry.title }}</span>
                 <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
                   <span v-if="selectedBooking.enquiry.category">{{ formatCategory(selectedBooking.enquiry.category) }}</span>
@@ -426,7 +426,7 @@
 
               <!-- Manager approval (Nhood) -->
               <section v-if="selectedBooking.managerApproval" class="flex flex-col gap-3 border-t border-border pt-6">
-                <span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Manager approval</span>
+                <h3 class="text-sm font-semibold text-foreground">Manager approval</h3>
                 <div class="flex flex-col gap-2.5">
                   <div v-for="(ap, i) in selectedBooking.managerApproval.approvers" :key="i" class="flex items-center justify-between gap-3">
                     <div class="flex flex-col gap-0.5">
@@ -443,7 +443,7 @@
 
               <!-- Activity -->
               <section v-if="selectedBooking.actions && selectedBooking.actions.length" class="flex flex-col gap-3 border-t border-border pt-6">
-                <span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Activity</span>
+                <h3 class="text-sm font-semibold text-foreground">Activity</h3>
                 <ol class="flex flex-col">
                   <li v-for="(ev, i) in selectedBooking.actions" :key="i" class="flex gap-3">
                     <div class="flex flex-col items-center pt-1">
@@ -460,7 +460,7 @@
 
               <!-- Notes -->
               <section v-if="selectedBooking.notes && (selectedBooking.notes.landlord || selectedBooking.notes.tenant)" class="flex flex-col gap-2 border-t border-border pt-6">
-                <span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Notes</span>
+                <h3 class="text-sm font-semibold text-foreground">Notes</h3>
                 <p v-if="selectedBooking.notes.landlord" class="text-sm leading-relaxed text-muted-foreground">{{ selectedBooking.notes.landlord }}</p>
                 <p v-if="selectedBooking.notes.tenant" class="text-sm leading-relaxed text-muted-foreground">{{ selectedBooking.notes.tenant }}</p>
               </section>
@@ -469,9 +469,9 @@
           </div>
 
           <!-- Footer: status-aware CTAs -->
-          <div class="flex shrink-0 flex-col gap-2.5 border-t border-border px-6 py-4">
+          <div class="flex shrink-0 flex-col gap-2.5 border-t border-border px-6 py-5">
             <p v-if="detailWaitingHint(selectedBooking)" class="text-xs text-muted-foreground">{{ detailWaitingHint(selectedBooking) }}</p>
-            <div class="flex flex-wrap items-center justify-end gap-2">
+            <div class="flex flex-wrap items-center justify-end gap-3">
               <Button
                 v-for="cta in detailActions(selectedBooking)"
                 :key="cta.key"
