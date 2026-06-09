@@ -1701,6 +1701,59 @@
         { "type": "auto_cancelled", "actor": "System", "actorType": "system", "at": "2026-05-02T06:00:00Z", "description": "Auto-cancelled — card payment failed" }
       ],
       "notes": { "landlord": null, "tenant": null }
+    },
+    {
+      "id": "10096",
+      "status": "enquiry",
+      "createdAt": "2026-06-08T14:00:00Z",
+      "submittedAt": "2026-06-08T14:00:00Z",
+      "respondedAt": null,
+      "confirmedAt": null,
+      "cancelledAt": null,
+      "preConfirmed": false,
+      "approvalType": "single",
+      "bookingLinkId": null,
+      "priceOnApplication": true,
+      "period": { "from": "2026-08-10", "to": "2026-08-24" },
+      "landlord": { "teamId": "team-one", "teamName": "Team One", "teamColor": "#059669", "organisationName": "Westfield Group Ltd", "country": "GB" },
+      "tenant": { "teamId": null, "company": "Rolex", "contactName": "Henri Favre", "email": "h.favre@rolex.com", "phone": "+44 20 7946 0688", "isSelfEmployed": false },
+      "space": { "id": "s12", "title": "Pop-up Space P1", "type": "Pop-up", "centreId": "centre-westfield", "centreName": "Westfield London", "centreColor": "#7c3aed", "dimensions": "6x5m" },
+      "enquiry": { "title": "Rolex heritage showcase", "category": "brand_marketing", "description": "Premium watch heritage exhibition with concierge service.", "dimensions": "6x5m", "additionalInfo": "Price on application — premium placement, terms to be agreed with the centre." },
+      "financials": { "currency": "EUR", "rate": 0, "vat": 0, "deposit": 0, "discount": 0, "fillitFee": 0, "total": 0, "totalLandlord": 0, "quote": 0, "paymentStatus": "pending", "paidBy": null },
+      "payments": [],
+      "documents": [],
+      "docusign": { "status": null, "envelopeId": null, "sentAt": null, "completedAt": null },
+      "managerApproval": null,
+      "actions": [
+        { "type": "enquiry_submitted", "actor": "Henri Favre", "actorType": "tenant", "at": "2026-06-08T14:00:00Z", "description": "Enquiry submitted (price on application)" }
+      ],
+      "notes": { "landlord": null, "tenant": null }
+    },
+    {
+      "id": "10097",
+      "status": "enquiry",
+      "createdAt": "2026-06-07T10:00:00Z",
+      "submittedAt": "2026-06-07T10:00:00Z",
+      "respondedAt": null,
+      "confirmedAt": null,
+      "cancelledAt": null,
+      "preConfirmed": false,
+      "approvalType": "single",
+      "bookingLinkId": null,
+      "period": { "from": "2026-07-10", "to": "2026-07-24" },
+      "landlord": { "teamId": "team-one", "teamName": "Team One", "teamColor": "#059669", "organisationName": "Westfield Group Ltd", "country": "GB" },
+      "tenant": { "teamId": null, "company": "Lululemon", "contactName": "Hannah Reid", "email": "h.reid@lululemon.com", "phone": "+44 20 7946 0733", "isSelfEmployed": false },
+      "space": { "id": "s2", "title": "Kiosk A2", "type": "Kiosk", "centreId": "centre-westfield", "centreName": "Westfield London", "centreColor": "#7c3aed", "dimensions": "4x4m" },
+      "enquiry": { "title": "Lululemon pop-up studio", "category": "brand_marketing", "description": "Activewear pop-up with mini studio sessions.", "dimensions": "4x4m", "additionalInfo": null },
+      "financials": { "currency": "EUR", "rate": 3200, "vat": 640, "deposit": 400, "discount": 0, "fillitFee": 320, "total": 3840, "totalLandlord": 3520, "quote": 3200, "paymentStatus": "pending", "paidBy": null },
+      "payments": [],
+      "documents": [],
+      "docusign": { "status": null, "envelopeId": null, "sentAt": null, "completedAt": null },
+      "managerApproval": null,
+      "actions": [
+        { "type": "enquiry_submitted", "actor": "Hannah Reid", "actorType": "tenant", "at": "2026-06-07T10:00:00Z", "description": "Enquiry submitted" }
+      ],
+      "notes": { "landlord": null, "tenant": null }
     }
   ]
 }

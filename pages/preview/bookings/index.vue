@@ -194,7 +194,7 @@
                 <TableHead class="w-[180px] pl-8">
                   <span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Status</span>
                 </TableHead>
-                <TableHead class="w-[44px]" />
+                <TableHead class="w-[60px]" />
                 <TableHead class="w-[52px]" />
               </TableRow>
             </TableHeader>
@@ -241,7 +241,7 @@
                 </TableCell>
 
                 <TableCell class="text-right text-sm font-medium tabular-nums text-foreground">
-                  {{ formatAmount(b.financials.rate) }}
+                  {{ rateDisplay(b) }}
                 </TableCell>
 
                 <TableCell class="pl-8">
@@ -260,19 +260,33 @@
                   </div>
                 </TableCell>
 
-                <TableCell class="w-[44px] text-center">
-                  <TooltipProvider v-if="hasOverdue(b)" :delay-duration="150">
-                    <Tooltip>
-                      <TooltipTrigger as-child>
-                        <span class="inline-flex text-red-600">
-                          <IconFlagFilled :size="15" />
-                        </span>
-                      </TooltipTrigger>
-                      <TooltipContent side="top">
-                        <p class="text-xs">Payment overdue</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                <TableCell class="w-[60px]">
+                  <div class="flex items-center gap-1.5">
+                    <TooltipProvider v-if="hasOverdue(b)" :delay-duration="150">
+                      <Tooltip>
+                        <TooltipTrigger as-child>
+                          <span class="inline-flex text-red-600">
+                            <IconFlagFilled :size="15" />
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent side="top">
+                          <p class="text-xs">Payment overdue</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                    <TooltipProvider v-if="hasBlockingConflict(b)" :delay-duration="150">
+                      <Tooltip>
+                        <TooltipTrigger as-child>
+                          <span class="inline-flex text-amber-600">
+                            <IconAlertTriangle :size="15" stroke-width="1.75" />
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent side="top">
+                          <p class="text-xs">Dates clash with a confirmed booking</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                 </TableCell>
 
                 <TableCell class="w-[52px] text-center">
@@ -379,6 +393,20 @@
                 </div>
               </div>
 
+              <!-- Double-booking conflict (landlord) -->
+              <div v-if="hasBlockingConflict(selectedBooking)" class="flex items-start gap-2.5 rounded-lg border border-amber-500/40 bg-amber-500/5 px-4 py-3">
+                <IconAlertTriangle :size="16" stroke-width="1.5" class="mt-0.5 shrink-0 text-amber-600" />
+                <div class="flex flex-col gap-1">
+                  <span class="text-sm font-medium text-foreground">Date clash with a confirmed booking</span>
+                  <span class="text-xs text-muted-foreground">This space is already booked for overlapping dates:</span>
+                  <ul class="mt-0.5 flex flex-col gap-0.5">
+                    <li v-for="c in blockingConflictsFor(selectedBooking)" :key="c.id" class="text-xs tabular-nums text-muted-foreground">
+                      #{{ c.id }} · {{ c.tenant.company }} · {{ formatDate(c.period.from) }} – {{ formatDate(c.period.to) }}
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
               <!-- Key facts -->
               <section class="flex flex-col gap-4">
                 <div class="grid grid-cols-2 gap-4">
@@ -406,8 +434,17 @@
 
               <!-- Financials -->
               <section class="flex flex-col gap-2 border-t border-border pt-6">
-                <h3 class="text-sm font-semibold text-foreground">Financials</h3>
-                <dl class="flex flex-col gap-1.5 text-sm">
+                <div class="flex items-center gap-2">
+                  <h3 class="text-sm font-semibold text-foreground">Financials</h3>
+                  <span v-if="isPoa(selectedBooking)" class="rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Price on application</span>
+                </div>
+                <dl v-if="isPoa(selectedBooking) && !canNegotiate(selectedBooking)" class="flex flex-col gap-1.5 text-sm">
+                  <div class="flex items-center justify-between">
+                    <dt class="text-muted-foreground">Price</dt>
+                    <dd class="font-medium text-foreground">Price on application</dd>
+                  </div>
+                </dl>
+                <dl v-else class="flex flex-col gap-1.5 text-sm">
                   <div class="flex items-center justify-between">
                     <dt class="text-muted-foreground">Rate</dt>
                     <dd v-if="canNegotiate(selectedBooking)" class="relative">
@@ -615,12 +652,17 @@
               <IconInfoCircle :size="13" stroke-width="1.5" class="mt-0.5 shrink-0" />
               This lease is signed and can't be cancelled here. Use messaging to request a change.
             </p>
+            <p v-if="detailBlockHint(selectedBooking)" class="flex items-start gap-1.5 text-xs text-amber-600">
+              <IconAlertTriangle :size="13" stroke-width="1.5" class="mt-0.5 shrink-0" />
+              {{ detailBlockHint(selectedBooking) }}
+            </p>
             <div class="flex flex-wrap items-center justify-end gap-3">
               <Button
                 v-for="cta in detailActions(selectedBooking)"
                 :key="cta.key"
                 :variant="cta.variant"
                 size="sm"
+                :disabled="cta.disabled"
                 @click="onCta(cta.key)"
               >
                 {{ cta.label }}
@@ -881,6 +923,7 @@ interface Booking {
   docusign?: { status: string | null; envelopeId: string | null; sentAt: string | null; completedAt: string | null }
   managerApproval?: { required: boolean; stage: string; status: string; approvers: ManagerApprover[] } | null
   autoChanged?: string
+  priceOnApplication?: boolean
   cancellation?: { by: string; reason: string; refund: string; at: string }
   decline?: { by: string; reason: string; at: string }
   actions?: BookingActivity[]
@@ -1178,6 +1221,7 @@ function sendQuote() {
   if (!b) return
   const d = deriveFinancials(b, rateDraft.value || b.financials.rate)
   Object.assign(b.financials, { ...d, quote: d.rate })
+  b.priceOnApplication = false
   b.status = 'quoted'
   pushAction(b, 'quote_sent', `Terms sent to tenant — ${formatAmount(d.rate)}`)
 }
@@ -1271,7 +1315,7 @@ function paymentMeta(status: string): DotMeta {
 // (action ownership) and is ordered last so it renders right-most in the footer.
 // When the ball is with the other party there is no primary — see detailWaitingHint.
 type CtaVariant = 'default' | 'outline' | 'ghost'
-interface BookingCta { key: string; label: string; variant: CtaVariant }
+interface BookingCta { key: string; label: string; variant: CtaVariant; disabled?: boolean }
 
 function detailActions(b: Booking): BookingCta[] {
   const role = viewerRole.value
@@ -1284,7 +1328,7 @@ function detailActions(b: Booking): BookingCta[] {
       case 'enquiry': // landlord's turn: review terms, optionally adjust the rate, send to tenant
         a.push({ key: 'message', label: 'Message tenant', variant: 'ghost' })
         a.push({ key: 'decline', label: 'Decline', variant: 'outline' })
-        a.push({ key: 'sendQuote', label: 'Send to tenant', variant: 'default' })
+        a.push({ key: 'sendQuote', label: 'Send to tenant', variant: 'default', disabled: (rateDraft.value || 0) <= 0 || hasBlockingConflict(b) })
         break
       case 'quoted': // waiting on tenant to accept
         a.push({ key: 'message', label: 'Message tenant', variant: 'ghost' })
@@ -1361,6 +1405,15 @@ function detailWaitingHint(b: Booking): string {
   return ''
 }
 
+// Explains why the landlord's "Send to tenant" is blocked on an enquiry:
+// a confirmed-booking date clash, or a missing/zero rate (incl. price-on-application).
+function detailBlockHint(b: Booking): string {
+  if (viewerRole.value !== 'landlord' || b.status !== 'enquiry') return ''
+  if (hasBlockingConflict(b)) return 'These dates clash with a confirmed booking on this space. Adjust the dates before sending terms.'
+  if ((rateDraft.value || 0) <= 0) return isPoa(b) ? 'Set a rate to send terms to the tenant.' : 'Enter a rate above zero to send terms.'
+  return ''
+}
+
 function onCta(key: string) {
   if (key === 'message') {
     router.push('/preview/messages')
@@ -1415,6 +1468,39 @@ function refundLine(b: Booking): string {
     case 'n/a':  return ''
     default:     return b.cancellation.refund ? `Refund: ${b.cancellation.refund}` : ''
   }
+}
+
+// ─── Double-booking conflicts ──────────────────────────────────────────────────
+// Mirrors production's BookingConflictsService: other live bookings on the SAME
+// space whose dates overlap. A *blocking* conflict is an overlap with a confirmed
+// booking — you can't quote or confirm a space that's already taken for those dates.
+function periodsOverlap(a: { from: string; to: string }, b: { from: string; to: string }): boolean {
+  return a.from <= b.to && a.to >= b.from
+}
+function conflictsFor(b: Booking): Booking[] {
+  return bookings.value.filter(o =>
+    o.id !== b.id &&
+    o.space.id === b.space.id &&
+    o.status !== 'declined' && o.status !== 'cancelled' &&
+    periodsOverlap(b.period, o.period),
+  )
+}
+function blockingConflictsFor(b: Booking): Booking[] {
+  return conflictsFor(b).filter(o => o.status === 'confirmed')
+}
+// Landlord-only: a confirmed-booking overlap that should block quoting/confirming.
+function hasBlockingConflict(b: Booking): boolean {
+  return isLandlord.value && blockingConflictsFor(b).length > 0
+}
+
+// ─── Price on application ───────────────────────────────────────────────────────
+// A POA enquiry has no set price; the landlord must quote a rate before it can
+// proceed. Mirrors production's listing.price_on_application / "A consultar".
+function isPoa(b: Booking): boolean {
+  return !!b.priceOnApplication && (b.financials.rate ?? 0) <= 0
+}
+function rateDisplay(b: Booking): string {
+  return isPoa(b) ? 'POA' : formatAmount(b.financials.rate)
 }
 
 // ─── Cancellation: refund window + post-signature lock ──────────────────────────

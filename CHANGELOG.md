@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-06-09 — Bookings Wave 2 (double-booking conflicts & price-on-application)
+
+- **Double-booking conflicts** — mirrors production's `BookingConflictsService`: detects other live bookings on the *same space* with overlapping dates. A *blocking* conflict is an overlap with a **confirmed** booking. Landlords see an amber warning triangle in the list flag column (tooltip "Dates clash with a confirmed booking") and a conflict banner at the top of the overlay listing the clashing booking(s) (#id · tenant · dates). The **confirm-time guard**: on an enquiry with a blocking conflict, "Send to tenant" is disabled with a hint to adjust the dates first (mirrors production turning Accept into Edit / `disable_submit`). Seeded a clashing enquiry (10097, overlaps confirmed 12001 on Kiosk A2)
+- **Price on application** — mirrors production's `listing.price_on_application` / "A consultar". A POA enquiry has no set price: the list shows "POA" instead of a rate, the overlay shows a "Price on application" badge and (for the tenant) a "Price on application" line instead of figures. The landlord must set a rate before "Send to tenant" enables (rate-gated, with a "Set a rate…" hint); sending clears the POA flag and derives VAT/fee/totals as normal. Ties into the existing rate-negotiation flow. Seeded a POA enquiry (10096, Rolex)
+
 ## 2026-06-09 — Production gap analysis + bookings Wave 1 (landlord action polish & auto badges)
 
 Reviewed the production Fillit codebase for booking features/actions missing from the design-lab app (landlord vs tenant, Fillit vs eLeaseLoop/Nhood, edge cases) and produced a prioritized gap summary. Approved work is being built in waves; country/tax (IVA/IRPF, fiscal IDs) is deferred. **Wave 1:**

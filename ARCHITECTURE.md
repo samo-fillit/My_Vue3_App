@@ -279,6 +279,10 @@ Rules: an overdue payment always surfaces a payment-focused primary (landlord ch
 
 **Auto-status badges** (`autoChanged` / `autoChangedLabel` / `closedSummary`): closed bookings changed by the system carry an `autoChanged` reason. The list renders a small "AUTO" tag (tooltip = full label) under the status dot; the overlay shows a top callout banner with the reason + refund line. The same banner also surfaces *manual* decline/cancel reasons (`closedSummary` reads `decline`/`cancellation`).
 
+**Double-booking conflicts** (`conflictsFor` / `blockingConflictsFor` / `hasBlockingConflict`): mirrors production's `BookingConflictsService`. `conflictsFor` finds other non-terminal bookings on the same `space.id` with overlapping dates; a *blocking* conflict is an overlap with a `confirmed` booking. Landlord-only: an amber warning triangle in the list flag column, a conflict banner in the overlay (lists the clashing bookings), and a **confirm-time guard** — `detailActions` disables "Send to tenant" on an enquiry with a blocking conflict (`detailBlockHint` explains why).
+
+**Price on application** (`isPoa` / `rateDisplay`, booking `priceOnApplication`): a POA enquiry has no set price (rate ≤ 0). The list shows "POA" (`rateDisplay`); the overlay shows a "Price on application" badge and, when the viewer can't negotiate, a "Price on application" line instead of figures. "Send to tenant" is rate-gated (disabled until `rateDraft > 0`); `sendQuote` clears `priceOnApplication` and derives the financials.
+
 ### Dark mode
 Handled entirely through CSS variable tokens in `assets/css/tailwind.css`. Semantic Tailwind classes (`bg-background`, `text-foreground`, etc.) adapt automatically under the `.dark` class. No `dark:` color prefixes are used in component templates.
 
