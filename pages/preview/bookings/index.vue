@@ -194,6 +194,7 @@
                 <TableHead class="w-[180px] pl-8">
                   <span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Status</span>
                 </TableHead>
+                <TableHead class="w-[44px]" />
                 <TableHead class="w-[52px]" />
               </TableRow>
             </TableHeader>
@@ -244,21 +245,22 @@
                 </TableCell>
 
                 <TableCell class="pl-8">
-                  <div class="inline-flex items-center gap-2.5">
-                    <StatusDot :label="statusMeta(b).label" :dot-class="statusMeta(b).dotClass" :pulse="statusMeta(b).live" />
-                    <TooltipProvider v-if="hasOverdue(b)" :delay-duration="150">
-                      <Tooltip>
-                        <TooltipTrigger as-child>
-                          <span class="inline-flex text-red-600">
-                            <IconFlagFilled :size="15" />
-                          </span>
-                        </TooltipTrigger>
-                        <TooltipContent side="top">
-                          <p class="text-xs">Payment overdue</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
+                  <StatusDot :label="statusMeta(b).label" :dot-class="statusMeta(b).dotClass" :pulse="statusMeta(b).live" />
+                </TableCell>
+
+                <TableCell class="w-[44px] text-center">
+                  <TooltipProvider v-if="hasOverdue(b)" :delay-duration="150">
+                    <Tooltip>
+                      <TooltipTrigger as-child>
+                        <span class="inline-flex text-red-600">
+                          <IconFlagFilled :size="15" />
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent side="top">
+                        <p class="text-xs">Payment overdue</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </TableCell>
 
                 <TableCell class="w-[52px] text-center">
@@ -732,7 +734,7 @@ const subtitle = computed(() =>
 const searchPlaceholder = computed(() =>
   isLandlord.value ? 'Search tenant, company or booking ID…' : 'Search centre or booking ID…',
 )
-const colspan = computed(() => (isLandlord.value ? 8 : 7))
+const colspan = computed(() => (isLandlord.value ? 9 : 8))
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 

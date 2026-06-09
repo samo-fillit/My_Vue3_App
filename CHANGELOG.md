@@ -15,6 +15,7 @@
 - Booking detail overlay — **transactions summary** (collected / outstanding) + a "View transactions" button that opens `/transactions` pre-filtered to the booking ID (`?q=<id>`)
 - Booking detail overlay — landlords can **negotiate the rate** on an enquiry: adjust the rate (VAT / fee / totals re-derive live) and "Send to tenant" → `quoted`; the tenant then **Accept quote** (→ confirmed) or **Decline** (→ declined). Accept/decline/cancel transitions are wired across the overlay
 - Booking detail overlay — landlords can **edit the payment schedule** inline (paid rows locked; add/remove rows; dates must be ordered and within the booking window; amounts must sum to the booking total — Save is gated, with a live "balanced / N left / N over" indicator), mirroring the production rules
+- The overdue flag now sits in its own column (between Status and the notes column) rather than inline beside the status dot
 - **Notes** — per-viewer note on every booking via a note icon in the final table column (outline → filled yellow when the viewer has added one) with an inline popover editor; the viewer's note also appears in the detail overlay
 
 ## 2026-06-05 — Email tool UI polish
