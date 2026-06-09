@@ -170,13 +170,12 @@
 
           <!-- Search bar -->
           <div class="flex items-center gap-3">
-            <div class="relative w-[300px]">
+            <div class="relative w-[400px]">
               <input
                 v-model="searchQuery"
                 type="text"
-                placeholder="Search booking or tenant…"
+                placeholder="Search booking, tenant or centre…"
                 class="h-10 w-full rounded-lg border border-border bg-background px-4 pr-10 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-foreground focus:border-[1.5px]"
-                @keydown.enter="jumpToMatch"
               />
               <IconSearch :size="16" stroke-width="1.5" class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             </div>
@@ -226,14 +225,14 @@
                   </button>
                 </TableHead>
 
-                <TableHead class="w-[110px] text-center">
+                <TableHead class="w-[110px] pl-8">
                   <button type="button" class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort('paymentType')">
                     Payment in
                     <component :is="sortIcon('paymentType')" :size="12" stroke-width="2" />
                   </button>
                 </TableHead>
 
-                <TableHead class="w-[140px] text-center">
+                <TableHead class="w-[140px] pl-8">
                   <button type="button" class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort('paymentOutStatus')">
                     Payment out
                     <component :is="sortIcon('paymentOutStatus')" :size="12" stroke-width="2" />
@@ -251,9 +250,7 @@
               <TableRow
                 v-for="tx in filteredTransactions"
                 :key="tx.id"
-                :ref="el => { if (el) rowRefs[tx.id] = el as HTMLElement }"
                 class="group"
-                :class="{ 'row-highlight': highlightedId === tx.id }"
               >
 
                 <TableCell class="text-sm text-muted-foreground">
@@ -283,27 +280,24 @@
                 <TableCell class="text-right text-sm font-medium tabular-nums text-foreground">{{ formatAmount(tx.grossAmount) }}</TableCell>
 
                 <!-- Payment in status — tenant → platform -->
-                <TableCell class="text-center">
+                <TableCell class="pl-8">
                   <TooltipProvider :delay-duration="150">
                     <Tooltip>
                       <TooltipTrigger as-child>
                         <button
                           v-if="can('manage:transactions')"
                           type="button"
-                          class="group inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium transition-opacity hover:opacity-75"
-                          :class="statusClass(tx.paymentType)"
+                          class="group inline-flex items-center gap-1.5 rounded-md px-2 py-1 transition-colors hover:bg-muted"
                           @click="openChangeStatus(tx, 'paymentType')"
                         >
-                          {{ statusLabel(tx.paymentType) }}
-                          <IconPencil :size="10" stroke-width="2" class="opacity-0 transition-opacity group-hover:opacity-100" />
+                          <StatusDot :label="statusLabel(tx.paymentType)" :dot-class="statusDot(tx.paymentType)" />
+                          <IconPencil :size="10" stroke-width="2" class="text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
                         </button>
-                        <span
+                        <StatusDot
                           v-else
-                          class="cursor-default rounded-full px-2.5 py-1 text-xs font-medium"
-                          :class="statusClass(tx.paymentType)"
-                        >
-                          {{ statusLabel(tx.paymentType) }}
-                        </span>
+                          :label="statusLabel(tx.paymentType)"
+                          :dot-class="statusDot(tx.paymentType)"
+                        />
                       </TooltipTrigger>
                       <TooltipContent v-if="manualChanges[`${tx.id}-paymentType`] || tx.paidOn" side="top">
                         <p class="text-xs">
@@ -318,27 +312,24 @@
                 </TableCell>
 
                 <!-- Payment out status — platform → landlord -->
-                <TableCell class="text-center">
+                <TableCell class="pl-8">
                   <TooltipProvider :delay-duration="150">
                     <Tooltip>
                       <TooltipTrigger as-child>
                         <button
                           v-if="can('manage:transactions')"
                           type="button"
-                          class="group inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium transition-opacity hover:opacity-75"
-                          :class="statusClass(tx.paymentOutStatus ?? 'pending')"
+                          class="group inline-flex items-center gap-1.5 rounded-md px-2 py-1 transition-colors hover:bg-muted"
                           @click="openChangeStatus(tx, 'paymentOutStatus')"
                         >
-                          {{ statusLabel(tx.paymentOutStatus ?? 'pending') }}
-                          <IconPencil :size="10" stroke-width="2" class="opacity-0 transition-opacity group-hover:opacity-100" />
+                          <StatusDot :label="statusLabel(tx.paymentOutStatus ?? 'pending')" :dot-class="statusDot(tx.paymentOutStatus ?? 'pending')" />
+                          <IconPencil :size="10" stroke-width="2" class="text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
                         </button>
-                        <span
+                        <StatusDot
                           v-else
-                          class="cursor-default rounded-full px-2.5 py-1 text-xs font-medium"
-                          :class="statusClass(tx.paymentOutStatus ?? 'pending')"
-                        >
-                          {{ statusLabel(tx.paymentOutStatus ?? 'pending') }}
-                        </span>
+                          :label="statusLabel(tx.paymentOutStatus ?? 'pending')"
+                          :dot-class="statusDot(tx.paymentOutStatus ?? 'pending')"
+                        />
                       </TooltipTrigger>
                       <TooltipContent v-if="manualChanges[`${tx.id}-paymentOutStatus`] || tx.transferDate" side="top">
                         <p class="text-xs">
@@ -473,12 +464,7 @@
             >
               <div class="flex flex-1 flex-col gap-0.5">
                 <div class="flex items-center gap-2">
-                  <span
-                    class="rounded-full px-2 py-0.5 text-xs font-medium"
-                    :class="statusClass(option.value)"
-                  >
-                    {{ option.label }}
-                  </span>
+                  <StatusDot :label="option.label" :dot-class="statusDot(option.value)" />
                   <span
                     v-if="option.value === changeStatusCurrentValue"
                     class="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground"
@@ -548,20 +534,10 @@
 .modal-leave-to {
   opacity: 0;
 }
-
-@keyframes row-search-pulse {
-  0%   { background-color: transparent; }
-  30%  { background-color: rgb(59 130 246 / 0.10); }
-  70%  { background-color: rgb(59 130 246 / 0.10); }
-  100% { background-color: transparent; }
-}
-.row-highlight {
-  animation: row-search-pulse 1s ease-in-out 2;
-}
 </style>
 
 <script setup lang="ts">
-import { ref, computed, nextTick, watch } from 'vue'
+import { ref, computed } from 'vue'
 import type { DateRange } from 'reka-ui'
 import { CalendarDate } from '@internationalized/date'
 import {
@@ -610,6 +586,7 @@ import {
 } from '@/components/ui/tooltip'
 import AppSidebar from '@/components/app-sidebar.vue'
 import RightPanel from '@/components/right-panel.vue'
+import StatusDot from '@/components/StatusDot.vue'
 import { useTeamContext } from '@/composables/useTeamContext'
 import { useAppContext } from '@/composables/useAppContext'
 
@@ -668,49 +645,12 @@ const { can } = useAppContext()
 // ─── Search ───────────────────────────────────────────────────────────────────
 
 const searchQuery = ref('')
-const matchIndex = ref(-1)
-const highlightedId = ref<number | null>(null)
-const rowRefs = ref<Record<number, HTMLElement>>({})
-
-const txMatchIds = computed(() => {
-  const q = searchQuery.value.trim().toLowerCase()
-  if (!q) return []
-  return filteredTransactions.value
-    .filter(tx =>
-      tx.bookingRef.toLowerCase().includes(q) ||
-      tx.tenantCompany.toLowerCase().includes(q)
-    )
-    .map(tx => tx.id)
-})
 
 const searchCountLabel = computed(() => {
-  const q = searchQuery.value.trim()
-  if (!q) return ''
-  if (txMatchIds.value.length === 0) return 'No results'
-  if (matchIndex.value >= 0) return `${matchIndex.value + 1} / ${txMatchIds.value.length}`
-  return `${txMatchIds.value.length} match${txMatchIds.value.length === 1 ? '' : 'es'}`
+  if (!searchQuery.value.trim()) return ''
+  const n = filteredTransactions.value.length
+  return n === 0 ? 'No results' : `${n} result${n === 1 ? '' : 's'}`
 })
-
-watch(searchQuery, () => {
-  matchIndex.value = -1
-  highlightedId.value = null
-})
-
-function jumpToMatch() {
-  if (!txMatchIds.value.length) return
-  matchIndex.value = (matchIndex.value + 1) % txMatchIds.value.length
-  const id = txMatchIds.value[matchIndex.value]
-  highlightedId.value = null
-  nextTick(() => {
-    highlightedId.value = id
-    const el = rowRefs.value[id]
-    if (el) {
-      const row = (el as any).$el ?? el
-      row.scrollIntoView?.({ behavior: 'smooth', block: 'center' })
-    }
-    setTimeout(() => { highlightedId.value = null }, 2100)
-  })
-}
 
 // ─── Centre filter ────────────────────────────────────────────────────────────
 
@@ -905,6 +845,14 @@ const filteredTransactions = computed(() => {
   if (activeStatus.value !== 'all') {
     list = list.filter(t => t.paymentType === activeStatus.value)
   }
+  const q = searchQuery.value.trim().toLowerCase()
+  if (q) {
+    list = list.filter(t =>
+      t.bookingRef.toLowerCase().includes(q) ||
+      t.tenantCompany.toLowerCase().includes(q) ||
+      t.centreName.toLowerCase().includes(q),
+    )
+  }
   if (sortKey.value) {
     const key = sortKey.value
     const dir = sortDir.value
@@ -1019,17 +967,17 @@ function statusLabel(type: PaymentType): string {
   }
 }
 
-function statusClass(type: PaymentType): string {
+function statusDot(type: PaymentType): string {
   switch (type) {
-    case 'paid':          return 'bg-green-50 text-green-700'
-    case 'paid_to_centre':return 'bg-green-50 text-green-700'
-    case 'pending':       return 'bg-blue-50 text-blue-600'
-    case 'overdue':       return 'bg-amber-50 text-amber-700'
-    case 'failed':        return 'bg-red-50 text-red-600'
-    case 'refunded':      return 'bg-muted text-muted-foreground'
-    case 'pre_confirmed': return 'bg-purple-50 text-purple-700'
-    case 'processing':    return 'bg-sky-50 text-sky-600'
-    case 'cancelled':     return 'bg-muted text-muted-foreground'
+    case 'paid':          return 'bg-green-500'
+    case 'paid_to_centre':return 'bg-green-500'
+    case 'pending':       return 'bg-blue-500'
+    case 'overdue':       return 'bg-amber-500'
+    case 'failed':        return 'bg-red-500'
+    case 'refunded':      return 'bg-muted-foreground'
+    case 'pre_confirmed': return 'bg-purple-500'
+    case 'processing':    return 'bg-sky-500'
+    case 'cancelled':     return 'bg-muted-foreground'
   }
 }
 

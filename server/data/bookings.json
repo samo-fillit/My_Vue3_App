@@ -1,591 +1,1643 @@
 {
   "bookings": [
-
-    // ── Fillit — Team One (Westfield London, Bluewater) ──────────────────────
     {
       "id": "10042",
-      "status": "active",
-      "landlordTeamId": "team-one",
-      "centreId": "centre-westfield",
-      "centreName": "Westfield London",
-      "spaceId": "s1",
-      "spaceTitle": "Kiosk A3",
-      "tenantTeamId": null,
-      "tenantCompany": "Nike",
-      "tenantContactName": "Jordan Smith",
-      "tenantEmail": "j.smith@nike.com",
-      "rate": 3360,
-      "currency": "EUR",
-      "periodFrom": "2026-05-12",
-      "periodTo": "2026-05-26",
+      "status": "confirmed",
       "createdAt": "2026-04-20T09:00:00Z",
-      "notes": null
-    },
-    {
-      "id": "10038",
-      "status": "active",
-      "landlordTeamId": "team-one",
-      "centreId": "centre-bluewater",
-      "centreName": "Bluewater",
-      "spaceId": "s4",
-      "spaceTitle": "Sampling Stand S1",
-      "tenantTeamId": null,
-      "tenantCompany": "Adidas",
-      "tenantContactName": "Hannah Cole",
-      "tenantEmail": "h.cole@adidas.com",
-      "rate": 2800,
-      "currency": "EUR",
-      "periodFrom": "2026-05-05",
-      "periodTo": "2026-05-11",
-      "createdAt": "2026-04-10T14:00:00Z",
-      "notes": null
-    },
-    {
-      "id": "10031",
-      "status": "active",
-      "landlordTeamId": "team-one",
-      "centreId": "centre-westfield",
-      "centreName": "Westfield London",
-      "spaceId": "s3",
-      "spaceTitle": "Pop-up Space P2",
-      "tenantTeamId": null,
-      "tenantCompany": "Zara",
-      "tenantContactName": "Elena Ruiz",
-      "tenantEmail": "e.ruiz@zara.com",
-      "rate": 4200,
-      "currency": "EUR",
-      "periodFrom": "2026-04-28",
-      "periodTo": "2026-05-04",
-      "createdAt": "2026-04-01T10:00:00Z",
-      "notes": null
+      "submittedAt": "2026-04-20T09:00:00Z",
+      "respondedAt": "2026-04-22T11:30:00Z",
+      "confirmedAt": "2026-04-25T14:00:00Z",
+      "cancelledAt": null,
+      "preConfirmed": false,
+      "approvalType": "single",
+      "bookingLinkId": null,
+      "period": { "from": "2026-07-06", "to": "2026-07-20" },
+      "landlord": {
+        "teamId": "team-one",
+        "teamName": "Team One",
+        "teamColor": "#059669",
+        "organisationName": "Westfield Group Ltd",
+        "country": "GB"
+      },
+      "tenant": {
+        "teamId": null,
+        "company": "Nike",
+        "contactName": "Jordan Smith",
+        "email": "j.smith@nike.com",
+        "phone": "+44 20 7946 0011",
+        "isSelfEmployed": false
+      },
+      "space": {
+        "id": "s1",
+        "title": "Kiosk A3",
+        "type": "Kiosk",
+        "centreId": "centre-westfield",
+        "centreName": "Westfield London",
+        "centreColor": "#7c3aed",
+        "dimensions": "3x2x2m"
+      },
+      "enquiry": {
+        "title": "Nike summer running pop-up",
+        "category": "brand_marketing",
+        "description": "Two-week activation for the summer running range with a fitting and trial zone.",
+        "dimensions": "3x2x2m",
+        "images": [],
+        "additionalInfo": "Requires power supply and overnight storage."
+      },
+      "financials": {
+        "currency": "EUR",
+        "rate": 3360,
+        "vat": 672,
+        "deposit": 500,
+        "discount": 0,
+        "fillitFee": 336,
+        "total": 4032,
+        "totalLandlord": 3696,
+        "quote": 3360,
+        "paymentStatus": "paid",
+        "paidBy": "card"
+      },
+      "payments": [
+        { "id": "p-10042-1", "label": "Full payment", "amount": 4032, "dueDate": "2026-06-22", "status": "paid", "method": "card", "paidOn": "2026-06-20", "invoiceUrl": "/invoices/10042-1.pdf" }
+      ],
+      "documents": [
+        { "type": "lease", "name": "Lease agreement", "status": "signed", "url": "/docs/10042-lease.pdf", "signedAt": "2026-04-25T13:40:00Z" },
+        { "type": "insurance", "name": "Insurance certificate", "status": "uploaded", "url": "/docs/10042-insurance.pdf", "expiry": "2027-03-01" }
+      ],
+      "docusign": { "status": "completed", "envelopeId": "env-10042", "sentAt": "2026-04-23T10:00:00Z", "completedAt": "2026-04-25T13:40:00Z" },
+      "managerApproval": null,
+      "actions": [
+        { "type": "enquiry_submitted", "actor": "Jordan Smith", "actorType": "tenant", "at": "2026-04-20T09:00:00Z", "description": "Enquiry submitted" },
+        { "type": "quote_sent", "actor": "James Miller", "actorType": "landlord", "at": "2026-04-22T11:30:00Z", "description": "Terms sent to tenant" },
+        { "type": "lease_signed", "actor": "Jordan Smith", "actorType": "tenant", "at": "2026-04-25T13:40:00Z", "description": "Lease signed via DocuSign" },
+        { "type": "confirmed", "actor": "system", "actorType": "system", "at": "2026-04-25T14:00:00Z", "description": "Booking confirmed" },
+        { "type": "payment_received", "actor": "system", "actorType": "system", "at": "2026-06-20T08:05:00Z", "description": "Payment of £4,032.00 received" }
+      ],
+      "notes": { "landlord": null, "tenant": null }
     },
     {
       "id": "10055",
-      "status": "active",
-      "landlordTeamId": "team-one",
-      "centreId": "centre-bluewater",
-      "centreName": "Bluewater",
-      "spaceId": "s5",
-      "spaceTitle": "Billboard B2",
-      "tenantTeamId": null,
-      "tenantCompany": "Samsung",
-      "tenantContactName": "David Park",
-      "tenantEmail": "d.park@samsung.com",
-      "rate": 3360,
-      "currency": "EUR",
-      "periodFrom": "2026-06-02",
-      "periodTo": "2026-06-16",
+      "status": "confirmed",
       "createdAt": "2026-05-05T11:00:00Z",
-      "notes": null
+      "submittedAt": "2026-05-05T11:00:00Z",
+      "respondedAt": "2026-05-07T09:20:00Z",
+      "confirmedAt": "2026-05-10T16:00:00Z",
+      "cancelledAt": null,
+      "preConfirmed": false,
+      "approvalType": "pay_stages",
+      "bookingLinkId": null,
+      "period": { "from": "2026-06-02", "to": "2026-06-16" },
+      "landlord": {
+        "teamId": "team-one",
+        "teamName": "Team One",
+        "teamColor": "#059669",
+        "organisationName": "Westfield Group Ltd",
+        "country": "GB"
+      },
+      "tenant": {
+        "teamId": null,
+        "company": "Samsung",
+        "contactName": "David Park",
+        "email": "d.park@samsung.com",
+        "phone": "+44 20 7946 0099",
+        "isSelfEmployed": false
+      },
+      "space": {
+        "id": "s5",
+        "title": "Billboard B2",
+        "type": "Advertising",
+        "centreId": "centre-bluewater",
+        "centreName": "Bluewater",
+        "centreColor": "#0ea5e9",
+        "dimensions": "6x3m"
+      },
+      "enquiry": {
+        "title": "Galaxy launch advertising",
+        "category": "advertising",
+        "description": "Premium billboard placement for the Galaxy launch campaign.",
+        "dimensions": "6x3m",
+        "images": [],
+        "additionalInfo": null
+      },
+      "financials": {
+        "currency": "EUR",
+        "rate": 3360,
+        "vat": 672,
+        "deposit": 0,
+        "discount": 0,
+        "fillitFee": 336,
+        "total": 4032,
+        "totalLandlord": 3696,
+        "quote": 3360,
+        "paymentStatus": "overdue",
+        "paidBy": "bank_transfer"
+      },
+      "payments": [
+        { "id": "p-10055-1", "label": "Deposit (50%)", "amount": 2016, "dueDate": "2026-05-26", "status": "paid", "method": "bank_transfer", "paidOn": "2026-05-24", "invoiceUrl": "/invoices/10055-1.pdf" },
+        { "id": "p-10055-2", "label": "Balance (50%)", "amount": 2016, "dueDate": "2026-06-02", "status": "overdue", "method": "bank_transfer", "paidOn": null, "invoiceUrl": "/invoices/10055-2.pdf" }
+      ],
+      "documents": [
+        { "type": "lease", "name": "Lease agreement", "status": "signed", "url": "/docs/10055-lease.pdf", "signedAt": "2026-05-10T15:50:00Z" }
+      ],
+      "docusign": { "status": "completed", "envelopeId": "env-10055", "sentAt": "2026-05-08T10:00:00Z", "completedAt": "2026-05-10T15:50:00Z" },
+      "managerApproval": null,
+      "actions": [
+        { "type": "enquiry_submitted", "actor": "David Park", "actorType": "tenant", "at": "2026-05-05T11:00:00Z", "description": "Enquiry submitted" },
+        { "type": "quote_sent", "actor": "James Miller", "actorType": "landlord", "at": "2026-05-07T09:20:00Z", "description": "Terms sent to tenant" },
+        { "type": "confirmed", "actor": "system", "actorType": "system", "at": "2026-05-10T16:00:00Z", "description": "Booking confirmed" },
+        { "type": "payment_received", "actor": "system", "actorType": "system", "at": "2026-05-24T07:40:00Z", "description": "Deposit of £2,016.00 received" }
+      ],
+      "notes": { "landlord": "Repeat advertiser — priority renewal.", "tenant": null }
+    },
+    {
+      "id": "10031",
+      "status": "confirmed",
+      "createdAt": "2026-03-01T10:00:00Z",
+      "submittedAt": "2026-03-01T10:00:00Z",
+      "respondedAt": "2026-03-03T12:00:00Z",
+      "confirmedAt": "2026-03-06T09:00:00Z",
+      "cancelledAt": null,
+      "preConfirmed": false,
+      "approvalType": "single",
+      "bookingLinkId": null,
+      "period": { "from": "2026-04-28", "to": "2026-05-04" },
+      "landlord": {
+        "teamId": "team-one",
+        "teamName": "Team One",
+        "teamColor": "#059669",
+        "organisationName": "Westfield Group Ltd",
+        "country": "GB"
+      },
+      "tenant": {
+        "teamId": null,
+        "company": "Zara",
+        "contactName": "Elena Ruiz",
+        "email": "e.ruiz@zara.com",
+        "phone": "+44 20 7946 0044",
+        "isSelfEmployed": false
+      },
+      "space": {
+        "id": "s3",
+        "title": "Pop-up Space P2",
+        "type": "Pop-up",
+        "centreId": "centre-westfield",
+        "centreName": "Westfield London",
+        "centreColor": "#7c3aed",
+        "dimensions": "5x4m"
+      },
+      "enquiry": {
+        "title": "Zara spring collection pop-up",
+        "category": "product_sales",
+        "description": "One-week retail pop-up for the spring collection.",
+        "dimensions": "5x4m",
+        "images": [],
+        "additionalInfo": null
+      },
+      "financials": {
+        "currency": "EUR",
+        "rate": 4200,
+        "vat": 840,
+        "deposit": 600,
+        "discount": 0,
+        "fillitFee": 420,
+        "total": 5040,
+        "totalLandlord": 4620,
+        "quote": 4200,
+        "paymentStatus": "paid",
+        "paidBy": "card"
+      },
+      "payments": [
+        { "id": "p-10031-1", "label": "Full payment", "amount": 5040, "dueDate": "2026-04-14", "status": "paid", "method": "card", "paidOn": "2026-04-12", "invoiceUrl": "/invoices/10031-1.pdf" }
+      ],
+      "documents": [
+        { "type": "lease", "name": "Lease agreement", "status": "signed", "url": "/docs/10031-lease.pdf", "signedAt": "2026-03-06T08:50:00Z" },
+        { "type": "insurance", "name": "Insurance certificate", "status": "uploaded", "url": "/docs/10031-insurance.pdf", "expiry": "2026-12-31" },
+        { "type": "invoice", "name": "Invoice", "status": "issued", "url": "/invoices/10031-1.pdf", "expiry": null }
+      ],
+      "docusign": { "status": "completed", "envelopeId": "env-10031", "sentAt": "2026-03-04T10:00:00Z", "completedAt": "2026-03-06T08:50:00Z" },
+      "managerApproval": null,
+      "actions": [
+        { "type": "enquiry_submitted", "actor": "Elena Ruiz", "actorType": "tenant", "at": "2026-03-01T10:00:00Z", "description": "Enquiry submitted" },
+        { "type": "confirmed", "actor": "system", "actorType": "system", "at": "2026-03-06T09:00:00Z", "description": "Booking confirmed" },
+        { "type": "payment_received", "actor": "system", "actorType": "system", "at": "2026-04-12T09:10:00Z", "description": "Payment of £5,040.00 received" }
+      ],
+      "notes": { "landlord": null, "tenant": null }
+    },
+    {
+      "id": "10088",
+      "status": "enquiry",
+      "createdAt": "2026-06-07T15:30:00Z",
+      "submittedAt": "2026-06-07T15:30:00Z",
+      "respondedAt": null,
+      "confirmedAt": null,
+      "cancelledAt": null,
+      "preConfirmed": false,
+      "approvalType": "single",
+      "bookingLinkId": null,
+      "period": { "from": "2026-08-03", "to": "2026-08-17" },
+      "landlord": {
+        "teamId": "team-one",
+        "teamName": "Team One",
+        "teamColor": "#059669",
+        "organisationName": "Westfield Group Ltd",
+        "country": "GB"
+      },
+      "tenant": {
+        "teamId": null,
+        "company": "Glossier",
+        "contactName": "Maya Cohen",
+        "email": "m.cohen@glossier.com",
+        "phone": "+44 20 7946 0211",
+        "isSelfEmployed": false
+      },
+      "space": {
+        "id": "s2",
+        "title": "Kiosk A2",
+        "type": "Kiosk",
+        "centreId": "centre-westfield",
+        "centreName": "Westfield London",
+        "centreColor": "#7c3aed",
+        "dimensions": "3x2m"
+      },
+      "enquiry": {
+        "title": "Glossier sampling kiosk",
+        "category": "product_sampling",
+        "description": "Skincare sampling activation with a small consultation counter.",
+        "dimensions": "3x2m",
+        "images": [],
+        "additionalInfo": "Looking for high-footfall ground floor placement."
+      },
+      "financials": {
+        "currency": "EUR",
+        "rate": 2800,
+        "vat": 560,
+        "deposit": 400,
+        "discount": 0,
+        "fillitFee": 280,
+        "total": 3360,
+        "totalLandlord": 3080,
+        "quote": 2800,
+        "paymentStatus": "pending",
+        "paidBy": null
+      },
+      "payments": [],
+      "documents": [],
+      "docusign": { "status": null, "envelopeId": null, "sentAt": null, "completedAt": null },
+      "managerApproval": null,
+      "actions": [
+        { "type": "enquiry_submitted", "actor": "Maya Cohen", "actorType": "tenant", "at": "2026-06-07T15:30:00Z", "description": "Enquiry submitted — awaiting landlord review" }
+      ],
+      "notes": { "landlord": null, "tenant": null }
+    },
+    {
+      "id": "10091",
+      "status": "quoted",
+      "createdAt": "2026-06-02T10:15:00Z",
+      "submittedAt": "2026-06-02T10:15:00Z",
+      "respondedAt": "2026-06-05T14:00:00Z",
+      "confirmedAt": null,
+      "cancelledAt": null,
+      "preConfirmed": false,
+      "approvalType": "single",
+      "bookingLinkId": null,
+      "period": { "from": "2026-07-13", "to": "2026-07-27" },
+      "landlord": {
+        "teamId": "team-one",
+        "teamName": "Team One",
+        "teamColor": "#059669",
+        "organisationName": "Westfield Group Ltd",
+        "country": "GB"
+      },
+      "tenant": {
+        "teamId": null,
+        "company": "Allbirds",
+        "contactName": "Ryan Foster",
+        "email": "r.foster@allbirds.com",
+        "phone": "+44 20 7946 0233",
+        "isSelfEmployed": false
+      },
+      "space": {
+        "id": "s7",
+        "title": "Event Space E3",
+        "type": "Event",
+        "centreId": "centre-bluewater",
+        "centreName": "Bluewater",
+        "centreColor": "#0ea5e9",
+        "dimensions": "8x6m"
+      },
+      "enquiry": {
+        "title": "Allbirds sustainability event",
+        "category": "brand_marketing",
+        "description": "Two-week brand experience with a recycled-materials workshop.",
+        "dimensions": "8x6m",
+        "images": [],
+        "additionalInfo": null
+      },
+      "financials": {
+        "currency": "EUR",
+        "rate": 5200,
+        "vat": 1040,
+        "deposit": 800,
+        "discount": 0,
+        "fillitFee": 520,
+        "total": 6240,
+        "totalLandlord": 5720,
+        "quote": 5200,
+        "paymentStatus": "pending",
+        "paidBy": null
+      },
+      "payments": [],
+      "documents": [
+        { "type": "lease", "name": "Lease agreement", "status": "draft", "url": "/docs/10091-lease-draft.pdf", "signedAt": null }
+      ],
+      "docusign": { "status": null, "envelopeId": null, "sentAt": null, "completedAt": null },
+      "managerApproval": null,
+      "actions": [
+        { "type": "enquiry_submitted", "actor": "Ryan Foster", "actorType": "tenant", "at": "2026-06-02T10:15:00Z", "description": "Enquiry submitted" },
+        { "type": "quote_sent", "actor": "James Miller", "actorType": "landlord", "at": "2026-06-05T14:00:00Z", "description": "Terms sent — awaiting tenant acceptance" }
+      ],
+      "notes": { "landlord": "Offered a 5% discount if they confirm by end of week.", "tenant": null }
     },
     {
       "id": "10009",
       "status": "cancelled",
-      "landlordTeamId": "team-one",
-      "centreId": "centre-westfield",
-      "centreName": "Westfield London",
-      "spaceId": "s6",
-      "spaceTitle": "Demo Stand D3",
-      "tenantTeamId": null,
-      "tenantCompany": "Apple",
-      "tenantContactName": "Claire Dawson",
-      "tenantEmail": "c.dawson@apple.com",
-      "rate": 1680,
-      "currency": "EUR",
-      "periodFrom": "2026-03-10",
-      "periodTo": "2026-03-17",
       "createdAt": "2026-02-20T09:30:00Z",
-      "notes": "Booking cancelled and refunded at tenant request."
+      "submittedAt": "2026-02-20T09:30:00Z",
+      "respondedAt": "2026-02-22T10:00:00Z",
+      "confirmedAt": "2026-02-25T11:00:00Z",
+      "cancelledAt": "2026-03-05T16:20:00Z",
+      "preConfirmed": false,
+      "approvalType": "single",
+      "bookingLinkId": null,
+      "period": { "from": "2026-03-10", "to": "2026-03-17" },
+      "landlord": {
+        "teamId": "team-one",
+        "teamName": "Team One",
+        "teamColor": "#059669",
+        "organisationName": "Westfield Group Ltd",
+        "country": "GB"
+      },
+      "tenant": {
+        "teamId": null,
+        "company": "Apple",
+        "contactName": "Claire Dawson",
+        "email": "c.dawson@apple.com",
+        "phone": "+44 20 7946 0066",
+        "isSelfEmployed": false
+      },
+      "space": {
+        "id": "s6",
+        "title": "Demo Stand D3",
+        "type": "Stand",
+        "centreId": "centre-westfield",
+        "centreName": "Westfield London",
+        "centreColor": "#7c3aed",
+        "dimensions": "4x4m"
+      },
+      "enquiry": {
+        "title": "Apple accessories demo",
+        "category": "product_sales",
+        "description": "Demo stand for the new accessories line.",
+        "dimensions": "4x4m",
+        "images": [],
+        "additionalInfo": null
+      },
+      "financials": {
+        "currency": "EUR",
+        "rate": 1680,
+        "vat": 336,
+        "deposit": 300,
+        "discount": 0,
+        "fillitFee": 168,
+        "total": 2016,
+        "totalLandlord": 1848,
+        "quote": 1680,
+        "paymentStatus": "refunded",
+        "paidBy": "card"
+      },
+      "payments": [
+        { "id": "p-10009-1", "label": "Full payment", "amount": 2016, "dueDate": "2026-02-28", "status": "refunded", "method": "card", "paidOn": "2026-02-26", "invoiceUrl": "/invoices/10009-1.pdf" }
+      ],
+      "documents": [
+        { "type": "lease", "name": "Lease agreement", "status": "voided", "url": "/docs/10009-lease.pdf", "signedAt": "2026-02-25T10:50:00Z" }
+      ],
+      "docusign": { "status": "voided", "envelopeId": "env-10009", "sentAt": "2026-02-23T10:00:00Z", "completedAt": "2026-02-25T10:50:00Z" },
+      "managerApproval": null,
+      "cancellation": { "by": "tenant", "reason": "Campaign postponed", "refund": "full", "at": "2026-03-05T16:20:00Z" },
+      "actions": [
+        { "type": "confirmed", "actor": "system", "actorType": "system", "at": "2026-02-25T11:00:00Z", "description": "Booking confirmed" },
+        { "type": "cancelled", "actor": "Claire Dawson", "actorType": "tenant", "at": "2026-03-05T16:20:00Z", "description": "Cancelled by tenant — campaign postponed" },
+        { "type": "payment_refunded", "actor": "system", "actorType": "system", "at": "2026-03-06T09:00:00Z", "description": "Full refund of £2,016.00 issued" }
+      ],
+      "notes": { "landlord": "Cancelled and refunded at tenant request.", "tenant": null }
     },
-    {
-      "id": "10062",
-      "status": "active",
-      "landlordTeamId": "team-one",
-      "centreId": "centre-westfield",
-      "centreName": "Westfield London",
-      "spaceId": "s3",
-      "spaceTitle": "Pop-up Space P3",
-      "tenantTeamId": null,
-      "tenantCompany": "Zara Home",
-      "tenantContactName": "Isabel Morales",
-      "tenantEmail": "i.morales@zarahome.com",
-      "rate": 2800,
-      "currency": "EUR",
-      "periodFrom": "2026-04-07",
-      "periodTo": "2026-04-21",
-      "createdAt": "2026-03-12T08:00:00Z",
-      "notes": null
-    },
-    {
-      "id": "10071",
-      "status": "active",
-      "landlordTeamId": "team-one",
-      "centreId": "centre-bluewater",
-      "centreName": "Bluewater",
-      "spaceId": "s7",
-      "spaceTitle": "Event Space E3",
-      "tenantTeamId": null,
-      "tenantCompany": "Mango",
-      "tenantContactName": "Sofia Reyes",
-      "tenantEmail": "s.reyes@mango.com",
-      "rate": 1960,
-      "currency": "EUR",
-      "periodFrom": "2026-03-24",
-      "periodTo": "2026-04-07",
-      "createdAt": "2026-03-01T10:00:00Z",
-      "notes": null
-    },
-
-    // ── Fillit — Team Two (Lakeside, Meadowhall, Trafford Centre) ────────────
     {
       "id": "10024",
-      "status": "completed",
-      "landlordTeamId": "team-two",
-      "centreId": "centre-lakeside",
-      "centreName": "Lakeside",
-      "spaceId": "s8",
-      "spaceTitle": "Billboard B2",
-      "tenantTeamId": null,
-      "tenantCompany": "H&M",
-      "tenantContactName": "Anders Nielsen",
-      "tenantEmail": "a.nielsen@hm.com",
-      "rate": 1960,
-      "currency": "EUR",
-      "periodFrom": "2026-04-14",
-      "periodTo": "2026-04-28",
+      "status": "confirmed",
       "createdAt": "2026-03-22T13:00:00Z",
-      "notes": null
+      "submittedAt": "2026-03-22T13:00:00Z",
+      "respondedAt": "2026-03-24T09:00:00Z",
+      "confirmedAt": "2026-03-27T10:00:00Z",
+      "cancelledAt": null,
+      "preConfirmed": false,
+      "approvalType": "single",
+      "bookingLinkId": null,
+      "period": { "from": "2026-04-14", "to": "2026-04-28" },
+      "landlord": {
+        "teamId": "team-two",
+        "teamName": "Team Two",
+        "teamColor": "#2563eb",
+        "organisationName": "Westfield Group Ltd",
+        "country": "GB"
+      },
+      "tenant": {
+        "teamId": null,
+        "company": "H&M",
+        "contactName": "Anders Nielsen",
+        "email": "a.nielsen@hm.com",
+        "phone": "+44 161 496 0010",
+        "isSelfEmployed": false
+      },
+      "space": {
+        "id": "s8",
+        "title": "Billboard B2",
+        "type": "Advertising",
+        "centreId": "centre-lakeside",
+        "centreName": "Lakeside",
+        "centreColor": "#f59e0b",
+        "dimensions": "6x3m"
+      },
+      "enquiry": {
+        "title": "H&M conscious collection",
+        "category": "advertising",
+        "description": "Billboard campaign for the conscious collection.",
+        "dimensions": "6x3m",
+        "images": [],
+        "additionalInfo": null
+      },
+      "financials": {
+        "currency": "EUR",
+        "rate": 1960,
+        "vat": 392,
+        "deposit": 0,
+        "discount": 0,
+        "fillitFee": 196,
+        "total": 2352,
+        "totalLandlord": 2156,
+        "quote": 1960,
+        "paymentStatus": "paid",
+        "paidBy": "bank_transfer"
+      },
+      "payments": [
+        { "id": "p-10024-1", "label": "Full payment", "amount": 2352, "dueDate": "2026-03-31", "status": "paid", "method": "bank_transfer", "paidOn": "2026-03-30", "invoiceUrl": "/invoices/10024-1.pdf" }
+      ],
+      "documents": [
+        { "type": "lease", "name": "Lease agreement", "status": "signed", "url": "/docs/10024-lease.pdf", "signedAt": "2026-03-27T09:50:00Z" },
+        { "type": "invoice", "name": "Invoice", "status": "issued", "url": "/invoices/10024-1.pdf", "expiry": null }
+      ],
+      "docusign": { "status": "completed", "envelopeId": "env-10024", "sentAt": "2026-03-25T10:00:00Z", "completedAt": "2026-03-27T09:50:00Z" },
+      "managerApproval": null,
+      "actions": [
+        { "type": "enquiry_submitted", "actor": "Anders Nielsen", "actorType": "tenant", "at": "2026-03-22T13:00:00Z", "description": "Enquiry submitted" },
+        { "type": "confirmed", "actor": "system", "actorType": "system", "at": "2026-03-27T10:00:00Z", "description": "Booking confirmed" }
+      ],
+      "notes": { "landlord": null, "tenant": null }
     },
     {
       "id": "10058",
-      "status": "active",
-      "landlordTeamId": "team-two",
-      "centreId": "centre-westfield",
-      "centreName": "Westfield London",
-      "spaceId": "s9",
-      "spaceTitle": "Event Space E1",
-      "tenantTeamId": null,
-      "tenantCompany": "L'Oréal",
-      "tenantContactName": "Camille Bernard",
-      "tenantEmail": "c.bernard@loreal.com",
-      "rate": 3360,
-      "currency": "EUR",
-      "periodFrom": "2026-06-09",
-      "periodTo": "2026-06-20",
+      "status": "awaiting_signature",
       "createdAt": "2026-05-08T09:00:00Z",
-      "notes": null
+      "submittedAt": "2026-05-08T09:00:00Z",
+      "respondedAt": "2026-06-04T11:00:00Z",
+      "confirmedAt": null,
+      "cancelledAt": null,
+      "preConfirmed": false,
+      "approvalType": "single",
+      "bookingLinkId": null,
+      "period": { "from": "2026-07-09", "to": "2026-07-20" },
+      "landlord": {
+        "teamId": "team-two",
+        "teamName": "Team Two",
+        "teamColor": "#2563eb",
+        "organisationName": "Westfield Group Ltd",
+        "country": "GB"
+      },
+      "tenant": {
+        "teamId": null,
+        "company": "L'Oréal",
+        "contactName": "Camille Bernard",
+        "email": "c.bernard@loreal.com",
+        "phone": "+44 161 496 0022",
+        "isSelfEmployed": false
+      },
+      "space": {
+        "id": "s9",
+        "title": "Event Space E1",
+        "type": "Event",
+        "centreId": "centre-meadowhall",
+        "centreName": "Meadowhall",
+        "centreColor": "#ec4899",
+        "dimensions": "8x6m"
+      },
+      "enquiry": {
+        "title": "L'Oréal beauty masterclass",
+        "category": "brand_marketing",
+        "description": "Interactive beauty masterclass space with demo stations.",
+        "dimensions": "8x6m",
+        "images": [],
+        "additionalInfo": null
+      },
+      "financials": {
+        "currency": "EUR",
+        "rate": 3360,
+        "vat": 672,
+        "deposit": 500,
+        "discount": 0,
+        "fillitFee": 336,
+        "total": 4032,
+        "totalLandlord": 3696,
+        "quote": 3360,
+        "paymentStatus": "pending",
+        "paidBy": null
+      },
+      "payments": [
+        { "id": "p-10058-1", "label": "Full payment", "amount": 4032, "dueDate": "2026-06-25", "status": "pending", "method": null, "paidOn": null, "invoiceUrl": null }
+      ],
+      "documents": [
+        { "type": "lease", "name": "Lease agreement", "status": "sent", "url": "/docs/10058-lease.pdf", "signedAt": null }
+      ],
+      "docusign": { "status": "sent", "envelopeId": "env-10058", "sentAt": "2026-06-04T11:05:00Z", "completedAt": null },
+      "managerApproval": null,
+      "actions": [
+        { "type": "enquiry_submitted", "actor": "Camille Bernard", "actorType": "tenant", "at": "2026-05-08T09:00:00Z", "description": "Enquiry submitted" },
+        { "type": "quote_sent", "actor": "Sarah Klein", "actorType": "landlord", "at": "2026-06-04T11:00:00Z", "description": "Terms accepted" },
+        { "type": "lease_sent", "actor": "Sarah Klein", "actorType": "landlord", "at": "2026-06-04T11:05:00Z", "description": "Lease sent for signature" }
+      ],
+      "notes": { "landlord": null, "tenant": null }
     },
     {
-      "id": "10015",
-      "status": "completed",
-      "landlordTeamId": "team-two",
-      "centreId": "centre-lakeside",
-      "centreName": "Lakeside",
-      "spaceId": "s10",
-      "spaceTitle": "Kiosk A1",
-      "tenantTeamId": null,
-      "tenantCompany": "Puma",
-      "tenantContactName": "Marco Bauer",
-      "tenantEmail": "m.bauer@puma.com",
-      "rate": 2800,
-      "currency": "EUR",
-      "periodFrom": "2026-03-03",
-      "periodTo": "2026-03-17",
-      "createdAt": "2026-02-10T10:00:00Z",
-      "notes": null
+      "id": "10077",
+      "status": "declined",
+      "createdAt": "2026-05-18T08:00:00Z",
+      "submittedAt": "2026-05-18T08:00:00Z",
+      "respondedAt": "2026-05-20T10:30:00Z",
+      "confirmedAt": null,
+      "cancelledAt": null,
+      "preConfirmed": false,
+      "approvalType": "single",
+      "bookingLinkId": null,
+      "period": { "from": "2026-06-22", "to": "2026-07-06" },
+      "landlord": {
+        "teamId": "team-two",
+        "teamName": "Team Two",
+        "teamColor": "#2563eb",
+        "organisationName": "Westfield Group Ltd",
+        "country": "GB"
+      },
+      "tenant": {
+        "teamId": null,
+        "company": "Vape World",
+        "contactName": "Gary Holt",
+        "email": "g.holt@vapeworld.co.uk",
+        "phone": "+44 161 496 0088",
+        "isSelfEmployed": true
+      },
+      "space": {
+        "id": "s11",
+        "title": "Event Space E2",
+        "type": "Event",
+        "centreId": "centre-meadowhall",
+        "centreName": "Meadowhall",
+        "centreColor": "#ec4899",
+        "dimensions": "8x6m"
+      },
+      "enquiry": {
+        "title": "Vape World product stand",
+        "category": "product_sales",
+        "description": "Retail stand for vaping products.",
+        "dimensions": "8x6m",
+        "images": [],
+        "additionalInfo": null
+      },
+      "financials": {
+        "currency": "EUR",
+        "rate": 4200,
+        "vat": 840,
+        "deposit": 0,
+        "discount": 0,
+        "fillitFee": 420,
+        "total": 5040,
+        "totalLandlord": 4620,
+        "quote": 4200,
+        "paymentStatus": "pending",
+        "paidBy": null
+      },
+      "payments": [],
+      "documents": [],
+      "docusign": { "status": null, "envelopeId": null, "sentAt": null, "completedAt": null },
+      "managerApproval": null,
+      "decline": { "by": "landlord", "reason": "Product category not permitted in this centre", "at": "2026-05-20T10:30:00Z" },
+      "actions": [
+        { "type": "enquiry_submitted", "actor": "Gary Holt", "actorType": "tenant", "at": "2026-05-18T08:00:00Z", "description": "Enquiry submitted" },
+        { "type": "declined", "actor": "Sarah Klein", "actorType": "landlord", "at": "2026-05-20T10:30:00Z", "description": "Declined — product category not permitted" }
+      ],
+      "notes": { "landlord": null, "tenant": null }
     },
-    {
-      "id": "10001",
-      "status": "completed",
-      "landlordTeamId": "team-two",
-      "centreId": "centre-bluewater",
-      "centreName": "Bluewater",
-      "spaceId": "s3",
-      "spaceTitle": "Pop-up Space P1",
-      "tenantTeamId": null,
-      "tenantCompany": "Dyson",
-      "tenantContactName": "Tom Hardy",
-      "tenantEmail": "t.hardy@dyson.com",
-      "rate": 5600,
-      "currency": "EUR",
-      "periodFrom": "2026-02-17",
-      "periodTo": "2026-03-03",
-      "createdAt": "2026-01-25T11:00:00Z",
-      "notes": null
-    },
-    {
-      "id": "10097",
-      "status": "completed",
-      "landlordTeamId": "team-two",
-      "centreId": "centre-meadowhall",
-      "centreName": "Meadowhall",
-      "spaceId": "s11",
-      "spaceTitle": "Event Space E2",
-      "tenantTeamId": null,
-      "tenantCompany": "Sony",
-      "tenantContactName": "Kenji Tanaka",
-      "tenantEmail": "k.tanaka@sony.com",
-      "rate": 4200,
-      "currency": "EUR",
-      "periodFrom": "2026-02-03",
-      "periodTo": "2026-02-17",
-      "createdAt": "2026-01-12T08:30:00Z",
-      "notes": null
-    },
-    {
-      "id": "10089",
-      "status": "active",
-      "landlordTeamId": "team-one",
-      "centreId": "centre-lakeside",
-      "centreName": "Lakeside",
-      "spaceId": "s12",
-      "spaceTitle": "Kiosk A2",
-      "tenantTeamId": null,
-      "tenantCompany": "Uniqlo",
-      "tenantContactName": "Yuki Nakamura",
-      "tenantEmail": "y.nakamura@uniqlo.com",
-      "rate": 2800,
-      "currency": "EUR",
-      "periodFrom": "2026-01-20",
-      "periodTo": "2026-02-03",
-      "createdAt": "2025-12-18T10:00:00Z",
-      "notes": null
-    },
-
-    // ── Bookings created from booking links ──────────────────────────────────
-    {
-      "id": "11001",
-      "status": "active",
-      "landlordTeamId": "team-one",
-      "centreId": "centre-westfield",
-      "centreName": "Westfield London",
-      "spaceId": "s1",
-      "spaceTitle": "Kiosk A1",
-      "tenantTeamId": null,
-      "tenantCompany": "Brand Co.",
-      "tenantContactName": "Alice Johnson",
-      "tenantEmail": "alice@brandco.com",
-      "rate": 4800,
-      "currency": "EUR",
-      "periodFrom": "2026-06-01",
-      "periodTo": "2026-06-30",
-      "createdAt": "2026-05-21T11:05:00Z",
-      "notes": null
-    },
-    {
-      "id": "11002",
-      "status": "active",
-      "landlordTeamId": "team-two",
-      "centreId": "centre-meadowhall",
-      "centreName": "Meadowhall",
-      "spaceId": "s13",
-      "spaceTitle": "Kiosk A1",
-      "tenantTeamId": null,
-      "tenantCompany": "Retail Group",
-      "tenantContactName": "David Chen",
-      "tenantEmail": "d.chen@retailgroup.com",
-      "rate": 3200,
-      "currency": "EUR",
-      "periodFrom": "2026-05-15",
-      "periodTo": "2026-06-14",
-      "createdAt": "2026-05-11T16:20:00Z",
-      "notes": null
-    },
-
-    // ── eLeaseLoop — Spain ───────────────────────────────────────────────────
     {
       "id": "20001",
-      "status": "active",
-      "landlordTeamId": "team-spain",
-      "centreId": "centre-xanadu",
-      "centreName": "Centro Comercial Xanadú",
-      "spaceId": "space-xnd-001",
-      "spaceTitle": "Pop-up Unit P4",
-      "tenantTeamId": null,
-      "tenantCompany": "Zara",
-      "tenantContactName": "Elena Ruiz",
-      "tenantEmail": "e.ruiz@zara.com",
-      "rate": 4200,
-      "currency": "EUR",
-      "periodFrom": "2026-05-05",
-      "periodTo": "2026-05-19",
+      "status": "confirmed",
       "createdAt": "2026-04-14T10:00:00Z",
-      "notes": null
-    },
-    {
-      "id": "20002",
-      "status": "active",
-      "landlordTeamId": "team-spain",
-      "centreId": "centre-la-maquinista",
-      "centreName": "La Maquinista",
-      "spaceId": "space-maq-001",
-      "spaceTitle": "Event Space E1",
-      "tenantTeamId": null,
-      "tenantCompany": "Mango",
-      "tenantContactName": "Sofia Reyes",
-      "tenantEmail": "s.reyes@mango.com",
-      "rate": 3200,
-      "currency": "EUR",
-      "periodFrom": "2026-04-21",
-      "periodTo": "2026-04-28",
-      "createdAt": "2026-04-01T09:00:00Z",
-      "notes": null
+      "submittedAt": "2026-04-14T10:00:00Z",
+      "respondedAt": "2026-04-16T09:00:00Z",
+      "confirmedAt": "2026-04-20T12:00:00Z",
+      "cancelledAt": null,
+      "preConfirmed": false,
+      "approvalType": "pay_stages",
+      "bookingLinkId": null,
+      "period": { "from": "2026-06-01", "to": "2026-06-30" },
+      "landlord": {
+        "teamId": "team-spain",
+        "teamName": "Nhood ES",
+        "teamColor": "#c0392b",
+        "organisationName": "Nhood España",
+        "country": "ES"
+      },
+      "tenant": {
+        "teamId": null,
+        "company": "Zara",
+        "contactName": "Elena Ruiz",
+        "email": "e.ruiz@zara.com",
+        "phone": "+34 91 123 4567",
+        "isSelfEmployed": false
+      },
+      "space": {
+        "id": "space-xnd-001",
+        "title": "Pop-up Unit P4",
+        "type": "Pop-up",
+        "centreId": "centre-xanadu",
+        "centreName": "Centro Comercial Xanadú",
+        "centreColor": "#c0392b",
+        "dimensions": "5x4m"
+      },
+      "enquiry": {
+        "title": "Zara summer pop-up",
+        "category": "product_sales",
+        "description": "Month-long retail pop-up for the summer range.",
+        "dimensions": "5x4m",
+        "images": [],
+        "additionalInfo": null
+      },
+      "financials": {
+        "currency": "EUR",
+        "rate": 4200,
+        "vat": 882,
+        "deposit": 700,
+        "discount": 0,
+        "fillitFee": 420,
+        "total": 5082,
+        "totalLandlord": 4662,
+        "quote": 4200,
+        "paymentStatus": "partial",
+        "paidBy": "bank_transfer"
+      },
+      "payments": [
+        { "id": "p-20001-1", "label": "Month 1", "amount": 2541, "dueDate": "2026-05-25", "status": "paid", "method": "bank_transfer", "paidOn": "2026-05-23", "invoiceUrl": "/invoices/20001-1.pdf" },
+        { "id": "p-20001-2", "label": "Month 2", "amount": 2541, "dueDate": "2026-06-25", "status": "pending", "method": "bank_transfer", "paidOn": null, "invoiceUrl": "/invoices/20001-2.pdf" }
+      ],
+      "documents": [
+        { "type": "lease", "name": "Contrato de arrendamiento", "status": "signed", "url": "/docs/20001-lease.pdf", "signedAt": "2026-04-20T11:50:00Z" },
+        { "type": "insurance", "name": "Certificado de seguro", "status": "uploaded", "url": "/docs/20001-insurance.pdf", "expiry": "2027-04-01" }
+      ],
+      "docusign": { "status": "completed", "envelopeId": "env-20001", "sentAt": "2026-04-17T10:00:00Z", "completedAt": "2026-04-20T11:50:00Z" },
+      "managerApproval": {
+        "required": true,
+        "stage": "approved",
+        "status": "approved",
+        "approvers": [
+          { "name": "Lucía Fernández", "role": "asset_manager", "decision": "approved", "at": "2026-04-16T12:00:00Z" },
+          { "name": "Carlos Vidal", "role": "senior_asset_manager", "decision": "approved", "at": "2026-04-18T09:30:00Z" }
+        ]
+      },
+      "actions": [
+        { "type": "enquiry_submitted", "actor": "Elena Ruiz", "actorType": "tenant", "at": "2026-04-14T10:00:00Z", "description": "Enquiry submitted" },
+        { "type": "manager_approved", "actor": "Carlos Vidal", "actorType": "manager", "at": "2026-04-18T09:30:00Z", "description": "Approved (2/2)" },
+        { "type": "confirmed", "actor": "system", "actorType": "system", "at": "2026-04-20T12:00:00Z", "description": "Booking confirmed" }
+      ],
+      "notes": { "landlord": null, "tenant": null }
     },
     {
       "id": "20003",
-      "status": "active",
-      "landlordTeamId": "team-spain",
-      "centreId": "centre-xanadu",
-      "centreName": "Centro Comercial Xanadú",
-      "spaceId": "space-xnd-002",
-      "spaceTitle": "Kiosk K2",
-      "tenantTeamId": null,
-      "tenantCompany": "Pull&Bear",
-      "tenantContactName": "Marcos López",
-      "tenantEmail": "m.lopez@pullandbear.com",
-      "rate": 1680,
-      "currency": "EUR",
-      "periodFrom": "2026-06-02",
-      "periodTo": "2026-06-09",
-      "createdAt": "2026-05-10T11:00:00Z",
-      "notes": null
+      "status": "enquiry",
+      "createdAt": "2026-06-06T11:00:00Z",
+      "submittedAt": "2026-06-06T11:00:00Z",
+      "respondedAt": null,
+      "confirmedAt": null,
+      "cancelledAt": null,
+      "preConfirmed": false,
+      "approvalType": "single",
+      "bookingLinkId": null,
+      "period": { "from": "2026-07-20", "to": "2026-08-03" },
+      "landlord": {
+        "teamId": "team-spain",
+        "teamName": "Nhood ES",
+        "teamColor": "#c0392b",
+        "organisationName": "Nhood España",
+        "country": "ES"
+      },
+      "tenant": {
+        "teamId": null,
+        "company": "Pull&Bear",
+        "contactName": "Marcos López",
+        "email": "m.lopez@pullandbear.com",
+        "phone": "+34 91 123 7788",
+        "isSelfEmployed": false
+      },
+      "space": {
+        "id": "space-xnd-002",
+        "title": "Kiosk K2",
+        "type": "Kiosk",
+        "centreId": "centre-xanadu",
+        "centreName": "Centro Comercial Xanadú",
+        "centreColor": "#c0392b",
+        "dimensions": "3x2m"
+      },
+      "enquiry": {
+        "title": "Pull&Bear denim launch",
+        "category": "brand_marketing",
+        "description": "Denim launch activation with a customization station.",
+        "dimensions": "3x2m",
+        "images": [],
+        "additionalInfo": null
+      },
+      "financials": {
+        "currency": "EUR",
+        "rate": 1680,
+        "vat": 353,
+        "deposit": 300,
+        "discount": 0,
+        "fillitFee": 168,
+        "total": 2033,
+        "totalLandlord": 1865,
+        "quote": 1680,
+        "paymentStatus": "pending",
+        "paidBy": null
+      },
+      "payments": [],
+      "documents": [],
+      "docusign": { "status": null, "envelopeId": null, "sentAt": null, "completedAt": null },
+      "managerApproval": {
+        "required": true,
+        "stage": "awaiting",
+        "status": "pending",
+        "approvers": [
+          { "name": "Lucía Fernández", "role": "asset_manager", "decision": null, "at": null }
+        ]
+      },
+      "actions": [
+        { "type": "enquiry_submitted", "actor": "Marcos López", "actorType": "tenant", "at": "2026-06-06T11:00:00Z", "description": "Enquiry submitted — awaiting review and manager approval" }
+      ],
+      "notes": { "landlord": null, "tenant": null }
     },
     {
       "id": "11003",
-      "status": "active",
-      "landlordTeamId": "team-spain",
-      "centreId": "centre-xanadu",
-      "centreName": "Centro Comercial Xanadú",
-      "spaceId": "space-xnd-001",
-      "spaceTitle": "Pop-up Unit P4",
-      "tenantTeamId": null,
-      "tenantCompany": "Moda Group",
-      "tenantContactName": "Alejandro García",
-      "tenantEmail": "a.garcia@modagroup.es",
-      "rate": 5500,
-      "currency": "EUR",
-      "periodFrom": "2026-06-01",
-      "periodTo": "2026-06-30",
+      "status": "confirmed",
       "createdAt": "2026-05-20T09:15:00Z",
-      "notes": null
-    },
-
-    // ── eLeaseLoop — France ──────────────────────────────────────────────────
-    {
-      "id": "20005",
-      "status": "active",
-      "landlordTeamId": "team-france",
-      "centreId": "centre-quatre-temps",
-      "centreName": "Les Quatre Temps",
-      "spaceId": "space-qt-001",
-      "spaceTitle": "Pop-up Unit P2",
-      "tenantTeamId": null,
-      "tenantCompany": "L'Oréal",
-      "tenantContactName": "Camille Bernard",
-      "tenantEmail": "c.bernard@loreal.com",
-      "rate": 5200,
-      "currency": "EUR",
-      "periodFrom": "2026-05-12",
-      "periodTo": "2026-05-26",
-      "createdAt": "2026-04-22T10:00:00Z",
-      "notes": null
+      "submittedAt": "2026-05-20T09:15:00Z",
+      "respondedAt": "2026-05-21T10:00:00Z",
+      "confirmedAt": "2026-05-24T13:00:00Z",
+      "cancelledAt": null,
+      "preConfirmed": true,
+      "approvalType": "booking_link",
+      "bookingLinkId": "bl_7",
+      "period": { "from": "2026-07-01", "to": "2026-07-30" },
+      "landlord": {
+        "teamId": "team-spain",
+        "teamName": "Nhood ES",
+        "teamColor": "#c0392b",
+        "organisationName": "Nhood España",
+        "country": "ES"
+      },
+      "tenant": {
+        "teamId": null,
+        "company": "Moda Group",
+        "contactName": "Alejandro García",
+        "email": "a.garcia@modagroup.es",
+        "phone": "+34 91 123 9900",
+        "isSelfEmployed": false
+      },
+      "space": {
+        "id": "space-xnd-001",
+        "title": "Pop-up Unit P4",
+        "type": "Pop-up",
+        "centreId": "centre-xanadu",
+        "centreName": "Centro Comercial Xanadú",
+        "centreColor": "#c0392b",
+        "dimensions": "5x4m"
+      },
+      "enquiry": {
+        "title": "Moda Group multi-brand pop-up",
+        "category": "product_sales",
+        "description": "Month-long multi-brand fashion pop-up created from a booking link.",
+        "dimensions": "5x4m",
+        "images": [],
+        "additionalInfo": null
+      },
+      "financials": {
+        "currency": "EUR",
+        "rate": 5500,
+        "vat": 1155,
+        "deposit": 900,
+        "discount": 0,
+        "fillitFee": 550,
+        "total": 6655,
+        "totalLandlord": 6105,
+        "quote": 5500,
+        "paymentStatus": "paid",
+        "paidBy": "card"
+      },
+      "payments": [
+        { "id": "p-11003-1", "label": "Full payment", "amount": 6655, "dueDate": "2026-06-01", "status": "paid", "method": "card", "paidOn": "2026-05-30", "invoiceUrl": "/invoices/11003-1.pdf" }
+      ],
+      "documents": [
+        { "type": "lease", "name": "Contrato de arrendamiento", "status": "signed", "url": "/docs/11003-lease.pdf", "signedAt": "2026-05-24T12:50:00Z" }
+      ],
+      "docusign": { "status": "completed", "envelopeId": "env-11003", "sentAt": "2026-05-22T10:00:00Z", "completedAt": "2026-05-24T12:50:00Z" },
+      "managerApproval": {
+        "required": true,
+        "stage": "approved",
+        "status": "approved",
+        "approvers": [
+          { "name": "Lucía Fernández", "role": "asset_manager", "decision": "approved", "at": "2026-05-21T09:00:00Z" },
+          { "name": "Carlos Vidal", "role": "senior_asset_manager", "decision": "approved", "at": "2026-05-21T15:00:00Z" }
+        ]
+      },
+      "actions": [
+        { "type": "booking_link_completed", "actor": "Alejandro García", "actorType": "tenant", "at": "2026-05-20T09:15:00Z", "description": "Completed booking link bl_7" },
+        { "type": "manager_approved", "actor": "Carlos Vidal", "actorType": "manager", "at": "2026-05-21T15:00:00Z", "description": "Approved (2/2)" },
+        { "type": "confirmed", "actor": "system", "actorType": "system", "at": "2026-05-24T13:00:00Z", "description": "Booking confirmed" }
+      ],
+      "notes": { "landlord": "Created via booking link.", "tenant": null }
     },
     {
       "id": "20007",
-      "status": "completed",
-      "landlordTeamId": "team-france",
-      "centreId": "centre-part-dieu",
-      "centreName": "Centre Commercial Part-Dieu",
-      "spaceId": "space-pd-001",
-      "spaceTitle": "Pop-up Unit P7",
-      "tenantTeamId": null,
-      "tenantCompany": "Hermès",
-      "tenantContactName": "François Laurent",
-      "tenantEmail": "f.laurent@hermes.com",
-      "rate": 6300,
-      "currency": "EUR",
-      "periodFrom": "2026-03-17",
-      "periodTo": "2026-03-31",
+      "status": "confirmed",
       "createdAt": "2026-03-01T09:00:00Z",
-      "notes": null
+      "submittedAt": "2026-03-01T09:00:00Z",
+      "respondedAt": "2026-03-03T10:00:00Z",
+      "confirmedAt": "2026-03-07T11:00:00Z",
+      "cancelledAt": null,
+      "preConfirmed": false,
+      "approvalType": "single",
+      "bookingLinkId": null,
+      "period": { "from": "2026-03-17", "to": "2026-03-31" },
+      "landlord": {
+        "teamId": "team-france",
+        "teamName": "Nhood FR North",
+        "teamColor": "#2980b9",
+        "organisationName": "Nhood France",
+        "country": "FR"
+      },
+      "tenant": {
+        "teamId": null,
+        "company": "Hermès",
+        "contactName": "François Laurent",
+        "email": "f.laurent@hermes.com",
+        "phone": "+33 1 42 00 1100",
+        "isSelfEmployed": false
+      },
+      "space": {
+        "id": "space-pd-001",
+        "title": "Pop-up Unit P7",
+        "type": "Pop-up",
+        "centreId": "centre-part-dieu",
+        "centreName": "Centre Commercial Part-Dieu",
+        "centreColor": "#2980b9",
+        "dimensions": "6x5m"
+      },
+      "enquiry": {
+        "title": "Hermès scarf atelier",
+        "category": "brand_marketing",
+        "description": "Premium scarf atelier experience.",
+        "dimensions": "6x5m",
+        "images": [],
+        "additionalInfo": null
+      },
+      "financials": {
+        "currency": "EUR",
+        "rate": 6300,
+        "vat": 1260,
+        "deposit": 1000,
+        "discount": 0,
+        "fillitFee": 630,
+        "total": 7560,
+        "totalLandlord": 6930,
+        "quote": 6300,
+        "paymentStatus": "paid",
+        "paidBy": "bank_transfer"
+      },
+      "payments": [
+        { "id": "p-20007-1", "label": "Full payment", "amount": 7560, "dueDate": "2026-03-14", "status": "paid", "method": "bank_transfer", "paidOn": "2026-03-12", "invoiceUrl": "/invoices/20007-1.pdf" }
+      ],
+      "documents": [
+        { "type": "lease", "name": "Contrat de location", "status": "signed", "url": "/docs/20007-lease.pdf", "signedAt": "2026-03-07T10:50:00Z" },
+        { "type": "voucher", "name": "Bon d'installation", "status": "issued", "url": "/docs/20007-voucher.pdf", "expiry": null },
+        { "type": "invoice", "name": "Facture", "status": "issued", "url": "/invoices/20007-1.pdf", "expiry": null }
+      ],
+      "docusign": { "status": "completed", "envelopeId": "env-20007", "sentAt": "2026-03-04T10:00:00Z", "completedAt": "2026-03-07T10:50:00Z" },
+      "managerApproval": {
+        "required": true,
+        "stage": "approved",
+        "status": "approved",
+        "approvers": [
+          { "name": "Élodie Moreau", "role": "asset_manager", "decision": "approved", "at": "2026-03-03T14:00:00Z" },
+          { "name": "Julien Petit", "role": "senior_asset_manager", "decision": "approved", "at": "2026-03-05T09:00:00Z" }
+        ]
+      },
+      "actions": [
+        { "type": "enquiry_submitted", "actor": "François Laurent", "actorType": "tenant", "at": "2026-03-01T09:00:00Z", "description": "Enquiry submitted" },
+        { "type": "confirmed", "actor": "system", "actorType": "system", "at": "2026-03-07T11:00:00Z", "description": "Booking confirmed" },
+        { "type": "installation_voucher_sent", "actor": "system", "actorType": "system", "at": "2026-03-12T08:30:00Z", "description": "Installation voucher sent" }
+      ],
+      "notes": { "landlord": null, "tenant": null }
     },
     {
       "id": "11004",
-      "status": "active",
-      "landlordTeamId": "team-france",
-      "centreId": "centre-quatre-temps",
-      "centreName": "Les Quatre Temps",
-      "spaceId": "space-qt-001",
-      "spaceTitle": "Pop-up Unit P2",
-      "tenantTeamId": null,
-      "tenantCompany": "French Fashion Co.",
-      "tenantContactName": "Isabelle Dupont",
-      "tenantEmail": "i.dupont@frenchfashion.fr",
-      "rate": 7200,
-      "currency": "EUR",
-      "periodFrom": "2026-06-01",
-      "periodTo": "2026-06-28",
+      "status": "quoted",
       "createdAt": "2026-05-22T13:00:00Z",
-      "notes": null
+      "submittedAt": "2026-05-22T13:00:00Z",
+      "respondedAt": "2026-06-03T10:00:00Z",
+      "confirmedAt": null,
+      "cancelledAt": null,
+      "preConfirmed": false,
+      "approvalType": "single",
+      "bookingLinkId": null,
+      "period": { "from": "2026-07-13", "to": "2026-08-10" },
+      "landlord": {
+        "teamId": "team-france",
+        "teamName": "Nhood FR North",
+        "teamColor": "#2980b9",
+        "organisationName": "Nhood France",
+        "country": "FR"
+      },
+      "tenant": {
+        "teamId": null,
+        "company": "French Fashion Co.",
+        "contactName": "Isabelle Dupont",
+        "email": "i.dupont@frenchfashion.fr",
+        "phone": "+33 1 42 00 2200",
+        "isSelfEmployed": false
+      },
+      "space": {
+        "id": "space-qt-001",
+        "title": "Pop-up Unit P2",
+        "type": "Pop-up",
+        "centreId": "centre-quatre-temps",
+        "centreName": "Les Quatre Temps",
+        "centreColor": "#2980b9",
+        "dimensions": "6x4m"
+      },
+      "enquiry": {
+        "title": "French Fashion Co. summer showcase",
+        "category": "product_sales",
+        "description": "Four-week summer showcase.",
+        "dimensions": "6x4m",
+        "images": [],
+        "additionalInfo": null
+      },
+      "financials": {
+        "currency": "EUR",
+        "rate": 7200,
+        "vat": 1440,
+        "deposit": 1200,
+        "discount": 0,
+        "fillitFee": 720,
+        "total": 8640,
+        "totalLandlord": 7920,
+        "quote": 7200,
+        "paymentStatus": "pending",
+        "paidBy": null
+      },
+      "payments": [],
+      "documents": [
+        { "type": "lease", "name": "Contrat de location", "status": "draft", "url": "/docs/11004-lease-draft.pdf", "signedAt": null }
+      ],
+      "docusign": { "status": null, "envelopeId": null, "sentAt": null, "completedAt": null },
+      "managerApproval": {
+        "required": true,
+        "stage": "approved",
+        "status": "approved",
+        "approvers": [
+          { "name": "Élodie Moreau", "role": "asset_manager", "decision": "approved", "at": "2026-06-02T14:00:00Z" },
+          { "name": "Julien Petit", "role": "senior_asset_manager", "decision": "approved", "at": "2026-06-03T09:00:00Z" }
+        ]
+      },
+      "actions": [
+        { "type": "enquiry_submitted", "actor": "Isabelle Dupont", "actorType": "tenant", "at": "2026-05-22T13:00:00Z", "description": "Enquiry submitted" },
+        { "type": "quote_sent", "actor": "Élodie Moreau", "actorType": "landlord", "at": "2026-06-03T10:00:00Z", "description": "Terms sent — awaiting tenant acceptance" }
+      ],
+      "notes": { "landlord": null, "tenant": null }
     },
-
-    // ── eLeaseLoop — Italy ───────────────────────────────────────────────────
     {
       "id": "20010",
-      "status": "active",
-      "landlordTeamId": "team-italy",
-      "centreId": "centre-oriocenter",
-      "centreName": "Oriocenter",
-      "spaceId": "space-oric-001",
-      "spaceTitle": "Pop-up Unit P3",
-      "tenantTeamId": null,
-      "tenantCompany": "Gucci",
-      "tenantContactName": "Lorenzo Ricci",
-      "tenantEmail": "l.ricci@gucci.com",
-      "rate": 4800,
-      "currency": "EUR",
-      "periodFrom": "2026-05-19",
-      "periodTo": "2026-06-02",
+      "status": "confirmed",
       "createdAt": "2026-04-28T09:00:00Z",
-      "notes": null
-    },
-    {
-      "id": "20012",
-      "status": "completed",
-      "landlordTeamId": "team-italy",
-      "centreId": "centre-oriocenter",
-      "centreName": "Oriocenter",
-      "spaceId": "space-oric-003",
-      "spaceTitle": "Event Space E3",
-      "tenantTeamId": null,
-      "tenantCompany": "Ferrari",
-      "tenantContactName": "Marco Conti",
-      "tenantEmail": "m.conti@ferrari.com",
-      "rate": 7200,
-      "currency": "EUR",
-      "periodFrom": "2026-03-10",
-      "periodTo": "2026-03-17",
-      "createdAt": "2026-02-18T10:00:00Z",
-      "notes": null
+      "submittedAt": "2026-04-28T09:00:00Z",
+      "respondedAt": "2026-04-30T10:00:00Z",
+      "confirmedAt": "2026-05-04T11:00:00Z",
+      "cancelledAt": null,
+      "preConfirmed": false,
+      "approvalType": "single",
+      "bookingLinkId": null,
+      "period": { "from": "2026-06-05", "to": "2026-06-19" },
+      "landlord": {
+        "teamId": "team-italy",
+        "teamName": "Nhood IT",
+        "teamColor": "#27ae60",
+        "organisationName": "Nhood Italia",
+        "country": "IT"
+      },
+      "tenant": {
+        "teamId": null,
+        "company": "Gucci",
+        "contactName": "Lorenzo Ricci",
+        "email": "l.ricci@gucci.com",
+        "phone": "+39 02 1234 5678",
+        "isSelfEmployed": false
+      },
+      "space": {
+        "id": "space-oric-001",
+        "title": "Pop-up Unit P3",
+        "type": "Pop-up",
+        "centreId": "centre-oriocenter",
+        "centreName": "Oriocenter",
+        "centreColor": "#27ae60",
+        "dimensions": "5x5m"
+      },
+      "enquiry": {
+        "title": "Gucci exclusive preview",
+        "category": "brand_marketing",
+        "description": "Invite-only preview of the autumn collection.",
+        "dimensions": "5x5m",
+        "images": [],
+        "additionalInfo": null
+      },
+      "financials": {
+        "currency": "EUR",
+        "rate": 4800,
+        "vat": 1056,
+        "deposit": 800,
+        "discount": 0,
+        "fillitFee": 480,
+        "total": 5856,
+        "totalLandlord": 5376,
+        "quote": 4800,
+        "paymentStatus": "paid",
+        "paidBy": "card"
+      },
+      "payments": [
+        { "id": "p-20010-1", "label": "Full payment", "amount": 5856, "dueDate": "2026-05-22", "status": "paid", "method": "card", "paidOn": "2026-05-20", "invoiceUrl": "/invoices/20010-1.pdf" }
+      ],
+      "documents": [
+        { "type": "lease", "name": "Contratto di locazione", "status": "signed", "url": "/docs/20010-lease.pdf", "signedAt": "2026-05-04T10:50:00Z" }
+      ],
+      "docusign": { "status": "completed", "envelopeId": "env-20010", "sentAt": "2026-05-01T10:00:00Z", "completedAt": "2026-05-04T10:50:00Z" },
+      "managerApproval": {
+        "required": true,
+        "stage": "approved",
+        "status": "approved",
+        "approvers": [
+          { "name": "Giulia Romano", "role": "asset_manager", "decision": "approved", "at": "2026-04-30T12:00:00Z" },
+          { "name": "Marco Esposito", "role": "senior_asset_manager", "decision": "approved", "at": "2026-05-02T09:00:00Z" }
+        ]
+      },
+      "actions": [
+        { "type": "enquiry_submitted", "actor": "Lorenzo Ricci", "actorType": "tenant", "at": "2026-04-28T09:00:00Z", "description": "Enquiry submitted" },
+        { "type": "confirmed", "actor": "system", "actorType": "system", "at": "2026-05-04T11:00:00Z", "description": "Booking confirmed" }
+      ],
+      "notes": { "landlord": null, "tenant": null }
     },
     {
       "id": "11005",
-      "status": "active",
-      "landlordTeamId": "team-italy",
-      "centreId": "centre-oriocenter",
-      "centreName": "Oriocenter",
-      "spaceId": "space-oric-003",
-      "spaceTitle": "Event Space E3",
-      "tenantTeamId": null,
-      "tenantCompany": "Milano Style",
-      "tenantContactName": "Marco Ferrari",
-      "tenantEmail": "m.ferrari@milanostyle.it",
-      "rate": 6800,
-      "currency": "EUR",
-      "periodFrom": "2026-06-02",
-      "periodTo": "2026-06-16",
+      "status": "awaiting_signature",
       "createdAt": "2026-05-23T10:00:00Z",
-      "notes": null
-    },
-
-    // ── eLeaseLoop — Poland ──────────────────────────────────────────────────
-    {
-      "id": "20015",
-      "status": "active",
-      "landlordTeamId": "team-poland",
-      "centreId": "centre-galeria-mokotow",
-      "centreName": "Galeria Mokotów",
-      "spaceId": "space-gmok-001",
-      "spaceTitle": "Pop-up Unit P5",
-      "tenantTeamId": null,
-      "tenantCompany": "Reserved",
-      "tenantContactName": "Anna Wiśniewska",
-      "tenantEmail": "a.wisniewska@reserved.com",
-      "rate": 3800,
-      "currency": "EUR",
-      "periodFrom": "2026-05-05",
-      "periodTo": "2026-05-19",
-      "createdAt": "2026-04-14T10:00:00Z",
-      "notes": null
+      "submittedAt": "2026-05-23T10:00:00Z",
+      "respondedAt": "2026-06-05T09:00:00Z",
+      "confirmedAt": null,
+      "cancelledAt": null,
+      "preConfirmed": false,
+      "approvalType": "single",
+      "bookingLinkId": null,
+      "period": { "from": "2026-07-06", "to": "2026-07-20" },
+      "landlord": {
+        "teamId": "team-italy",
+        "teamName": "Nhood IT",
+        "teamColor": "#27ae60",
+        "organisationName": "Nhood Italia",
+        "country": "IT"
+      },
+      "tenant": {
+        "teamId": null,
+        "company": "Milano Style",
+        "contactName": "Marco Ferrari",
+        "email": "m.ferrari@milanostyle.it",
+        "phone": "+39 02 1234 9999",
+        "isSelfEmployed": false
+      },
+      "space": {
+        "id": "space-oric-003",
+        "title": "Event Space E3",
+        "type": "Event",
+        "centreId": "centre-oriocenter",
+        "centreName": "Oriocenter",
+        "centreColor": "#27ae60",
+        "dimensions": "8x6m"
+      },
+      "enquiry": {
+        "title": "Milano Style designer showcase",
+        "category": "product_sales",
+        "description": "Local designer collective showcase.",
+        "dimensions": "8x6m",
+        "images": [],
+        "additionalInfo": null
+      },
+      "financials": {
+        "currency": "EUR",
+        "rate": 6800,
+        "vat": 1496,
+        "deposit": 1000,
+        "discount": 0,
+        "fillitFee": 680,
+        "total": 8296,
+        "totalLandlord": 7616,
+        "quote": 6800,
+        "paymentStatus": "pending",
+        "paidBy": null
+      },
+      "payments": [
+        { "id": "p-11005-1", "label": "Full payment", "amount": 8296, "dueDate": "2026-06-22", "status": "pending", "method": null, "paidOn": null, "invoiceUrl": null }
+      ],
+      "documents": [
+        { "type": "lease", "name": "Contratto di locazione", "status": "sent", "url": "/docs/11005-lease.pdf", "signedAt": null }
+      ],
+      "docusign": { "status": "sent", "envelopeId": "env-11005", "sentAt": "2026-06-05T09:05:00Z", "completedAt": null },
+      "managerApproval": {
+        "required": true,
+        "stage": "approved",
+        "status": "approved",
+        "approvers": [
+          { "name": "Giulia Romano", "role": "asset_manager", "decision": "approved", "at": "2026-06-04T12:00:00Z" },
+          { "name": "Marco Esposito", "role": "senior_asset_manager", "decision": "approved", "at": "2026-06-04T16:00:00Z" }
+        ]
+      },
+      "actions": [
+        { "type": "enquiry_submitted", "actor": "Marco Ferrari", "actorType": "tenant", "at": "2026-05-23T10:00:00Z", "description": "Enquiry submitted" },
+        { "type": "lease_sent", "actor": "Giulia Romano", "actorType": "landlord", "at": "2026-06-05T09:05:00Z", "description": "Lease sent for signature" }
+      ],
+      "notes": { "landlord": null, "tenant": null }
     },
     {
       "id": "20016",
-      "status": "completed",
-      "landlordTeamId": "team-poland",
-      "centreId": "centre-silesia",
-      "centreName": "Silesia City Center",
-      "spaceId": "space-sil-003",
-      "spaceTitle": "Event Space E4",
-      "tenantTeamId": null,
-      "tenantCompany": "CD Projekt",
-      "tenantContactName": "Bartosz Wójcik",
-      "tenantEmail": "b.wojcik@cdprojekt.com",
-      "rate": 6200,
-      "currency": "EUR",
-      "periodFrom": "2026-04-07",
-      "periodTo": "2026-04-14",
+      "status": "confirmed",
       "createdAt": "2026-03-18T09:00:00Z",
-      "notes": null
+      "submittedAt": "2026-03-18T09:00:00Z",
+      "respondedAt": "2026-03-20T10:00:00Z",
+      "confirmedAt": "2026-03-24T11:00:00Z",
+      "cancelledAt": null,
+      "preConfirmed": false,
+      "approvalType": "single",
+      "bookingLinkId": null,
+      "period": { "from": "2026-04-07", "to": "2026-04-14" },
+      "landlord": {
+        "teamId": "team-poland",
+        "teamName": "Nhood PL",
+        "teamColor": "#8e44ad",
+        "organisationName": "Nhood Polska",
+        "country": "PL"
+      },
+      "tenant": {
+        "teamId": null,
+        "company": "CD Projekt",
+        "contactName": "Bartosz Wójcik",
+        "email": "b.wojcik@cdprojekt.com",
+        "phone": "+48 22 123 4567",
+        "isSelfEmployed": false
+      },
+      "space": {
+        "id": "space-sil-003",
+        "title": "Event Space E4",
+        "type": "Event",
+        "centreId": "centre-silesia",
+        "centreName": "Silesia City Center",
+        "centreColor": "#8e44ad",
+        "dimensions": "10x8m"
+      },
+      "enquiry": {
+        "title": "CD Projekt game launch",
+        "category": "brand_marketing",
+        "description": "Game launch experience with play stations.",
+        "dimensions": "10x8m",
+        "images": [],
+        "additionalInfo": null
+      },
+      "financials": {
+        "currency": "EUR",
+        "rate": 6200,
+        "vat": 1426,
+        "deposit": 1000,
+        "discount": 0,
+        "fillitFee": 620,
+        "total": 7626,
+        "totalLandlord": 7006,
+        "quote": 6200,
+        "paymentStatus": "paid",
+        "paidBy": "bank_transfer"
+      },
+      "payments": [
+        { "id": "p-20016-1", "label": "Full payment", "amount": 7626, "dueDate": "2026-04-01", "status": "paid", "method": "bank_transfer", "paidOn": "2026-03-30", "invoiceUrl": "/invoices/20016-1.pdf" }
+      ],
+      "documents": [
+        { "type": "lease", "name": "Umowa najmu", "status": "signed", "url": "/docs/20016-lease.pdf", "signedAt": "2026-03-24T10:50:00Z" },
+        { "type": "invoice", "name": "Faktura", "status": "issued", "url": "/invoices/20016-1.pdf", "expiry": null }
+      ],
+      "docusign": { "status": "completed", "envelopeId": "env-20016", "sentAt": "2026-03-21T10:00:00Z", "completedAt": "2026-03-24T10:50:00Z" },
+      "managerApproval": {
+        "required": true,
+        "stage": "approved",
+        "status": "approved",
+        "approvers": [
+          { "name": "Agnieszka Kowalska", "role": "asset_manager", "decision": "approved", "at": "2026-03-20T12:00:00Z" },
+          { "name": "Piotr Lewandowski", "role": "senior_asset_manager", "decision": "approved", "at": "2026-03-22T09:00:00Z" }
+        ]
+      },
+      "actions": [
+        { "type": "enquiry_submitted", "actor": "Bartosz Wójcik", "actorType": "tenant", "at": "2026-03-18T09:00:00Z", "description": "Enquiry submitted" },
+        { "type": "confirmed", "actor": "system", "actorType": "system", "at": "2026-03-24T11:00:00Z", "description": "Booking confirmed" }
+      ],
+      "notes": { "landlord": null, "tenant": null }
     },
     {
-      "id": "11006",
-      "status": "active",
-      "landlordTeamId": "team-poland",
-      "centreId": "centre-galeria-mokotow",
-      "centreName": "Galeria Mokotów",
-      "spaceId": "space-gmok-001",
-      "spaceTitle": "Pop-up Unit P5",
-      "tenantTeamId": null,
-      "tenantCompany": "Polska Moda",
-      "tenantContactName": "Katarzyna Nowak",
-      "tenantEmail": "k.nowak@polskamoda.pl",
-      "rate": 4600,
-      "currency": "EUR",
-      "periodFrom": "2026-06-01",
-      "periodTo": "2026-06-30",
-      "createdAt": "2026-05-21T12:00:00Z",
-      "notes": null
+      "id": "20015",
+      "status": "enquiry",
+      "createdAt": "2026-06-08T08:30:00Z",
+      "submittedAt": "2026-06-08T08:30:00Z",
+      "respondedAt": null,
+      "confirmedAt": null,
+      "cancelledAt": null,
+      "preConfirmed": false,
+      "approvalType": "single",
+      "bookingLinkId": null,
+      "period": { "from": "2026-07-27", "to": "2026-08-10" },
+      "landlord": {
+        "teamId": "team-poland",
+        "teamName": "Nhood PL",
+        "teamColor": "#8e44ad",
+        "organisationName": "Nhood Polska",
+        "country": "PL"
+      },
+      "tenant": {
+        "teamId": null,
+        "company": "Reserved",
+        "contactName": "Anna Wiśniewska",
+        "email": "a.wisniewska@reserved.com",
+        "phone": "+48 22 123 8899",
+        "isSelfEmployed": false
+      },
+      "space": {
+        "id": "space-gmok-001",
+        "title": "Pop-up Unit P5",
+        "type": "Pop-up",
+        "centreId": "centre-galeria-mokotow",
+        "centreName": "Galeria Mokotów",
+        "centreColor": "#8e44ad",
+        "dimensions": "6x4m"
+      },
+      "enquiry": {
+        "title": "Reserved back-to-school pop-up",
+        "category": "product_sales",
+        "description": "Back-to-school retail pop-up.",
+        "dimensions": "6x4m",
+        "images": [],
+        "additionalInfo": null
+      },
+      "financials": {
+        "currency": "EUR",
+        "rate": 3800,
+        "vat": 874,
+        "deposit": 600,
+        "discount": 0,
+        "fillitFee": 380,
+        "total": 4674,
+        "totalLandlord": 4294,
+        "quote": 3800,
+        "paymentStatus": "pending",
+        "paidBy": null
+      },
+      "payments": [],
+      "documents": [],
+      "docusign": { "status": null, "envelopeId": null, "sentAt": null, "completedAt": null },
+      "managerApproval": {
+        "required": true,
+        "stage": "awaiting",
+        "status": "pending",
+        "approvers": [
+          { "name": "Agnieszka Kowalska", "role": "asset_manager", "decision": null, "at": null }
+        ]
+      },
+      "actions": [
+        { "type": "enquiry_submitted", "actor": "Anna Wiśniewska", "actorType": "tenant", "at": "2026-06-08T08:30:00Z", "description": "Enquiry submitted — awaiting review" }
+      ],
+      "notes": { "landlord": null, "tenant": null }
     },
-
-    // ── Tenant view — Fresh Co. (team-tenant) ────────────────────────────────
     {
       "id": "12001",
-      "status": "active",
-      "landlordTeamId": "team-one",
-      "centreId": "centre-westfield",
-      "centreName": "Westfield London",
-      "spaceId": "s2",
-      "spaceTitle": "Kiosk A2",
-      "tenantTeamId": "team-tenant",
-      "tenantCompany": "Fresh Co.",
-      "tenantContactName": "Sophie Turner",
-      "tenantEmail": "sophie.turner@freshco.com",
-      "rate": 3200,
-      "currency": "EUR",
-      "periodFrom": "2026-06-01",
-      "periodTo": "2026-06-28",
+      "status": "confirmed",
       "createdAt": "2026-05-10T09:00:00Z",
-      "notes": null
+      "submittedAt": "2026-05-10T09:00:00Z",
+      "respondedAt": "2026-05-12T10:00:00Z",
+      "confirmedAt": "2026-05-15T12:00:00Z",
+      "cancelledAt": null,
+      "preConfirmed": false,
+      "approvalType": "single",
+      "bookingLinkId": null,
+      "period": { "from": "2026-07-01", "to": "2026-07-28" },
+      "landlord": {
+        "teamId": "team-one",
+        "teamName": "Team One",
+        "teamColor": "#059669",
+        "organisationName": "Westfield Group Ltd",
+        "country": "GB"
+      },
+      "tenant": {
+        "teamId": "team-tenant",
+        "company": "Fresh Co.",
+        "contactName": "Sophie Turner",
+        "email": "sophie.turner@freshco.com",
+        "phone": "+44 20 7946 0300",
+        "isSelfEmployed": false
+      },
+      "space": {
+        "id": "s2",
+        "title": "Kiosk A2",
+        "type": "Kiosk",
+        "centreId": "centre-westfield",
+        "centreName": "Westfield London",
+        "centreColor": "#7c3aed",
+        "dimensions": "3x2m"
+      },
+      "enquiry": {
+        "title": "Fresh Co. summer juice bar",
+        "category": "product_sampling",
+        "description": "Cold-pressed juice sampling and sales kiosk.",
+        "dimensions": "3x2m",
+        "images": [],
+        "additionalInfo": "Needs plumbing access for the juice bar."
+      },
+      "financials": {
+        "currency": "EUR",
+        "rate": 3200,
+        "vat": 640,
+        "deposit": 500,
+        "discount": 0,
+        "fillitFee": 320,
+        "total": 3840,
+        "totalLandlord": 3520,
+        "quote": 3200,
+        "paymentStatus": "paid",
+        "paidBy": "card"
+      },
+      "payments": [
+        { "id": "p-12001-1", "label": "Full payment", "amount": 3840, "dueDate": "2026-06-17", "status": "paid", "method": "card", "paidOn": "2026-06-15", "invoiceUrl": "/invoices/12001-1.pdf" }
+      ],
+      "documents": [
+        { "type": "lease", "name": "Lease agreement", "status": "signed", "url": "/docs/12001-lease.pdf", "signedAt": "2026-05-15T11:50:00Z" }
+      ],
+      "docusign": { "status": "completed", "envelopeId": "env-12001", "sentAt": "2026-05-13T10:00:00Z", "completedAt": "2026-05-15T11:50:00Z" },
+      "managerApproval": null,
+      "actions": [
+        { "type": "enquiry_submitted", "actor": "Sophie Turner", "actorType": "tenant", "at": "2026-05-10T09:00:00Z", "description": "Enquiry submitted" },
+        { "type": "confirmed", "actor": "system", "actorType": "system", "at": "2026-05-15T12:00:00Z", "description": "Booking confirmed" }
+      ],
+      "notes": { "landlord": null, "tenant": "Confirm plumbing access with centre ops before install." }
     },
     {
       "id": "12002",
-      "status": "active",
-      "landlordTeamId": "team-two",
-      "centreId": "centre-meadowhall",
-      "centreName": "Meadowhall",
-      "spaceId": "s14",
-      "spaceTitle": "Sampling Stand S2",
-      "tenantTeamId": "team-tenant",
-      "tenantCompany": "Fresh Co.",
-      "tenantContactName": "Tom Walsh",
-      "tenantEmail": "t.walsh@freshco.com",
-      "rate": 1400,
-      "currency": "EUR",
-      "periodFrom": "2026-07-07",
-      "periodTo": "2026-07-14",
+      "status": "quoted",
       "createdAt": "2026-05-15T11:00:00Z",
-      "notes": null
+      "submittedAt": "2026-05-15T11:00:00Z",
+      "respondedAt": "2026-06-06T09:00:00Z",
+      "confirmedAt": null,
+      "cancelledAt": null,
+      "preConfirmed": false,
+      "approvalType": "single",
+      "bookingLinkId": null,
+      "period": { "from": "2026-07-07", "to": "2026-07-14" },
+      "landlord": {
+        "teamId": "team-two",
+        "teamName": "Team Two",
+        "teamColor": "#2563eb",
+        "organisationName": "Westfield Group Ltd",
+        "country": "GB"
+      },
+      "tenant": {
+        "teamId": "team-tenant",
+        "company": "Fresh Co.",
+        "contactName": "Tom Walsh",
+        "email": "t.walsh@freshco.com",
+        "phone": "+44 161 496 0300",
+        "isSelfEmployed": false
+      },
+      "space": {
+        "id": "s14",
+        "title": "Sampling Stand S2",
+        "type": "Sampling",
+        "centreId": "centre-meadowhall",
+        "centreName": "Meadowhall",
+        "centreColor": "#ec4899",
+        "dimensions": "3x3m"
+      },
+      "enquiry": {
+        "title": "Fresh Co. smoothie sampling",
+        "category": "product_sampling",
+        "description": "One-week smoothie sampling activation.",
+        "dimensions": "3x3m",
+        "images": [],
+        "additionalInfo": null
+      },
+      "financials": {
+        "currency": "EUR",
+        "rate": 1400,
+        "vat": 280,
+        "deposit": 200,
+        "discount": 0,
+        "fillitFee": 140,
+        "total": 1680,
+        "totalLandlord": 1540,
+        "quote": 1400,
+        "paymentStatus": "pending",
+        "paidBy": null
+      },
+      "payments": [],
+      "documents": [
+        { "type": "lease", "name": "Lease agreement", "status": "draft", "url": "/docs/12002-lease-draft.pdf", "signedAt": null }
+      ],
+      "docusign": { "status": null, "envelopeId": null, "sentAt": null, "completedAt": null },
+      "managerApproval": null,
+      "actions": [
+        { "type": "enquiry_submitted", "actor": "Tom Walsh", "actorType": "tenant", "at": "2026-05-15T11:00:00Z", "description": "Enquiry submitted" },
+        { "type": "quote_sent", "actor": "Sarah Klein", "actorType": "landlord", "at": "2026-06-06T09:00:00Z", "description": "Terms received — awaiting your acceptance" }
+      ],
+      "notes": { "landlord": null, "tenant": null }
+    },
+    {
+      "id": "12003",
+      "status": "confirmed",
+      "createdAt": "2026-02-05T09:00:00Z",
+      "submittedAt": "2026-02-05T09:00:00Z",
+      "respondedAt": "2026-02-07T10:00:00Z",
+      "confirmedAt": "2026-02-10T12:00:00Z",
+      "cancelledAt": null,
+      "preConfirmed": false,
+      "approvalType": "single",
+      "bookingLinkId": null,
+      "period": { "from": "2026-03-02", "to": "2026-03-16" },
+      "landlord": {
+        "teamId": "team-one",
+        "teamName": "Team One",
+        "teamColor": "#059669",
+        "organisationName": "Westfield Group Ltd",
+        "country": "GB"
+      },
+      "tenant": {
+        "teamId": "team-tenant",
+        "company": "Fresh Co.",
+        "contactName": "Sophie Turner",
+        "email": "sophie.turner@freshco.com",
+        "phone": "+44 20 7946 0300",
+        "isSelfEmployed": false
+      },
+      "space": {
+        "id": "s4",
+        "title": "Sampling Stand S1",
+        "type": "Sampling",
+        "centreId": "centre-bluewater",
+        "centreName": "Bluewater",
+        "centreColor": "#0ea5e9",
+        "dimensions": "3x3m"
+      },
+      "enquiry": {
+        "title": "Fresh Co. spring detox launch",
+        "category": "product_sampling",
+        "description": "Two-week detox range sampling and sales.",
+        "dimensions": "3x3m",
+        "images": [],
+        "additionalInfo": null
+      },
+      "financials": {
+        "currency": "EUR",
+        "rate": 2400,
+        "vat": 480,
+        "deposit": 300,
+        "discount": 0,
+        "fillitFee": 240,
+        "total": 2880,
+        "totalLandlord": 2640,
+        "quote": 2400,
+        "paymentStatus": "overdue",
+        "paidBy": null
+      },
+      "payments": [
+        { "id": "p-12003-1", "label": "Full payment", "amount": 2880, "dueDate": "2026-02-16", "status": "overdue", "method": null, "paidOn": null, "invoiceUrl": "/invoices/12003-1.pdf" }
+      ],
+      "documents": [
+        { "type": "lease", "name": "Lease agreement", "status": "signed", "url": "/docs/12003-lease.pdf", "signedAt": "2026-02-10T11:50:00Z" },
+        { "type": "invoice", "name": "Invoice", "status": "issued", "url": "/invoices/12003-1.pdf", "expiry": null }
+      ],
+      "docusign": { "status": "completed", "envelopeId": "env-12003", "sentAt": "2026-02-08T10:00:00Z", "completedAt": "2026-02-10T11:50:00Z" },
+      "managerApproval": null,
+      "actions": [
+        { "type": "enquiry_submitted", "actor": "Sophie Turner", "actorType": "tenant", "at": "2026-02-05T09:00:00Z", "description": "Enquiry submitted" },
+        { "type": "confirmed", "actor": "system", "actorType": "system", "at": "2026-02-10T12:00:00Z", "description": "Booking confirmed" }
+      ],
+      "notes": { "landlord": null, "tenant": null }
+    },
+    {
+      "id": "12004",
+      "status": "awaiting_signature",
+      "createdAt": "2026-05-28T10:00:00Z",
+      "submittedAt": "2026-05-28T10:00:00Z",
+      "respondedAt": "2026-06-06T14:00:00Z",
+      "confirmedAt": null,
+      "cancelledAt": null,
+      "preConfirmed": false,
+      "approvalType": "single",
+      "bookingLinkId": null,
+      "period": { "from": "2026-07-20", "to": "2026-08-03" },
+      "landlord": {
+        "teamId": "team-spain",
+        "teamName": "Nhood ES",
+        "teamColor": "#c0392b",
+        "organisationName": "Nhood España",
+        "country": "ES"
+      },
+      "tenant": {
+        "teamId": "team-tenant",
+        "company": "Fresh Co.",
+        "contactName": "Sophie Turner",
+        "email": "sophie.turner@freshco.com",
+        "phone": "+44 20 7946 0300",
+        "isSelfEmployed": false
+      },
+      "space": {
+        "id": "space-maq-001",
+        "title": "Event Space E1",
+        "type": "Event",
+        "centreId": "centre-la-maquinista",
+        "centreName": "La Maquinista",
+        "centreColor": "#c0392b",
+        "dimensions": "6x5m"
+      },
+      "enquiry": {
+        "title": "Fresh Co. Barcelona launch",
+        "category": "product_sampling",
+        "description": "First Spanish market activation.",
+        "dimensions": "6x5m",
+        "images": [],
+        "additionalInfo": null
+      },
+      "financials": {
+        "currency": "EUR",
+        "rate": 3600,
+        "vat": 756,
+        "deposit": 600,
+        "discount": 0,
+        "fillitFee": 360,
+        "total": 4356,
+        "totalLandlord": 3996,
+        "quote": 3600,
+        "paymentStatus": "pending",
+        "paidBy": null
+      },
+      "payments": [
+        { "id": "p-12004-1", "label": "Full payment", "amount": 4356, "dueDate": "2026-07-06", "status": "pending", "method": null, "paidOn": null, "invoiceUrl": null }
+      ],
+      "documents": [
+        { "type": "lease", "name": "Contrato de arrendamiento", "status": "sent", "url": "/docs/12004-lease.pdf", "signedAt": null }
+      ],
+      "docusign": { "status": "sent", "envelopeId": "env-12004", "sentAt": "2026-06-06T14:05:00Z", "completedAt": null },
+      "managerApproval": {
+        "required": true,
+        "stage": "approved",
+        "status": "approved",
+        "approvers": [
+          { "name": "Lucía Fernández", "role": "asset_manager", "decision": "approved", "at": "2026-06-05T12:00:00Z" },
+          { "name": "Carlos Vidal", "role": "senior_asset_manager", "decision": "approved", "at": "2026-06-06T10:00:00Z" }
+        ]
+      },
+      "actions": [
+        { "type": "enquiry_submitted", "actor": "Sophie Turner", "actorType": "tenant", "at": "2026-05-28T10:00:00Z", "description": "Enquiry submitted" },
+        { "type": "lease_sent", "actor": "Lucía Fernández", "actorType": "landlord", "at": "2026-06-06T14:05:00Z", "description": "Lease sent — awaiting your signature" }
+      ],
+      "notes": { "landlord": null, "tenant": null }
     }
-
   ]
 }

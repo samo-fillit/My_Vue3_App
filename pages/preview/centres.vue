@@ -51,14 +51,13 @@
           <!-- Toolbar: Search -->
           <div class="flex items-center gap-4">
             <!-- Search -->
-            <div class="relative w-full max-w-sm">
+            <div class="relative w-[400px]">
               <input
                 ref="searchInputRef"
                 v-model="searchQuery"
                 type="text"
                 placeholder="Search centres…"
                 class="h-10 w-full rounded-lg border border-border bg-background px-4 pr-10 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-foreground focus:border-[1.5px]"
-                @keydown.enter="jumpToMatch"
               />
               <IconSearch :size="16" stroke-width="1.5" class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             </div>
@@ -95,8 +94,8 @@
                     <IconSelector v-else :size="12" class="opacity-30" />
                   </button>
                 </TableHead>
-                <TableHead class="text-center">
-                  <button type="button" class="inline-flex w-full items-center justify-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort('status')">
+                <TableHead class="pl-8">
+                  <button type="button" class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort('status')">
                     Status
                     <IconChevronUp v-if="sort.key === 'status' && sort.dir === 'asc'" :size="12" class="text-foreground" />
                     <IconChevronDown v-else-if="sort.key === 'status' && sort.dir === 'desc'" :size="12" class="text-foreground" />
@@ -110,9 +109,7 @@
               <TableRow
                 v-for="centre in sortedCentres"
                 :key="centre.id"
-                :ref="el => { if (el) rowRefs[centre.id] = el as HTMLElement }"
                 class="border-border"
-                :class="{ 'row-highlight': highlightedId === centre.id }"
               >
                 <TableCell class="py-3">
                   <div class="flex items-center gap-3">
@@ -134,13 +131,8 @@
                 <TableCell class="py-3 font-mono text-xs text-muted-foreground">{{ centre.centreId }}</TableCell>
                 <TableCell class="py-3 text-sm text-muted-foreground">{{ countryAbbr(centre.country) }}</TableCell>
                 <TableCell class="py-3 text-sm text-muted-foreground">{{ centre.city }}</TableCell>
-                <TableCell class="py-3 text-center">
-                  <span
-                    class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium"
-                    :class="centre.status === 'Listed' ? 'bg-[#f2fbf8] text-[#4dbd9f]' : 'bg-[#fef9f0] text-[#d97706]'"
-                  >
-                    {{ centre.status }}
-                  </span>
+                <TableCell class="py-3 pl-8">
+                  <StatusDot :label="centre.status" :dot-class="centre.status === 'Listed' ? 'bg-green-500' : 'bg-amber-500'" />
                 </TableCell>
                 <TableCell class="py-3 pr-0 text-right">
                   <div class="inline-flex items-center gap-2">
@@ -162,6 +154,11 @@
                       View spaces
                     </Button>
                   </div>
+                </TableCell>
+              </TableRow>
+              <TableRow v-if="sortedCentres.length === 0">
+                <TableCell colspan="6" class="py-16 text-center text-sm text-muted-foreground">
+                  {{ searchQuery.trim() ? 'No centres match your search.' : 'No centres found.' }}
                 </TableCell>
               </TableRow>
             </TableBody>
@@ -509,16 +506,6 @@
 </template>
 
 <style scoped>
-@keyframes row-search-pulse {
-  0%   { background-color: transparent; }
-  30%  { background-color: rgb(59 130 246 / 0.10); }
-  70%  { background-color: rgb(59 130 246 / 0.10); }
-  100% { background-color: transparent; }
-}
-.row-highlight {
-  animation: row-search-pulse 1s ease-in-out 2;
-}
-
 .modal-enter-active,
 .modal-leave-active {
   transition: opacity 0.18s ease;
@@ -530,7 +517,7 @@
 </style>
 
 <script setup lang="ts">
-import { ref, computed, reactive, onMounted, nextTick } from 'vue'
+import { ref, computed, reactive, onMounted } from 'vue'
 import {
   IconSearch,
   IconChevronDown,
@@ -580,6 +567,7 @@ import {
 import AppSidebar from '@/components/app-sidebar.vue'
 import { useTeamContext } from '@/composables/useTeamContext'
 import RightPanel from '@/components/right-panel.vue'
+import StatusDot from '@/components/StatusDot.vue'
 import { useAppContext } from '@/composables/useAppContext'
 
 interface Centre {
@@ -712,6 +700,14 @@ const sortedCentres = computed(() => {
   if (teams.value.length > 1 && activeTeamId.value) {
     list = list.filter(c => c.teamId === activeTeamId.value)
   }
+  const q = searchQuery.value.trim().toLowerCase()
+  if (q) {
+    list = list.filter(c =>
+      c.name.toLowerCase().includes(q) ||
+      c.city.toLowerCase().includes(q) ||
+      String(c.centreId).toLowerCase().includes(q),
+    )
+  }
   if (!sort.key) return list
   return [...list].sort((a, b) => {
     const aVal = String((a as any)[sort.key] ?? '').toLowerCase()
@@ -721,28 +717,9 @@ const sortedCentres = computed(() => {
   })
 })
 
-// ── Search & highlight ────────────────────────────────────────
+// ── Search ────────────────────────────────────────
 const searchQuery = ref('')
-const highlightedId = ref<string | null>(null)
-const rowRefs = ref<Record<string, HTMLElement>>({})
 const tableRef = ref<HTMLElement | null>(null)
-
-function jumpToMatch() {
-  const q = searchQuery.value.trim().toLowerCase()
-  if (!q) return
-  const match = sortedCentres.value.find(c => c.name.toLowerCase().includes(q))
-  if (!match) return
-  highlightedId.value = null
-  nextTick(() => {
-    highlightedId.value = match.id
-    const el = rowRefs.value[match.id]
-    if (el) {
-      const row = (el as any).$el ?? el
-      row.scrollIntoView?.({ behavior: 'smooth', block: 'center' })
-    }
-    setTimeout(() => { highlightedId.value = null }, 2100)
-  })
-}
 
 // ── Edit / Add centre ─────────────────────────────────────────
 const editCentreOpen = ref(false)

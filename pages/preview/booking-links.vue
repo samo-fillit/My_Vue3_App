@@ -92,13 +92,12 @@
 
           <!-- Search bar -->
           <div class="flex items-center gap-3">
-            <div class="relative w-[300px]">
+            <div class="relative w-[400px]">
               <input
                 v-model="searchQuery"
                 type="text"
                 placeholder="Search tenant, company or booking ID…"
                 class="h-10 w-full rounded-lg border border-border bg-background px-4 pr-10 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-foreground focus:border-[1.5px]"
-                @keydown.enter="jumpToMatch"
               />
               <IconSearch :size="16" stroke-width="1.5" class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             </div>
@@ -151,7 +150,7 @@
                   </button>
                 </TableHead>
 
-                <TableHead class="w-[130px] text-center">
+                <TableHead class="w-[130px] pl-8">
                   <span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Status</span>
                 </TableHead>
 
@@ -162,9 +161,7 @@
               <TableRow
                 v-for="link in filteredLinks"
                 :key="link.id"
-                :ref="el => { if (el) rowRefs[link.id] = el as HTMLElement }"
                 class="group"
-                :class="{ 'row-highlight': highlightedId === link.id }"
               >
 
                 <TableCell class="text-sm text-muted-foreground">
@@ -204,15 +201,12 @@
                   {{ formatAmount(link.rate, link.currency) }}
                 </TableCell>
 
-                <TableCell class="text-center">
+                <TableCell class="pl-8">
                   <TooltipProvider :delay-duration="150">
                     <Tooltip>
                       <TooltipTrigger as-child>
-                        <span
-                          class="cursor-default rounded-full px-2.5 py-1 text-xs font-medium"
-                          :class="statusClass(link.status)"
-                        >
-                          {{ statusLabel(link.status) }}
+                        <span class="cursor-default">
+                          <StatusDot :label="statusLabel(link.status)" :dot-class="statusDot(link.status)" />
                         </span>
                       </TooltipTrigger>
                       <TooltipContent side="top">
@@ -372,20 +366,10 @@
   opacity: 0;
   transform: translateY(-4px);
 }
-
-@keyframes row-search-pulse {
-  0%   { background-color: transparent; }
-  30%  { background-color: rgb(59 130 246 / 0.10); }
-  70%  { background-color: rgb(59 130 246 / 0.10); }
-  100% { background-color: transparent; }
-}
-.row-highlight {
-  animation: row-search-pulse 1s ease-in-out 2;
-}
 </style>
 
 <script setup lang="ts">
-import { ref, reactive, computed, nextTick, watch } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import type { DateRange } from 'reka-ui'
 import {
   IconCalendar,
@@ -420,6 +404,7 @@ import {
 } from '@/components/ui/tooltip'
 import AppSidebar from '@/components/app-sidebar.vue'
 import RightPanel from '@/components/right-panel.vue'
+import StatusDot from '@/components/StatusDot.vue'
 import { useAppContext } from '@/composables/useAppContext'
 import { useTeamContext } from '@/composables/useTeamContext'
 
@@ -514,7 +499,7 @@ const statusTabs = computed(() => {
     { value: 'all' as const,       label: 'All',       count: all.length },
     { value: 'sent' as const,      label: 'Sent',      count: all.filter(l => l.status === 'sent').length },
     { value: 'declined' as const,  label: 'Declined',  count: all.filter(l => l.status === 'declined').length },
-    { value: 'completed' as const, label: 'Completed', count: all.filter(l => l.status === 'completed').length },
+    { value: 'completed' as const, label: 'Enquiry created', count: all.filter(l => l.status === 'completed').length },
   ]
 })
 
@@ -525,6 +510,14 @@ const filteredLinks = computed(() => {
   }
   if (selectedCentreNames.value.length > 0) {
     list = list.filter(l => selectedCentreNames.value.includes(l.centreName))
+  }
+  const q = searchQuery.value.trim().toLowerCase()
+  if (q) {
+    list = list.filter(l =>
+      `${l.tenantFirstName ?? ''} ${l.tenantLastName ?? ''}`.toLowerCase().includes(q) ||
+      (l.tenantCompany ?? '').toLowerCase().includes(q) ||
+      (l.bookingId ?? '').toLowerCase().includes(q),
+    )
   }
   if (sortKey.value) {
     const key = sortKey.value
@@ -542,50 +535,12 @@ const filteredLinks = computed(() => {
 // ─── Search ───────────────────────────────────────────────────────────────────
 
 const searchQuery = ref('')
-const matchIndex = ref(-1)
-const highlightedId = ref<string | null>(null)
-const rowRefs = ref<Record<string, HTMLElement>>({})
-
-const blMatchIds = computed(() => {
-  const q = searchQuery.value.trim().toLowerCase()
-  if (!q) return []
-  return filteredLinks.value
-    .filter(l =>
-      `${l.tenantFirstName ?? ''} ${l.tenantLastName ?? ''}`.toLowerCase().includes(q) ||
-      (l.tenantCompany ?? '').toLowerCase().includes(q) ||
-      (l.bookingId ?? '').toLowerCase().includes(q)
-    )
-    .map(l => l.id)
-})
 
 const searchCountLabel = computed(() => {
-  const q = searchQuery.value.trim()
-  if (!q) return ''
-  if (blMatchIds.value.length === 0) return 'No results'
-  if (matchIndex.value >= 0) return `${matchIndex.value + 1} / ${blMatchIds.value.length}`
-  return `${blMatchIds.value.length} match${blMatchIds.value.length === 1 ? '' : 'es'}`
+  if (!searchQuery.value.trim()) return ''
+  const n = filteredLinks.value.length
+  return n === 0 ? 'No results' : `${n} result${n === 1 ? '' : 's'}`
 })
-
-watch(searchQuery, () => {
-  matchIndex.value = -1
-  highlightedId.value = null
-})
-
-function jumpToMatch() {
-  if (!blMatchIds.value.length) return
-  matchIndex.value = (matchIndex.value + 1) % blMatchIds.value.length
-  const id = blMatchIds.value[matchIndex.value]
-  highlightedId.value = null
-  nextTick(() => {
-    highlightedId.value = id
-    const el = rowRefs.value[id]
-    if (el) {
-      const row = (el as any).$el ?? el
-      row.scrollIntoView?.({ behavior: 'smooth', block: 'center' })
-    }
-    setTimeout(() => { highlightedId.value = null }, 2100)
-  })
-}
 
 // ─── Centre filter ────────────────────────────────────────────────────────────
 
@@ -769,6 +724,15 @@ function openForm() {
   formOpen.value = true
 }
 
+// Auto-open the Create booking overlay when arriving from the bookings page
+// (?create=1), with a short delay so the page change registers first.
+const route = useRoute()
+onMounted(() => {
+  if (route.query.create !== undefined) {
+    setTimeout(openForm, 500)
+  }
+})
+
 function handleSend() {
   if (!form.tenantEmail || !form.centreId || !form.spaceId || !form.rate) return
 
@@ -832,15 +796,15 @@ function statusLabel(status: BookingLinkStatus): string {
   switch (status) {
     case 'sent':      return 'Sent'
     case 'declined':  return 'Declined'
-    case 'completed': return 'Completed'
+    case 'completed': return 'Enquiry created'
   }
 }
 
-function statusClass(status: BookingLinkStatus): string {
+function statusDot(status: BookingLinkStatus): string {
   switch (status) {
-    case 'sent':      return 'bg-blue-50 text-blue-600'
-    case 'declined':  return 'bg-red-50 text-red-600'
-    case 'completed': return 'bg-green-50 text-green-700'
+    case 'sent':      return 'bg-blue-500'
+    case 'declined':  return 'bg-red-500'
+    case 'completed': return 'bg-green-500'
   }
 }
 
@@ -851,7 +815,7 @@ function statusTooltip(link: BookingLink): string {
   switch (link.status) {
     case 'sent':      return `Sent by ${link.statusChangedBy} on ${date}`
     case 'declined':  return `Declined by ${link.statusChangedBy} on ${date}`
-    case 'completed': return `Completed by ${link.statusChangedBy} on ${date}`
+    case 'completed': return `Enquiry created by ${link.statusChangedBy} on ${date}`
   }
 }
 </script>

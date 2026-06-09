@@ -107,14 +107,13 @@
               </DropdownMenu>
 
               <!-- Search -->
-              <div class="relative w-full max-w-sm">
+              <div class="relative w-[400px]">
                 <input
                   ref="searchInputRef"
                   v-model="searchQuery"
                   type="text"
                   placeholder="Search spaces…"
                   class="h-10 w-full rounded-lg border border-border bg-background px-4 pr-10 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-[1.5px] focus:border-foreground"
-                  @keydown.enter="jumpToMatch"
                 />
                 <IconSearch :size="16" stroke-width="1.5" class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
               </div>
@@ -141,8 +140,8 @@
                       <IconSelector v-else :size="12" class="opacity-30" />
                     </button>
                   </TableHead>
-                  <TableHead class="text-center">
-                    <button type="button" class="inline-flex w-full items-center justify-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort('status')">
+                  <TableHead class="pl-8">
+                    <button type="button" class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort('status')">
                       Status
                       <IconChevronUp v-if="sort.key === 'status' && sort.dir === 'asc'" :size="12" class="text-foreground" />
                       <IconChevronDown v-else-if="sort.key === 'status' && sort.dir === 'desc'" :size="12" class="text-foreground" />
@@ -169,13 +168,8 @@
                     </div>
                   </TableCell>
                   <TableCell class="py-3 font-mono text-xs text-muted-foreground">{{ space.id }}</TableCell>
-                  <TableCell class="py-3 text-center">
-                    <span
-                      class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium"
-                      :class="space.listed === false ? 'bg-[#fef9f0] text-[#d97706]' : 'bg-[#f2fbf8] text-[#4dbd9f]'"
-                    >
-                      {{ space.listed === false ? 'Unlisted' : 'Listed' }}
-                    </span>
+                  <TableCell class="py-3 pl-8">
+                    <StatusDot :label="space.listed === false ? 'Unlisted' : 'Listed'" :dot-class="space.listed === false ? 'bg-amber-500' : 'bg-green-500'" />
                   </TableCell>
                   <TableCell class="py-3 pr-0 text-right">
                     <div class="inline-flex items-center gap-2">
@@ -544,6 +538,7 @@ import {
 } from '@/components/ui/tooltip'
 import AppSidebar from '@/components/app-sidebar.vue'
 import RightPanel from '@/components/right-panel.vue'
+import StatusDot from '@/components/StatusDot.vue'
 import { useTeamContext } from '@/composables/useTeamContext'
 import { useAppContext } from '@/composables/useAppContext'
 import { usePayoutAccounts } from '@/composables/usePayoutAccounts'
@@ -677,27 +672,16 @@ const searchInputRef = ref<HTMLInputElement | null>(null)
 const highlightedId = ref<string | null>(null)
 const rowRefs = ref<Record<string, HTMLElement>>({})
 
-function jumpToMatch() {
-  const q = searchQuery.value.trim().toLowerCase()
-  if (!q) return
-  const match = filteredSpaces.value.find(s =>
-    s.name.toLowerCase().includes(q) || s.id.toLowerCase().includes(q)
-  )
-  if (!match) return
-  highlightedId.value = null
-  nextTick(() => {
-    highlightedId.value = match.id
-    const el = rowRefs.value[match.id]
-    if (el) {
-      const row = (el as any).$el ?? el
-      row.scrollIntoView?.({ behavior: 'smooth', block: 'center' })
-    }
-    setTimeout(() => { highlightedId.value = null }, 2100)
-  })
-}
-
 const filteredSpaces = computed(() => {
   let list = spaces.value.filter(s => s.centreId === selectedCentreId.value)
+
+  const q = searchQuery.value.trim().toLowerCase()
+  if (q) {
+    list = list.filter(s =>
+      s.name.toLowerCase().includes(q) ||
+      s.id.toLowerCase().includes(q),
+    )
+  }
 
   if (!sort.key) return list
   return [...list].sort((a, b) => {

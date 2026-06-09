@@ -196,8 +196,8 @@
                         <IconSelector v-else :size="12" class="opacity-30" />
                       </button>
                     </TableHead>
-                    <TableHead class="text-center">
-                      <div class="inline-flex w-full items-center justify-center gap-1.5">
+                    <TableHead>
+                      <div class="inline-flex items-center gap-1.5">
                         <button type="button" class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort(activeSort, 'role')">
                           Role
                           <IconChevronUp v-if="activeSort.key === 'role' && activeSort.dir === 'asc'" :size="12" class="text-foreground" />
@@ -209,16 +209,16 @@
                         </button>
                       </div>
                     </TableHead>
-                    <TableHead class="text-center">
-                      <button type="button" class="inline-flex w-full items-center justify-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort(activeSort, 'status')">
+                    <TableHead class="pl-8">
+                      <button type="button" class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort(activeSort, 'status')">
                         Status
                         <IconChevronUp v-if="activeSort.key === 'status' && activeSort.dir === 'asc'" :size="12" class="text-foreground" />
                         <IconChevronDown v-else-if="activeSort.key === 'status' && activeSort.dir === 'desc'" :size="12" class="text-foreground" />
                         <IconSelector v-else :size="12" class="opacity-30" />
                       </button>
                     </TableHead>
-                    <TableHead v-if="!isUserType('tenant')" class="text-center">
-                      <button type="button" class="inline-flex w-full items-center justify-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort(activeSort, 'signatoryCentres')">
+                    <TableHead v-if="!isUserType('tenant')">
+                      <button type="button" class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort(activeSort, 'signatoryCentres')">
                         Signatory
                         <IconChevronUp v-if="activeSort.key === 'signatoryCentres' && activeSort.dir === 'asc'" :size="12" class="text-foreground" />
                         <IconChevronDown v-else-if="activeSort.key === 'signatoryCentres' && activeSort.dir === 'desc'" :size="12" class="text-foreground" />
@@ -236,7 +236,7 @@
                         <span class="text-sm text-muted-foreground">{{ member.email }}</span>
                       </div>
                     </TableCell>
-                    <TableCell class="py-3 text-center">
+                    <TableCell class="py-3">
                       <TooltipProvider v-if="isLastAdmin(member)" :delay-duration="300">
                         <Tooltip>
                           <TooltipTrigger as-child>
@@ -274,15 +274,10 @@
                         </Tooltip>
                       </TooltipProvider>
                     </TableCell>
-                    <TableCell class="py-3 text-center">
-                      <span
-                        class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium"
-                        :class="member.status === 'Active' ? 'bg-[#f2fbf8] text-[#4dbd9f]' : 'bg-[#fef2f3] text-[#e8445a]'"
-                      >
-                        {{ member.status }}
-                      </span>
+                    <TableCell class="py-3 pl-8">
+                      <StatusDot :label="member.status" :dot-class="member.status === 'Active' ? 'bg-green-500' : 'bg-red-500'" />
                     </TableCell>
-                    <TableCell v-if="!isUserType('tenant')" class="py-3 text-center">
+                    <TableCell v-if="!isUserType('tenant')" class="py-3">
                       <TooltipProvider :delay-duration="300">
                         <Tooltip>
                           <TooltipTrigger as-child>
@@ -355,32 +350,32 @@
                         <IconSelector v-else :size="12" class="opacity-30" />
                       </button>
                     </TableHead>
-                    <TableHead class="text-center">
-                      <button type="button" class="inline-flex w-full items-center justify-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort(pendingSort, 'status')">
+                    <TableHead class="pl-8">
+                      <button type="button" class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort(pendingSort, 'status')">
                         Invite status
                         <IconChevronUp v-if="pendingSort.key === 'status' && pendingSort.dir === 'asc'" :size="12" class="text-foreground" />
                         <IconChevronDown v-else-if="pendingSort.key === 'status' && pendingSort.dir === 'desc'" :size="12" class="text-foreground" />
                         <IconSelector v-else :size="12" class="opacity-30" />
                       </button>
                     </TableHead>
-                    <TableHead class="text-center">
-                      <button type="button" class="inline-flex w-full items-center justify-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort(pendingSort, 'role')">
+                    <TableHead>
+                      <button type="button" class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort(pendingSort, 'role')">
                         Role
                         <IconChevronUp v-if="pendingSort.key === 'role' && pendingSort.dir === 'asc'" :size="12" class="text-foreground" />
                         <IconChevronDown v-else-if="pendingSort.key === 'role' && pendingSort.dir === 'desc'" :size="12" class="text-foreground" />
                         <IconSelector v-else :size="12" class="opacity-30" />
                       </button>
                     </TableHead>
-                    <TableHead class="text-center">
-                      <button type="button" class="inline-flex w-full items-center justify-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort(pendingSort, 'invitedBy')">
+                    <TableHead>
+                      <button type="button" class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort(pendingSort, 'invitedBy')">
                         Invited by
                         <IconChevronUp v-if="pendingSort.key === 'invitedBy' && pendingSort.dir === 'asc'" :size="12" class="text-foreground" />
                         <IconChevronDown v-else-if="pendingSort.key === 'invitedBy' && pendingSort.dir === 'desc'" :size="12" class="text-foreground" />
                         <IconSelector v-else :size="12" class="opacity-30" />
                       </button>
                     </TableHead>
-                    <TableHead class="text-center">
-                      <button type="button" class="inline-flex w-full items-center justify-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort(pendingSort, 'sentOn')">
+                    <TableHead>
+                      <button type="button" class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort(pendingSort, 'sentOn')">
                         Sent on
                         <IconChevronUp v-if="pendingSort.key === 'sentOn' && pendingSort.dir === 'asc'" :size="12" class="text-foreground" />
                         <IconChevronDown v-else-if="pendingSort.key === 'sentOn' && pendingSort.dir === 'desc'" :size="12" class="text-foreground" />
@@ -393,15 +388,10 @@
                 <TableBody>
                   <TableRow v-for="invite in sortedPendingInvites" :key="invite.email" class="border-border">
                     <TableCell class="py-3 text-sm text-foreground">{{ invite.email }}</TableCell>
-                    <TableCell class="py-3 text-center">
-                      <span
-                        class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium"
-                        :class="invite.status === 'Pending Approval' ? 'bg-[#fffaeb] text-[#ffd166]' : 'bg-[#f2fbf8] text-[#4dbd9f]'"
-                      >
-                        {{ invite.status }}
-                      </span>
+                    <TableCell class="py-3 pl-8">
+                      <StatusDot :label="invite.status" :dot-class="invite.status === 'Pending Approval' ? 'bg-amber-500' : 'bg-green-500'" />
                     </TableCell>
-                    <TableCell class="py-3 text-center">
+                    <TableCell class="py-3">
                       <TooltipProvider :delay-duration="300">
                         <Tooltip>
                           <TooltipTrigger as-child>
@@ -423,8 +413,8 @@
                         </Tooltip>
                       </TooltipProvider>
                     </TableCell>
-                    <TableCell class="py-3 text-center text-sm text-muted-foreground">{{ invite.invitedBy }}</TableCell>
-                    <TableCell class="py-3 text-center text-sm text-muted-foreground">{{ invite.sentOn }}</TableCell>
+                    <TableCell class="py-3 text-sm text-muted-foreground">{{ invite.invitedBy }}</TableCell>
+                    <TableCell class="py-3 text-sm text-muted-foreground">{{ invite.sentOn }}</TableCell>
                     <TableCell class="py-3 pr-0 text-center">
                       <div v-if="invite.status === 'Pending Approval'" class="inline-flex items-center gap-2">
                         <TooltipProvider :delay-duration="300">
@@ -515,24 +505,24 @@
                           <IconSelector v-else :size="12" class="opacity-30" />
                         </button>
                       </TableHead>
-                      <TableHead class="text-center">
-                        <button type="button" class="inline-flex w-full items-center justify-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort(signSort, 'centres')">
+                      <TableHead>
+                        <button type="button" class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort(signSort, 'centres')">
                           Centre
                           <IconChevronUp v-if="signSort.key === 'centres' && signSort.dir === 'asc'" :size="12" class="text-foreground" />
                           <IconChevronDown v-else-if="signSort.key === 'centres' && signSort.dir === 'desc'" :size="12" class="text-foreground" />
                           <IconSelector v-else :size="12" class="opacity-30" />
                         </button>
                       </TableHead>
-                      <TableHead class="text-center">
-                        <button type="button" class="inline-flex w-full items-center justify-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort(signSort, 'addedBy')">
+                      <TableHead>
+                        <button type="button" class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort(signSort, 'addedBy')">
                           Added by
                           <IconChevronUp v-if="signSort.key === 'addedBy' && signSort.dir === 'asc'" :size="12" class="text-foreground" />
                           <IconChevronDown v-else-if="signSort.key === 'addedBy' && signSort.dir === 'desc'" :size="12" class="text-foreground" />
                           <IconSelector v-else :size="12" class="opacity-30" />
                         </button>
                       </TableHead>
-                      <TableHead class="text-center">
-                        <button type="button" class="inline-flex w-full items-center justify-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort(signSort, 'addedOn')">
+                      <TableHead>
+                        <button type="button" class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort(signSort, 'addedOn')">
                           Added on
                           <IconChevronUp v-if="signSort.key === 'addedOn' && signSort.dir === 'asc'" :size="12" class="text-foreground" />
                           <IconChevronDown v-else-if="signSort.key === 'addedOn' && signSort.dir === 'desc'" :size="12" class="text-foreground" />
@@ -550,8 +540,8 @@
                           <span class="text-sm text-muted-foreground">{{ sig.email }}</span>
                         </div>
                       </TableCell>
-                      <TableCell class="py-3 text-center text-sm text-muted-foreground">{{ sig.organisation || '—' }}</TableCell>
-                      <TableCell class="py-3 text-center">
+                      <TableCell class="py-3 text-sm text-muted-foreground">{{ sig.organisation || '—' }}</TableCell>
+                      <TableCell class="py-3">
                         <TooltipProvider :delay-duration="300">
                           <Tooltip>
                             <TooltipTrigger as-child>
@@ -573,8 +563,8 @@
                           </Tooltip>
                         </TooltipProvider>
                       </TableCell>
-                      <TableCell class="py-3 text-center text-sm text-muted-foreground">{{ sig.addedBy }}</TableCell>
-                      <TableCell class="py-3 text-center text-sm text-muted-foreground">{{ sig.addedOn }}</TableCell>
+                      <TableCell class="py-3 text-sm text-muted-foreground">{{ sig.addedBy }}</TableCell>
+                      <TableCell class="py-3 text-sm text-muted-foreground">{{ sig.addedOn }}</TableCell>
                       <TableCell class="py-3 pr-0 text-center">
                         <TooltipProvider :delay-duration="300">
                           <Tooltip>
@@ -731,7 +721,7 @@
                         <IconSelector v-else :size="12" class="opacity-30" />
                       </button>
                     </TableHead>
-                    <TableHead class="text-center">
+                    <TableHead class="pl-8">
                       <button type="button" class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort(assetsSort, 'status')">
                         Status
                         <IconChevronUp v-if="assetsSort.key === 'status' && assetsSort.dir === 'asc'" :size="12" class="text-foreground" />
@@ -764,13 +754,8 @@
                     <TableCell class="py-3 font-mono text-xs text-muted-foreground">{{ centre.centreId }}</TableCell>
                     <TableCell class="py-3 text-sm text-muted-foreground">{{ countryAbbr(centre.country) }}</TableCell>
                     <TableCell class="py-3 text-sm text-muted-foreground">{{ centre.location }}</TableCell>
-                    <TableCell class="py-3 text-center">
-                      <span
-                        class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium"
-                        :class="centre.status === 'Listed' ? 'bg-[#f2fbf8] text-[#4dbd9f]' : 'bg-[#fef9f0] text-[#d97706]'"
-                      >
-                        {{ centre.status }}
-                      </span>
+                    <TableCell class="py-3 pl-8">
+                      <StatusDot :label="centre.status" :dot-class="centre.status === 'Listed' ? 'bg-green-500' : 'bg-amber-500'" />
                     </TableCell>
                     <TableCell class="py-3 pr-0 text-right">
                       <TooltipProvider v-if="otherTeams.length > 0" :delay-duration="300">
@@ -1544,6 +1529,7 @@ import {
 } from '@/components/ui/tooltip'
 import AppSidebar from '@/components/app-sidebar.vue'
 import RightPanel from '@/components/right-panel.vue'
+import StatusDot from '@/components/StatusDot.vue'
 import { useRightPanel } from '@/composables/useRightPanel'
 import { useAppContext } from '@/composables/useAppContext'
 import { useTeamContext } from '@/composables/useTeamContext'

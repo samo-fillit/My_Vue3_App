@@ -116,13 +116,13 @@ const accountOpen = ref(props.activeItem?.startsWith('account') ?? false)
 // ── All possible nav items (filtered by platform config at render time) ───────
 const allMainNav = [
   { id: 'dashboard',    icon: IconLayoutGrid,   label: 'Dashboard' },
-  { id: 'bookings',     icon: IconBook,         label: 'Bookings' },
+  { id: 'bookings',     icon: IconBook,         label: 'Bookings', route: '/preview/bookings' },
+  { id: 'transactions', icon: IconReceipt,      label: 'Transactions', route: '/preview/transactions' },
+  // Tenant only (sits in the transactions slot)
+  { id: 'invoices',     icon: IconFileInvoice,  label: 'Transactions', route: '/preview/invoices' },
   { id: 'calendar',     icon: IconCalendar,     label: 'Calendar' },
   { id: 'messages',     icon: IconMessage,      label: 'Messages', route: '/preview/messages', badge: 3 },
   { id: 'create-link',  icon: IconLink,         label: 'Booking links', route: '/preview/booking-links' },
-  { id: 'transactions', icon: IconReceipt,      label: 'Transactions', route: '/preview/transactions' },
-  // Tenant only
-  { id: 'invoices',     icon: IconFileInvoice,  label: 'Transactions', route: '/preview/invoices' },
   // Enterprise (eLeaseLoop) only
   { id: 'analytics',    icon: IconChartBar,     label: 'Analytics',    route: '/preview/analytics' },
   { id: 'crm',          icon: IconAddressBook,  label: 'CRM',          route: '/preview/crm' },

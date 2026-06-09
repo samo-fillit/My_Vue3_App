@@ -34,10 +34,12 @@ The app supports two platforms (`fillit`, `eleaseloop`) and two user types (`lan
 
 | Platform | User type | Nav items | Org items |
 |----------|-----------|-----------|-----------|
-| fillit | landlord | dashboard, bookings, calendar, messages, create-link, transactions | profile, teams, centres, spaces, notifications |
-| fillit | tenant | dashboard, bookings, calendar, messages, invoices | profile, teams, lease-info, notifications |
-| eleaseloop | landlord | dashboard, bookings, calendar, messages, create-link, transactions, **analytics**, **crm** | profile, teams, centres, spaces, payments, notifications |
-| eleaseloop | tenant | dashboard, bookings, calendar, messages, invoices | profile, teams, lease-info, notifications |
+| fillit | landlord | dashboard, bookings, transactions, calendar, messages, create-link | profile, teams, centres, spaces, notifications |
+| fillit | tenant | dashboard, bookings, invoices, calendar, messages | profile, teams, lease-info, notifications |
+| eleaseloop | landlord | dashboard, bookings, transactions, calendar, messages, create-link, **analytics**, **crm** | profile, teams, centres, spaces, payments, notifications |
+| eleaseloop | tenant | dashboard, bookings, invoices, calendar, messages | profile, teams, lease-info, notifications |
+
+Nav order: `transactions` (landlord) / `invoices` (tenant) sit in the 3rd slot, directly behind `bookings`. The sidebar renders in `allMainNav` order (`components/app-sidebar.vue`); `platformConfig` arrays mirror that order.
 
 **Role permissions** (`Role`: `admin`, `member`, `accounts`):
 
@@ -69,8 +71,9 @@ The app supports two platforms (`fillit`, `eleaseloop`) and two user types (`lan
 | `/preview/notifications-settings` | `pages/preview/notifications-settings.vue` | Organisation — notification preferences |
 | `/preview/transactions` | `pages/preview/transactions.vue` | Transactions list with team filter, date range picker, centre filter, search bar, and sortable table (landlord) |
 | `/preview/invoices` | `pages/preview/invoices.vue` | Invoices list with date range picker, search bar, and sortable table (tenant) |
-| `/preview/booking-links` | `pages/preview/booking-links.vue` | Booking links history with Create booking overlay, centre filter, and search bar; linked from "Create Link" sidebar item |
+| `/preview/booking-links` | `pages/preview/booking-links.vue` | Booking links history with Create booking overlay, centre filter, and search bar; linked from "Create Link" sidebar item. Arriving with `?create=1` (e.g. the bookings page CTA) auto-opens the create overlay after a 500ms delay. Statuses: Sent / Declined / **Enquiry created** (the last = tenant completed the link, creating an enquiry/booking; underlying status value remains `completed`) |
 | `/preview/messages` | `pages/preview/messages.vue` | Messaging inbox with Airbnb-style composite avatars, three-line layout, conversation types (enquiry / booking / general), and team/country-scoped filtering |
+| `/preview/bookings` | `pages/preview/bookings/index.vue` | Bookings list — role-aware (landlord scopes by active team + sees tenant identity + "Create booking" CTA; tenant sees own bookings, second-person status labels, no create). Tabs: Action needed / Upcoming / Past / Closed (mutually exclusive buckets derived from the taxonomy). Split Start/End date columns (independently sortable), centre + date-range + search filters, centre-colour avatars. Status shown as a **coloured dot + label** (colour lives in the dot, label stays foreground; neutral states use `bg-muted-foreground`), with a pulsing dot on active "Live now" bookings. Bookings with an overdue payment (`financials.paymentStatus === 'overdue'`) are pulled into Action needed regardless of temporal state, keeping their lifecycle pill plus an inline red flag icon (tooltip: "Payment overdue") beside it. Primary CTA "Create booking" (landlord). Reads `/api/bookings`. |
 
 ## Shared components
 
@@ -103,6 +106,11 @@ The app supports two platforms (`fillit`, `eleaseloop`) and two user types (`lan
 - **Props:** `modelValue`, `label` (required), `required?: boolean`, `placeholder?`, `disabled?`, `class?`
 - **Slots:** `#trigger-prefix` — optional content rendered before the selected value (e.g. team avatar, country flag); default slot receives `SelectItem` children
 - **Emits:** `update:modelValue`
+
+### `StatusDot`
+- **File:** `components/StatusDot.vue`
+- **Purpose:** Shared status indicator — coloured dot + foreground label (see "Status dot + label" under UI patterns). Replaces the old tinted-pill status badges.
+- **Props:** `label` (required), `dotClass` (required, e.g. `bg-green-500` / `bg-muted-foreground`), `pulse?: boolean` (adds an `animate-ping` halo for active states)
 
 ## Composables
 
@@ -196,7 +204,14 @@ All server routes are thin Nitro handlers that read from or write to JSON files 
 | PUT | `/api/teams` | `server/data/teams.json` | Replaces the entire teams array |
 | GET | `/api/booking-links` | `server/data/booking-links.json` | Returns all booking links; Rails endpoint TBD |
 | GET | `/api/transactions` | `server/api/transactions.get.ts` | Returns mock transaction records; all booking refs are 5-digit numeric strings |
-| — | _(pending)_ | `server/data/bookings.json` | Canonical booking records — no API route yet; file seeded with ~30 records |
+| GET | `/api/bookings` | `server/data/bookings.json` | 22 booking records on the redesigned booking-status taxonomy (below). Production-style nested shape: `landlord`, `tenant`, `space`(+centre), `enquiry`(pitch), `financials`, `payments[]`, `documents[]`, `docusign`, `managerApproval` (Nhood), `actions[]` audit trail, `notes`. Served by `server/api/bookings.get.ts` — valid JSON (no `//` comments) so it `JSON.parse`s directly. |
+
+### Booking status taxonomy
+Grounded in the production Fillit lifecycle (`for_review`/`for_acceptance`/`approved`/`confirmed`/`declined`/`cancelled`) but redesigned to separate three concerns production tangles into one string:
+- **Lifecycle state** (stored): `enquiry` → `quoted` → `awaiting_signature` → `confirmed`, plus terminal `declined` / `cancelled`.
+- **Temporal sub-state of `confirmed`** (derived from `period.from`/`period.to` vs today): `upcoming` / `active` (live now) / `completed`. Production never stores these.
+- **Action ownership** (derived per viewer): `enquiry`→landlord, `quoted`/`awaiting_signature`→tenant. Drives an "Action needed" filter instead of production's role-swapping "Pending"/"Awaiting response" tabs.
+Orthogonal flags carried as data, not states: `docusignStatus`, `paymentStatus`, `preConfirmed`, `approvalType` (`single`/`pay_stages`/`booking_link`), `managerApproval` (Nhood asset-manager sign-off).
 
 ## UI patterns
 
@@ -229,14 +244,17 @@ A `Popover` trigger (filter button style above) containing a `RangeCalendar` fro
 ### Centre filter (multi-select)
 A `Popover` trigger (filter button style) with a `w-[220px]` `PopoverContent` listing centre names as inline checkbox rows. `selectedCentreNames: ref<string[]>([])` tracks selection; `toggleCentre(name)` adds/removes. Label collapses to `"N centres"` when multiple selected. Available names are computed from the team-filtered data set so the list stays in sync with the active team. See `transactions.vue` and `booking-links.vue` for reference.
 
-### Search with match cycling
-Pages with search bars use a `matchIndex ref(-1)` + `matchIds` computed array pattern. Pressing Enter calls `jumpToMatch()` which advances the index with modulo wrap, scrolls the matched row into view via `nextTick`, and applies the `row-highlight` class (which runs the `row-search-pulse` animation). The highlight clears after 2.1 s via `setTimeout`. `watch(searchQuery)` resets `matchIndex` to `-1` so new queries start from the first result. A "2 / 5" counter is shown inline in the search bar when a match is active. See `transactions.vue`, `booking-links.vue`, and `invoices.vue` for reference.
+### Search (filter)
+Pages with a search bar **filter** the list to matching rows: the `searchQuery` ref feeds a predicate into the page's displayed-rows computed (`filteredBookings` / `filteredTransactions` / `filteredLinks` / `sortedCentres` / `filteredSpaces`), so non-matching rows are excluded live as you type. Where present, a small "N results" / "No results" label sits beside the input, and the table's empty-results row explains when nothing matches. Searchable fields vary per page — bookings: id / tenant / contact / centre / space; transactions: booking ref / tenant; booking-links: tenant name / company / booking id; centres: name / city / centre id; spaces: name / id. Used on bookings, transactions, booking-links, centres, and spaces. (Replaced the earlier highlight-and-cycle pattern — `jumpToMatch`/`matchIndex`/`row-highlight`; the `row-search-pulse` keyframe now only powers the newly-added-row flash on `spaces.vue`.)
 
 ### Booking ID format
 All booking IDs are 5-digit numeric strings (e.g. `"10042"`, `"11001"`). No prefixes (`FILL-`, `BK-`, `ELL-`). The column header is always "Booking ID".
 
 ### Status badges
-`<Badge>` component with pill shape and light semantic background tints: green for active/success, muted pink for inactive, light blue for pending.
+`<Badge>` component with pill shape and light semantic background tints: green for active/success, muted pink for inactive, light blue for pending. Used by transactions/invoices/booking-links.
+
+### Status dot + label (`StatusDot`)
+The standard status treatment, via the shared `components/StatusDot.vue` component (`label`, `dotClass`, optional `pulse`): a small `h-2 w-2 rounded-full` coloured dot + a `text-sm font-medium text-foreground` label. Colour lives only in the dot (blue/amber/purple/green/sky/red, `bg-muted-foreground` for neutral/terminal states); the label stays foreground for a clean, restrained look. `pulse` adds a second pinging dot (`animate-ping`) for active/"Live now" states. Now used across bookings, booking-links, transactions (incl. the editable payment-status buttons), teams, centres, and spaces. **Preferred over tinted pills / `<Badge>` for all status UI** — each page maps its own status vocabulary to a `dotClass`.
 
 ### Dark mode
 Handled entirely through CSS variable tokens in `assets/css/tailwind.css`. Semantic Tailwind classes (`bg-background`, `text-foreground`, etc.) adapt automatically under the `.dark` class. No `dark:` color prefixes are used in component templates.
@@ -255,4 +273,4 @@ Conversations have a `type` field (`'enquiry' | 'general' | 'booking'`) that dri
 
 Display varies by viewer role — see `getConvDisplay()` in `pages/preview/messages.vue` for the full mapping.
 
-_Last updated: 2026-05-29 (session 5)_
+_Last updated: 2026-06-09_

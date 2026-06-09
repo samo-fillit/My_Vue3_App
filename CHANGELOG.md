@@ -1,5 +1,29 @@
 # Changelog
 
+## 2026-06-09 — Bookings page, data model & status taxonomy
+
+- Analyzed the production Fillit codebase (Rails, `vue3-vite-migration` branch) for the real booking lifecycle, then defined a redesigned 6-state taxonomy — `enquiry → quoted → awaiting_signature → confirmed`, plus `declined`/`cancelled` — with `upcoming`/`active`/`completed` derived from booking dates and action-ownership derived per viewer (replaces production's role-swapping status tabs)
+- Re-seeded `server/data/bookings.json` with 22 records in a production-style nested shape (landlord, tenant, space, enquiry, financials, payments, documents, docusign, managerApproval, audit trail) and added the `/api/bookings` route
+- Built the bookings list page (`/preview/bookings`): role-aware landlord/tenant views, Action needed / Upcoming / Past / Closed tabs, split Start/End date columns, centre + date-range + search filters, and a "Live now" indicator for active bookings
+- Wired the previously dead Bookings sidebar item and moved Transactions to the 3rd nav position (behind Bookings) across all platform×role configs
+- Overdue payments surface on the bookings list: an overdue booking is pulled into Action needed (even from Past — bad-debt collection) and shows an inline red flag icon (tooltip: "Payment overdue") beside its lifecycle status pill
+- Copy: bookings CTA renamed "New booking" → "Create booking" (matches booking-links); booking-links "Completed" status relabelled "Enquiry created" (display only — clarifies that the link created an enquiry, not that the booking is finished)
+- Modernised the bookings status indicators from tinted pills to a **dot + label** style (colour in the dot only, foreground label, pulsing dot on "Live now"), extracted as a shared `components/StatusDot.vue` and rolled out across bookings, booking-links, transactions (incl. editable payment-status buttons), teams, centres, and spaces — replacing the old tinted pills app-wide; the overdue flag is now a filled red icon. All table columns are left-aligned for consistency (data columns on teams' four sub-tables included; action columns and the roles permission matrix stay centered), and status columns get `pl-8` breathing room so they clear the preceding column (e.g. the right-aligned rate)
+- Search now **filters** the list (excludes non-matching rows) on bookings, transactions, booking-links, centres, and spaces — replacing the highlight-and-cycle behaviour. Filtering is live as you type, with a "N results" count and an empty-results row (added one to centres). The `row-search-pulse` animation is retained only for the new-row flash on spaces. Transactions search also matches the centre column
+- The landlord "Create booking" CTA on bookings now lands on booking-links with `?create=1` and auto-opens the create overlay after a 500ms beat (so the page change registers first)
+
+## 2026-06-05 — Email tool UI polish
+
+- Removed scenario selector from email preview — simplified to fixture data only
+- Moved view toggle (HTML / Variables) to top-right button group alongside dark mode toggle
+- `PreviewMeta` and `LocaleTabs` components cleaned up to reflect the simplified toolbar
+- Earlier session added: fixture system with real brand data, data/variables view toggle, persistent dark toggle, brand tag in card header, and light/dark appearance toggle per-card
+
+## 2026-06-04 — Messages: simulated replies and push notifications
+
+- Messages inbox now supports simulated replies — sending a message triggers a realistic reply after a short delay
+- Push notifications fire on reply, matching the notification pattern from the broader app
+
 ## 2026-05-28 — Country system, messaging redesign, and empty states
 
 ### Country / multi-market architecture

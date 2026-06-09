@@ -83,21 +83,21 @@ type PlatformConfig = Record<Platform, Record<UserType, PlatformUserConfig>>
 export const platformConfig: PlatformConfig = {
   fillit: {
     landlord: {
-      nav: ['dashboard', 'bookings', 'calendar', 'messages', 'create-link', 'transactions'],
+      nav: ['dashboard', 'bookings', 'transactions', 'calendar', 'messages', 'create-link'],
       org: ['account-profile', 'account-teams', 'account-centres', 'account-spaces', 'account-notifications'],
     },
     tenant: {
-      nav: ['dashboard', 'bookings', 'calendar', 'messages', 'invoices'],
+      nav: ['dashboard', 'bookings', 'invoices', 'calendar', 'messages'],
       org: ['account-profile', 'account-teams', 'account-lease-info', 'account-notifications'],
     },
   },
   eleaseloop: {
     landlord: {
-      nav: ['dashboard', 'bookings', 'calendar', 'messages', 'create-link', 'transactions', 'analytics', 'crm'],
+      nav: ['dashboard', 'bookings', 'transactions', 'calendar', 'messages', 'create-link', 'analytics', 'crm'],
       org: ['account-profile', 'account-teams', 'account-centres', 'account-spaces', 'account-payments', 'account-notifications'],
     },
     tenant: {
-      nav: ['dashboard', 'bookings', 'calendar', 'messages', 'invoices'],
+      nav: ['dashboard', 'bookings', 'invoices', 'calendar', 'messages'],
       org: ['account-profile', 'account-teams', 'account-lease-info', 'account-notifications'],
     },
   },
