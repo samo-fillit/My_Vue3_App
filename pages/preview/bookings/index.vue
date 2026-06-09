@@ -277,12 +277,12 @@
     </SidebarInset>
   </SidebarProvider>
 
-  <!-- Booking detail slide-over -->
+  <!-- Booking detail overlay -->
   <Teleport to="body">
-    <Transition name="sheet">
-      <div v-if="detailOpen && selectedBooking" class="fixed inset-0 z-[210]">
-        <div class="absolute inset-0 bg-black/40" @click="closeDetail" />
-        <div class="sheet-panel absolute right-0 top-0 flex h-screen w-[560px] max-w-full flex-col bg-background shadow-2xl">
+    <Transition name="modal">
+      <div v-if="detailOpen && selectedBooking" class="fixed inset-0 z-50 flex items-center justify-center p-6">
+        <div class="absolute inset-0 bg-black/50" @click="closeDetail" />
+        <div class="relative z-10 flex w-full max-w-[640px] flex-col rounded-xl border border-border bg-background shadow-2xl" style="max-height: 90vh">
 
           <!-- Header -->
           <div class="flex shrink-0 items-start justify-between gap-4 border-b border-border px-6 py-5">
@@ -491,21 +491,13 @@
 </template>
 
 <style scoped>
-.sheet-enter-active,
-.sheet-leave-active {
-  transition: opacity 0.25s ease;
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.18s ease;
 }
-.sheet-enter-from,
-.sheet-leave-to {
+.modal-enter-from,
+.modal-leave-to {
   opacity: 0;
-}
-.sheet-enter-active .sheet-panel,
-.sheet-leave-active .sheet-panel {
-  transition: transform 0.25s ease;
-}
-.sheet-enter-from .sheet-panel,
-.sheet-leave-to .sheet-panel {
-  transform: translateX(100%);
 }
 </style>
 
