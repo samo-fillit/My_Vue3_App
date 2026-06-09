@@ -73,7 +73,7 @@ Nav order: `transactions` (landlord) / `invoices` (tenant) sit in the 3rd slot, 
 | `/preview/invoices` | `pages/preview/invoices.vue` | Invoices list with date range picker, search bar, and sortable table (tenant) |
 | `/preview/booking-links` | `pages/preview/booking-links.vue` | Booking links history with Create booking overlay, centre filter, and search bar; linked from "Create Link" sidebar item. Arriving with `?create=1` (e.g. the bookings page CTA) auto-opens the create overlay after a 500ms delay. Statuses: Sent / Declined / **Enquiry created** (the last = tenant completed the link, creating an enquiry/booking; underlying status value remains `completed`) |
 | `/preview/messages` | `pages/preview/messages.vue` | Messaging inbox with Airbnb-style composite avatars, three-line layout, conversation types (enquiry / booking / general), and team/country-scoped filtering |
-| `/preview/bookings` | `pages/preview/bookings/index.vue` | Bookings list — role-aware (landlord scopes by active team + sees tenant identity + "Create booking" CTA; tenant sees own bookings, second-person status labels, no create). Tabs: Action needed / Upcoming / Past / Closed (mutually exclusive buckets derived from the taxonomy). Split Start/End date columns (independently sortable), centre + date-range + search filters, centre-colour avatars. Status shown as a **coloured dot + label** (colour lives in the dot, label stays foreground; neutral states use `bg-muted-foreground`), with a pulsing dot on active "Live now" bookings. Bookings with an overdue payment (`financials.paymentStatus === 'overdue'`) are pulled into Action needed regardless of temporal state, keeping their lifecycle pill plus an inline red flag icon (tooltip: "Payment overdue") beside it. Primary CTA "Create booking" (landlord). Reads `/api/bookings`. |
+| `/preview/bookings` | `pages/preview/bookings/index.vue` | Bookings list — role-aware (landlord scopes by active team + sees tenant identity + "Create booking" CTA; tenant sees own bookings, second-person status labels, no create). Tabs: Action needed / Upcoming / Past / Closed (mutually exclusive buckets derived from the taxonomy). Split Start/End date columns (independently sortable), centre + date-range + search filters, centre-colour avatars. Status shown as a **coloured dot + label** (colour lives in the dot, label stays foreground; neutral states use `bg-muted-foreground`), with a pulsing dot on active "Live now" bookings. Bookings with an overdue payment (`financials.paymentStatus === 'overdue'`) are pulled into Action needed regardless of temporal state, keeping their lifecycle pill plus an inline red flag icon (tooltip: "Payment overdue") beside it. Primary CTA "Create booking" (landlord). Clicking a row opens the **booking detail slide-over** (right panel, `z-[210]` above the DevSwitcher): header (centre/space + status + ID), key facts, financials (role-aware: tenant "Total" vs landlord "You receive" after the Fillit fee), payment schedule, documents, enquiry, manager-approval chain (Nhood), activity timeline, notes — and a status- and role-aware CTA footer (see below). Reads `/api/bookings`. |
 
 ## Shared components
 
@@ -255,6 +255,21 @@ All booking IDs are 5-digit numeric strings (e.g. `"10042"`, `"11001"`). No pref
 
 ### Status dot + label (`StatusDot`)
 The standard status treatment, via the shared `components/StatusDot.vue` component (`label`, `dotClass`, optional `pulse`): a small `h-2 w-2 rounded-full` coloured dot + a `text-sm font-medium text-foreground` label. Colour lives only in the dot (blue/amber/purple/green/sky/red, `bg-muted-foreground` for neutral/terminal states); the label stays foreground for a clean, restrained look. `pulse` adds a second pinging dot (`animate-ping`) for active/"Live now" states. Now used across bookings, booking-links, transactions (incl. the editable payment-status buttons), teams, centres, and spaces. **Preferred over tinted pills / `<Badge>` for all status UI** — each page maps its own status vocabulary to a `dotClass`.
+
+### Booking detail CTAs (status- + role-driven)
+The booking detail slide-over footer shows actions driven by `detailActions(booking)` in `bookings/index.vue`, built on **action ownership** (`actionOwner`): the **primary** CTA is the action the *current viewer* owns; when the ball is with the other party there is no primary and a `detailWaitingHint` line explains the wait. CTAs are ordered with the primary last (right-most).
+
+| Status | Landlord | Tenant |
+|--------|----------|--------|
+| `enquiry` | **Accept enquiry** · Decline · Message | Edit enquiry · Withdraw · Message — *waiting on the centre* |
+| `quoted` | Send reminder · Edit terms · Cancel · Message — *waiting on tenant* | **Accept quote** · Decline · Message |
+| `awaiting_signature` | Resend for signature · View lease · Cancel · Message — *waiting on tenant* | **Sign lease** · View lease · Cancel · Message |
+| `confirmed` (upcoming/active) | View documents · Cancel (upcoming only) · Message | Download invoice · View documents · Cancel (upcoming only) · Message |
+| `confirmed` + overdue | **Send payment reminder** (+ the above) | **Pay now** (+ the above) |
+| `confirmed` (completed) | View documents · Message | Download invoice · View documents · Message |
+| `declined` / `cancelled` | Message | Find another space · Message |
+
+Rules: an overdue payment always surfaces a payment-focused primary (landlord chases, tenant pays) even on completed bookings; **Cancel** appears only for cancellable states (upcoming confirmed + open pipeline), never for active/completed/terminal; terminal states collapse to view/message.
 
 ### Dark mode
 Handled entirely through CSS variable tokens in `assets/css/tailwind.css`. Semantic Tailwind classes (`bg-background`, `text-foreground`, etc.) adapt automatically under the `.dark` class. No `dark:` color prefixes are used in component templates.

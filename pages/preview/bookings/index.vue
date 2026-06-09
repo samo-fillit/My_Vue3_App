@@ -201,7 +201,8 @@
               <TableRow
                 v-for="b in filteredBookings"
                 :key="b.id"
-                class="group"
+                class="group cursor-pointer"
+                @click="openDetail(b)"
               >
                 <TableCell class="text-sm text-foreground tabular-nums">
                   {{ formatDate(b.period.from) }}
@@ -275,7 +276,238 @@
 
     </SidebarInset>
   </SidebarProvider>
+
+  <!-- Booking detail slide-over -->
+  <Teleport to="body">
+    <Transition name="sheet">
+      <div v-if="detailOpen && selectedBooking" class="fixed inset-0 z-[210]">
+        <div class="absolute inset-0 bg-black/40" @click="closeDetail" />
+        <div class="sheet-panel absolute right-0 top-0 flex h-screen w-[560px] max-w-full flex-col bg-background shadow-2xl">
+
+          <!-- Header -->
+          <div class="flex shrink-0 items-start justify-between gap-4 border-b border-border px-6 py-5">
+            <div class="flex items-center gap-3">
+              <div
+                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-sm font-bold text-white"
+                :style="{ backgroundColor: selectedBooking.space.centreColor }"
+              >
+                {{ selectedBooking.space.centreName.charAt(0) }}
+              </div>
+              <div class="flex flex-col gap-0.5">
+                <span class="text-base font-semibold text-foreground">{{ selectedBooking.space.centreName }}</span>
+                <span class="text-sm text-muted-foreground">{{ selectedBooking.space.title }}</span>
+              </div>
+            </div>
+            <button
+              type="button"
+              class="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              @click="closeDetail"
+            >
+              <IconX :size="18" stroke-width="1.5" />
+            </button>
+          </div>
+
+          <!-- Status + ID strip -->
+          <div class="flex shrink-0 items-center justify-between gap-3 border-b border-border px-6 py-3">
+            <div class="inline-flex items-center gap-3">
+              <StatusDot :label="statusMeta(selectedBooking).label" :dot-class="statusMeta(selectedBooking).dotClass" :pulse="statusMeta(selectedBooking).live" />
+              <span v-if="hasOverdue(selectedBooking)" class="inline-flex items-center gap-1 text-xs font-medium text-red-600">
+                <IconFlagFilled :size="13" /> Overdue
+              </span>
+            </div>
+            <span class="font-mono text-xs text-muted-foreground">#{{ selectedBooking.id }}</span>
+          </div>
+
+          <!-- Body -->
+          <div class="flex-1 overflow-y-auto px-6 py-6">
+            <div class="flex flex-col gap-7">
+
+              <!-- Key facts -->
+              <section class="flex flex-col gap-4">
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="flex flex-col gap-0.5">
+                    <span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Dates</span>
+                    <span class="text-sm tabular-nums text-foreground">{{ formatDate(selectedBooking.period.from) }} – {{ formatDate(selectedBooking.period.to) }}</span>
+                  </div>
+                  <div class="flex flex-col gap-0.5">
+                    <span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Rate</span>
+                    <span class="text-sm font-medium tabular-nums text-foreground">{{ formatAmount(selectedBooking.financials.rate) }}</span>
+                  </div>
+                </div>
+                <div class="flex flex-col gap-0.5">
+                  <span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{{ isLandlord ? 'Tenant' : 'Centre' }}</span>
+                  <template v-if="isLandlord">
+                    <span class="text-sm font-medium text-foreground">{{ selectedBooking.tenant.company }}</span>
+                    <span class="text-xs text-muted-foreground">{{ selectedBooking.tenant.contactName }} · {{ selectedBooking.tenant.email }}</span>
+                  </template>
+                  <template v-else>
+                    <span class="text-sm font-medium text-foreground">{{ selectedBooking.space.centreName }}</span>
+                    <span class="text-xs text-muted-foreground">{{ selectedBooking.landlord.organisationName ?? selectedBooking.landlord.teamName }}</span>
+                  </template>
+                </div>
+              </section>
+
+              <!-- Financials -->
+              <section class="flex flex-col gap-2 border-t border-border pt-6">
+                <span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Financials</span>
+                <dl class="flex flex-col gap-1.5 text-sm">
+                  <div class="flex items-center justify-between">
+                    <dt class="text-muted-foreground">Rate</dt>
+                    <dd class="tabular-nums text-foreground">{{ formatAmount(selectedBooking.financials.rate) }}</dd>
+                  </div>
+                  <div v-if="selectedBooking.financials.vat" class="flex items-center justify-between">
+                    <dt class="text-muted-foreground">VAT</dt>
+                    <dd class="tabular-nums text-foreground">{{ formatAmount(selectedBooking.financials.vat) }}</dd>
+                  </div>
+                  <div v-if="selectedBooking.financials.deposit" class="flex items-center justify-between">
+                    <dt class="text-muted-foreground">Deposit</dt>
+                    <dd class="tabular-nums text-foreground">{{ formatAmount(selectedBooking.financials.deposit) }}</dd>
+                  </div>
+                  <div v-if="isLandlord && selectedBooking.financials.fillitFee" class="flex items-center justify-between">
+                    <dt class="text-muted-foreground">Fillit fee</dt>
+                    <dd class="tabular-nums text-foreground">−{{ formatAmount(selectedBooking.financials.fillitFee) }}</dd>
+                  </div>
+                  <div class="mt-1 flex items-center justify-between border-t border-border pt-2">
+                    <dt class="font-medium text-foreground">{{ isLandlord ? 'You receive' : 'Total' }}</dt>
+                    <dd class="font-semibold tabular-nums text-foreground">
+                      {{ formatAmount(isLandlord ? (selectedBooking.financials.totalLandlord ?? selectedBooking.financials.rate) : (selectedBooking.financials.total ?? selectedBooking.financials.rate)) }}
+                    </dd>
+                  </div>
+                </dl>
+              </section>
+
+              <!-- Payment schedule -->
+              <section v-if="selectedBooking.payments && selectedBooking.payments.length" class="flex flex-col gap-3 border-t border-border pt-6">
+                <span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Payment schedule</span>
+                <div class="flex flex-col gap-3">
+                  <div v-for="p in selectedBooking.payments" :key="p.id" class="flex items-center justify-between gap-3">
+                    <div class="flex flex-col gap-0.5">
+                      <span class="text-sm text-foreground">{{ p.label }}</span>
+                      <span class="text-xs tabular-nums text-muted-foreground">Due {{ formatDate(p.dueDate) }}</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                      <span class="text-sm font-medium tabular-nums text-foreground">{{ formatAmount(p.amount) }}</span>
+                      <StatusDot :label="paymentMeta(p.status).label" :dot-class="paymentMeta(p.status).dotClass" />
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <!-- Documents -->
+              <section v-if="selectedBooking.documents && selectedBooking.documents.length" class="flex flex-col gap-3 border-t border-border pt-6">
+                <span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Documents</span>
+                <div class="flex flex-col gap-2">
+                  <div v-for="(d, i) in selectedBooking.documents" :key="i" class="flex items-center justify-between gap-3 rounded-lg border border-border px-3 py-2.5">
+                    <div class="flex items-center gap-2.5">
+                      <IconFileText :size="16" stroke-width="1.5" class="shrink-0 text-muted-foreground" />
+                      <div class="flex flex-col">
+                        <span class="text-sm text-foreground">{{ d.name }}</span>
+                        <span class="text-xs capitalize text-muted-foreground">{{ d.status }}</span>
+                      </div>
+                    </div>
+                    <button type="button" class="inline-flex items-center gap-1 text-xs font-medium text-foreground transition-colors hover:text-primary">
+                      <IconDownload :size="14" stroke-width="1.5" /> View
+                    </button>
+                  </div>
+                </div>
+              </section>
+
+              <!-- Enquiry -->
+              <section v-if="selectedBooking.enquiry" class="flex flex-col gap-2 border-t border-border pt-6">
+                <span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Enquiry</span>
+                <span class="text-sm font-medium text-foreground">{{ selectedBooking.enquiry.title }}</span>
+                <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                  <span v-if="selectedBooking.enquiry.category">{{ formatCategory(selectedBooking.enquiry.category) }}</span>
+                  <span v-if="selectedBooking.enquiry.dimensions">{{ selectedBooking.enquiry.dimensions }}</span>
+                </div>
+                <p v-if="selectedBooking.enquiry.description" class="text-sm leading-relaxed text-muted-foreground">{{ selectedBooking.enquiry.description }}</p>
+                <p v-if="selectedBooking.enquiry.additionalInfo" class="text-sm leading-relaxed text-muted-foreground">{{ selectedBooking.enquiry.additionalInfo }}</p>
+              </section>
+
+              <!-- Manager approval (Nhood) -->
+              <section v-if="selectedBooking.managerApproval" class="flex flex-col gap-3 border-t border-border pt-6">
+                <span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Manager approval</span>
+                <div class="flex flex-col gap-2.5">
+                  <div v-for="(ap, i) in selectedBooking.managerApproval.approvers" :key="i" class="flex items-center justify-between gap-3">
+                    <div class="flex flex-col gap-0.5">
+                      <span class="text-sm text-foreground">{{ ap.name }}</span>
+                      <span class="text-xs text-muted-foreground">{{ formatCategory(ap.role) }}</span>
+                    </div>
+                    <StatusDot
+                      :label="ap.decision === 'approved' ? 'Approved' : 'Pending'"
+                      :dot-class="ap.decision === 'approved' ? 'bg-green-500' : 'bg-muted-foreground'"
+                    />
+                  </div>
+                </div>
+              </section>
+
+              <!-- Activity -->
+              <section v-if="selectedBooking.actions && selectedBooking.actions.length" class="flex flex-col gap-3 border-t border-border pt-6">
+                <span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Activity</span>
+                <ol class="flex flex-col">
+                  <li v-for="(ev, i) in selectedBooking.actions" :key="i" class="flex gap-3">
+                    <div class="flex flex-col items-center pt-1">
+                      <span class="h-2 w-2 shrink-0 rounded-full bg-muted-foreground" />
+                      <span v-if="i < selectedBooking.actions.length - 1" class="mt-1 w-px flex-1 bg-border" />
+                    </div>
+                    <div class="flex flex-col gap-0.5 pb-4">
+                      <span class="text-sm text-foreground">{{ ev.description }}</span>
+                      <span class="text-xs tabular-nums text-muted-foreground">{{ formatDate(ev.at) }} · {{ ev.actor }}</span>
+                    </div>
+                  </li>
+                </ol>
+              </section>
+
+              <!-- Notes -->
+              <section v-if="selectedBooking.notes && (selectedBooking.notes.landlord || selectedBooking.notes.tenant)" class="flex flex-col gap-2 border-t border-border pt-6">
+                <span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Notes</span>
+                <p v-if="selectedBooking.notes.landlord" class="text-sm leading-relaxed text-muted-foreground">{{ selectedBooking.notes.landlord }}</p>
+                <p v-if="selectedBooking.notes.tenant" class="text-sm leading-relaxed text-muted-foreground">{{ selectedBooking.notes.tenant }}</p>
+              </section>
+
+            </div>
+          </div>
+
+          <!-- Footer: status-aware CTAs -->
+          <div class="flex shrink-0 flex-col gap-2.5 border-t border-border px-6 py-4">
+            <p v-if="detailWaitingHint(selectedBooking)" class="text-xs text-muted-foreground">{{ detailWaitingHint(selectedBooking) }}</p>
+            <div class="flex flex-wrap items-center justify-end gap-2">
+              <Button
+                v-for="cta in detailActions(selectedBooking)"
+                :key="cta.key"
+                :variant="cta.variant"
+                size="sm"
+                @click="onCta(cta.key)"
+              >
+                {{ cta.label }}
+              </Button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
 </template>
+
+<style scoped>
+.sheet-enter-active,
+.sheet-leave-active {
+  transition: opacity 0.25s ease;
+}
+.sheet-enter-from,
+.sheet-leave-to {
+  opacity: 0;
+}
+.sheet-enter-active .sheet-panel,
+.sheet-leave-active .sheet-panel {
+  transition: transform 0.25s ease;
+}
+.sheet-enter-from .sheet-panel,
+.sheet-leave-to .sheet-panel {
+  transform: translateX(100%);
+}
+</style>
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
@@ -291,6 +523,9 @@ import {
   IconBuilding,
   IconCheck,
   IconFlagFilled,
+  IconX,
+  IconFileText,
+  IconDownload,
 } from '@tabler/icons-vue'
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar'
 import { Button } from '@/components/ui/button'
@@ -323,14 +558,58 @@ type BookingStatus = 'enquiry' | 'quoted' | 'awaiting_signature' | 'confirmed' |
 type SortKey = 'periodFrom' | 'periodTo' | 'company' | 'centreName' | 'rate'
 type TabValue = 'action' | 'upcoming' | 'past' | 'closed'
 
+interface BookingPayment {
+  id: string
+  label: string
+  amount: number
+  dueDate: string
+  status: string
+  method: string | null
+  paidOn: string | null
+  invoiceUrl: string | null
+}
+interface BookingDocument {
+  type: string
+  name: string
+  status: string
+  url: string
+  signedAt?: string | null
+  expiry?: string | null
+}
+interface BookingActivity {
+  type: string
+  actor: string
+  actorType: string
+  at: string
+  description: string
+}
+interface ManagerApprover {
+  name: string
+  role: string
+  decision: string | null
+  at: string | null
+}
+
 interface Booking {
   id: string
   status: BookingStatus
+  createdAt?: string
+  approvalType?: string
+  bookingLinkId?: string | null
   period: { from: string; to: string }
-  landlord: { teamId: string; teamName: string; teamColor: string; country: string }
-  tenant: { teamId: string | null; company: string; contactName: string; email: string }
-  space: { id: string; title: string; centreId: string; centreName: string; centreColor: string }
-  financials: { currency: string; rate: number; paymentStatus?: string }
+  landlord: { teamId: string; teamName: string; teamColor: string; organisationName?: string; country: string }
+  tenant: { teamId: string | null; company: string; contactName: string; email: string; phone?: string; isSelfEmployed?: boolean }
+  space: { id: string; title: string; type?: string; centreId: string; centreName: string; centreColor: string; dimensions?: string }
+  enquiry?: { title: string; category: string; description: string; dimensions?: string; additionalInfo?: string | null }
+  financials: { currency: string; rate: number; vat?: number; deposit?: number; discount?: number; fillitFee?: number; total?: number; totalLandlord?: number; quote?: number; paymentStatus?: string; paidBy?: string | null }
+  payments?: BookingPayment[]
+  documents?: BookingDocument[]
+  docusign?: { status: string | null; envelopeId: string | null; sentAt: string | null; completedAt: string | null }
+  managerApproval?: { required: boolean; stage: string; status: string; approvers: ManagerApprover[] } | null
+  cancellation?: { by: string; reason: string; refund: string; at: string }
+  decline?: { by: string; reason: string; at: string }
+  actions?: BookingActivity[]
+  notes?: { landlord: string | null; tenant: string | null }
 }
 
 // ─── Context ──────────────────────────────────────────────────────────────────
@@ -566,6 +845,134 @@ const searchCountLabel = computed(() => {
   const n = filteredBookings.value.length
   return n === 0 ? 'No results' : `${n} result${n === 1 ? '' : 's'}`
 })
+
+// ─── Detail overlay ─────────────────────────────────────────────────────────────
+
+const selectedBooking = ref<Booking | null>(null)
+const detailOpen = ref(false)
+
+function openDetail(b: Booking) {
+  selectedBooking.value = b
+  detailOpen.value = true
+}
+function closeDetail() {
+  detailOpen.value = false
+}
+
+function formatCategory(c?: string | null): string {
+  if (!c) return ''
+  return c.replace(/_/g, ' ').replace(/^\w/, m => m.toUpperCase())
+}
+
+interface DotMeta { label: string; dotClass: string }
+function paymentMeta(status: string): DotMeta {
+  switch (status) {
+    case 'paid':     return { label: 'Paid', dotClass: 'bg-green-500' }
+    case 'pending':  return { label: 'Pending', dotClass: 'bg-blue-500' }
+    case 'overdue':  return { label: 'Overdue', dotClass: 'bg-amber-500' }
+    case 'refunded': return { label: 'Refunded', dotClass: 'bg-muted-foreground' }
+    default:         return { label: formatCategory(status), dotClass: 'bg-muted-foreground' }
+  }
+}
+
+// Status-driven CTAs. The primary action is the one the *current viewer* owns
+// (action ownership) and is ordered last so it renders right-most in the footer.
+// When the ball is with the other party there is no primary — see detailWaitingHint.
+type CtaVariant = 'default' | 'outline' | 'ghost'
+interface BookingCta { key: string; label: string; variant: CtaVariant }
+
+function detailActions(b: Booking): BookingCta[] {
+  const role = viewerRole.value
+  const overdue = hasOverdue(b)
+  const t = temporalState(b)
+  const a: BookingCta[] = []
+
+  if (role === 'landlord') {
+    switch (b.status) {
+      case 'enquiry': // landlord's turn: review and respond
+        a.push({ key: 'message', label: 'Message tenant', variant: 'ghost' })
+        a.push({ key: 'decline', label: 'Decline', variant: 'outline' })
+        a.push({ key: 'accept', label: 'Accept enquiry', variant: 'default' })
+        break
+      case 'quoted': // waiting on tenant to accept
+        a.push({ key: 'message', label: 'Message tenant', variant: 'ghost' })
+        a.push({ key: 'cancel', label: 'Cancel', variant: 'ghost' })
+        a.push({ key: 'edit', label: 'Edit terms', variant: 'outline' })
+        a.push({ key: 'remind', label: 'Send reminder', variant: 'outline' })
+        break
+      case 'awaiting_signature': // waiting on tenant to sign
+        a.push({ key: 'message', label: 'Message tenant', variant: 'ghost' })
+        a.push({ key: 'cancel', label: 'Cancel', variant: 'ghost' })
+        a.push({ key: 'viewLease', label: 'View lease', variant: 'outline' })
+        a.push({ key: 'resend', label: 'Resend for signature', variant: 'outline' })
+        break
+      case 'confirmed':
+        a.push({ key: 'message', label: 'Message tenant', variant: 'ghost' })
+        if (t === 'upcoming') a.push({ key: 'cancel', label: 'Cancel booking', variant: 'ghost' })
+        a.push({ key: 'viewDocs', label: 'View documents', variant: 'outline' })
+        if (overdue) a.push({ key: 'remind', label: 'Send payment reminder', variant: 'default' })
+        break
+      case 'declined':
+      case 'cancelled':
+        a.push({ key: 'message', label: 'Message tenant', variant: 'outline' })
+        break
+    }
+  } else {
+    switch (b.status) {
+      case 'enquiry': // waiting on the centre to review
+        a.push({ key: 'message', label: 'Message', variant: 'ghost' })
+        a.push({ key: 'withdraw', label: 'Withdraw enquiry', variant: 'ghost' })
+        a.push({ key: 'editEnquiry', label: 'Edit enquiry', variant: 'outline' })
+        break
+      case 'quoted': // tenant's turn: accept or decline the quote
+        a.push({ key: 'message', label: 'Message', variant: 'ghost' })
+        a.push({ key: 'decline', label: 'Decline', variant: 'outline' })
+        a.push({ key: 'accept', label: 'Accept quote', variant: 'default' })
+        break
+      case 'awaiting_signature': // tenant's turn: sign the lease
+        a.push({ key: 'message', label: 'Message', variant: 'ghost' })
+        a.push({ key: 'cancel', label: 'Cancel', variant: 'ghost' })
+        a.push({ key: 'viewLease', label: 'View lease', variant: 'outline' })
+        a.push({ key: 'sign', label: 'Sign lease', variant: 'default' })
+        break
+      case 'confirmed':
+        a.push({ key: 'message', label: 'Message', variant: 'ghost' })
+        if (t === 'upcoming') a.push({ key: 'cancel', label: 'Cancel booking', variant: 'ghost' })
+        a.push({ key: 'viewDocs', label: 'View documents', variant: 'outline' })
+        a.push({ key: 'invoice', label: 'Download invoice', variant: 'outline' })
+        if (overdue) a.push({ key: 'pay', label: 'Pay now', variant: 'default' })
+        break
+      case 'declined':
+      case 'cancelled':
+        a.push({ key: 'message', label: 'Message', variant: 'ghost' })
+        a.push({ key: 'browse', label: 'Find another space', variant: 'outline' })
+        break
+    }
+  }
+  return a
+}
+
+function detailWaitingHint(b: Booking): string {
+  const role = viewerRole.value
+  const owner = actionOwner(b.status)
+  if (!owner || owner === role) return ''
+  if (role === 'landlord') {
+    if (b.status === 'quoted') return 'Waiting on the tenant to accept your terms.'
+    if (b.status === 'awaiting_signature') return 'Waiting on the tenant to sign the lease.'
+  } else if (b.status === 'enquiry') {
+    return 'Waiting on the centre to review your enquiry.'
+  }
+  return ''
+}
+
+function onCta(key: string) {
+  if (key === 'message') {
+    router.push('/preview/messages')
+    return
+  }
+  // Prototype: terminal/destructive actions close the panel; the rest are stubs.
+  if (['cancel', 'decline', 'withdraw'].includes(key)) closeDetail()
+}
 
 // ─── Display helpers ─────────────────────────────────────────────────────────────
 
