@@ -194,6 +194,7 @@
                 <TableHead class="w-[180px] pl-8">
                   <span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Status</span>
                 </TableHead>
+                <TableHead class="w-[52px]" />
               </TableRow>
             </TableHeader>
 
@@ -258,6 +259,38 @@
                       </Tooltip>
                     </TooltipProvider>
                   </div>
+                </TableCell>
+
+                <TableCell class="w-[52px] text-center">
+                  <Popover>
+                    <PopoverTrigger as-child>
+                      <button
+                        type="button"
+                        class="inline-flex rounded p-1 transition-colors hover:bg-muted"
+                        :title="hasNote(b) ? 'Edit note' : 'Add note'"
+                        @click.stop
+                      >
+                        <IconNote
+                          :size="18"
+                          stroke-width="1.5"
+                          :fill="hasNote(b) ? 'currentColor' : 'none'"
+                          :class="hasNote(b) ? 'text-yellow-400' : 'text-muted-foreground/40'"
+                        />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent class="w-72 p-3" align="end" :side-offset="6" @click.stop>
+                      <div class="flex flex-col gap-2">
+                        <span class="text-xs font-semibold text-foreground">Note</span>
+                        <textarea
+                          :value="noteText(b)"
+                          rows="3"
+                          placeholder="Add a note…"
+                          class="w-full resize-none rounded-md border border-border bg-background p-2 text-sm text-foreground outline-none transition-colors focus:border-foreground"
+                          @input="setNote(b, ($event.target as HTMLTextAreaElement).value)"
+                        />
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 </TableCell>
               </TableRow>
 
@@ -353,44 +386,120 @@
                 <dl class="flex flex-col gap-1.5 text-sm">
                   <div class="flex items-center justify-between">
                     <dt class="text-muted-foreground">Rate</dt>
-                    <dd class="tabular-nums text-foreground">{{ formatAmount(selectedBooking.financials.rate) }}</dd>
+                    <dd v-if="canNegotiate(selectedBooking)" class="relative">
+                      <span class="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">€</span>
+                      <input
+                        v-model.number="rateDraft"
+                        type="number"
+                        min="0"
+                        step="50"
+                        class="h-8 w-32 rounded-md border border-border bg-background pl-6 pr-2 text-right text-sm tabular-nums text-foreground outline-none transition-colors focus:border-foreground"
+                      />
+                    </dd>
+                    <dd v-else class="tabular-nums text-foreground">{{ formatAmount(liveFinancials.rate) }}</dd>
                   </div>
-                  <div v-if="selectedBooking.financials.vat" class="flex items-center justify-between">
+                  <div v-if="liveFinancials.vat" class="flex items-center justify-between">
                     <dt class="text-muted-foreground">VAT</dt>
-                    <dd class="tabular-nums text-foreground">{{ formatAmount(selectedBooking.financials.vat) }}</dd>
+                    <dd class="tabular-nums text-foreground">{{ formatAmount(liveFinancials.vat) }}</dd>
                   </div>
-                  <div v-if="selectedBooking.financials.deposit" class="flex items-center justify-between">
+                  <div v-if="liveFinancials.deposit" class="flex items-center justify-between">
                     <dt class="text-muted-foreground">Deposit</dt>
-                    <dd class="tabular-nums text-foreground">{{ formatAmount(selectedBooking.financials.deposit) }}</dd>
+                    <dd class="tabular-nums text-foreground">{{ formatAmount(liveFinancials.deposit) }}</dd>
                   </div>
-                  <div v-if="isLandlord && selectedBooking.financials.fillitFee" class="flex items-center justify-between">
+                  <div v-if="isLandlord && liveFinancials.fillitFee" class="flex items-center justify-between">
                     <dt class="text-muted-foreground">Fillit fee</dt>
-                    <dd class="tabular-nums text-foreground">−{{ formatAmount(selectedBooking.financials.fillitFee) }}</dd>
+                    <dd class="tabular-nums text-foreground">−{{ formatAmount(liveFinancials.fillitFee) }}</dd>
                   </div>
                   <div class="mt-1 flex items-center justify-between border-t border-border pt-2">
                     <dt class="font-medium text-foreground">{{ isLandlord ? 'You receive' : 'Total' }}</dt>
-                    <dd class="font-semibold tabular-nums text-foreground">
-                      {{ formatAmount(isLandlord ? (selectedBooking.financials.totalLandlord ?? selectedBooking.financials.rate) : (selectedBooking.financials.total ?? selectedBooking.financials.rate)) }}
-                    </dd>
+                    <dd class="font-semibold tabular-nums text-foreground">{{ formatAmount(isLandlord ? liveFinancials.totalLandlord : liveFinancials.total) }}</dd>
                   </div>
                 </dl>
+                <p v-if="canNegotiate(selectedBooking)" class="text-xs text-muted-foreground">Adjust the rate, then send the terms to the tenant to accept or decline.</p>
               </section>
 
               <!-- Payment schedule -->
               <section v-if="selectedBooking.payments && selectedBooking.payments.length" class="flex flex-col gap-3 border-t border-border pt-6">
-                <h3 class="text-sm font-semibold text-foreground">Payment schedule</h3>
-                <div class="flex flex-col gap-3">
-                  <div v-for="p in selectedBooking.payments" :key="p.id" class="flex items-center justify-between gap-3">
-                    <div class="flex flex-col gap-0.5">
-                      <span class="text-sm text-foreground">{{ p.label }}</span>
-                      <span class="text-xs tabular-nums text-muted-foreground">Due {{ formatDate(p.dueDate) }}</span>
-                    </div>
-                    <div class="flex items-center gap-4">
-                      <span class="text-sm font-medium tabular-nums text-foreground">{{ formatAmount(p.amount) }}</span>
-                      <StatusDot :label="paymentMeta(p.status).label" :dot-class="paymentMeta(p.status).dotClass" />
-                    </div>
+                <div class="flex items-center justify-between gap-3">
+                  <h3 class="text-sm font-semibold text-foreground">Payment schedule</h3>
+                  <div v-if="!editingSchedule" class="flex items-center gap-4">
+                    <button v-if="isLandlord" type="button" class="text-xs font-medium text-foreground transition-colors hover:text-primary" @click="startEditSchedule">Edit</button>
+                    <button type="button" class="inline-flex items-center gap-1 text-xs font-medium text-foreground transition-colors hover:text-primary" @click="viewTransactions(selectedBooking)">
+                      View transactions
+                      <IconArrowRight :size="13" stroke-width="2" />
+                    </button>
                   </div>
                 </div>
+
+                <!-- Display mode -->
+                <template v-if="!editingSchedule">
+                  <div class="flex flex-col gap-3">
+                    <div v-for="p in selectedBooking.payments" :key="p.id" class="flex items-center justify-between gap-3">
+                      <div class="flex flex-col gap-0.5">
+                        <span class="text-sm text-foreground">{{ p.label }}</span>
+                        <span class="text-xs tabular-nums text-muted-foreground">Due {{ formatDate(p.dueDate) }}</span>
+                      </div>
+                      <div class="flex items-center gap-4">
+                        <span class="text-sm font-medium tabular-nums text-foreground">{{ formatAmount(p.amount) }}</span>
+                        <StatusDot :label="paymentMeta(p.status).label" :dot-class="paymentMeta(p.status).dotClass" />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="flex items-center justify-between border-t border-border pt-3 text-xs text-muted-foreground">
+                    <span><span class="font-medium tabular-nums text-foreground">{{ formatAmount(paymentSummary(selectedBooking).collected) }}</span> collected</span>
+                    <span><span class="font-medium tabular-nums text-foreground">{{ formatAmount(paymentSummary(selectedBooking).outstanding) }}</span> outstanding</span>
+                  </div>
+                </template>
+
+                <!-- Edit mode (landlord) -->
+                <template v-else>
+                  <div class="flex flex-col gap-2">
+                    <div v-for="(p, i) in scheduleDraft" :key="p.id" class="flex items-center gap-2">
+                      <template v-if="p.status === 'paid'">
+                        <div class="flex flex-1 flex-col gap-0.5">
+                          <span class="text-sm text-foreground">{{ p.label }}</span>
+                          <span class="text-xs tabular-nums text-muted-foreground">{{ formatDate(p.dueDate) }} · paid</span>
+                        </div>
+                        <span class="text-sm font-medium tabular-nums text-muted-foreground">{{ formatAmount(p.amount) }}</span>
+                        <span class="w-7" />
+                      </template>
+                      <template v-else>
+                        <input
+                          v-model="p.dueDate"
+                          type="date"
+                          :max="selectedBooking.period.to"
+                          class="h-9 rounded-md border border-border bg-background px-2 text-xs tabular-nums text-foreground outline-none transition-colors focus:border-foreground"
+                        />
+                        <div class="relative flex-1">
+                          <span class="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">€</span>
+                          <input
+                            v-model.number="p.amount"
+                            type="number"
+                            min="0"
+                            class="h-9 w-full rounded-md border border-border bg-background pl-6 pr-2 text-right text-sm tabular-nums text-foreground outline-none transition-colors focus:border-foreground"
+                          />
+                        </div>
+                        <button type="button" class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-red-600" @click="removeScheduleRow(i)">
+                          <IconTrash :size="15" stroke-width="1.5" />
+                        </button>
+                      </template>
+                    </div>
+                  </div>
+                  <button type="button" class="inline-flex w-fit items-center gap-1 text-xs font-medium text-foreground transition-colors hover:text-primary" @click="addScheduleRow">
+                    <IconPlus :size="14" stroke-width="2" /> Add payment
+                  </button>
+                  <div class="flex items-center justify-between border-t border-border pt-3 text-sm">
+                    <span class="text-muted-foreground">Scheduled <span class="font-medium tabular-nums text-foreground">{{ formatAmount(scheduleDraftTotal) }}</span> of {{ formatAmount(scheduleBookingTotal) }}</span>
+                    <span class="font-medium tabular-nums" :class="scheduleRemaining === 0 ? 'text-green-600' : 'text-red-600'">
+                      {{ scheduleRemaining === 0 ? 'Balanced' : (scheduleRemaining > 0 ? formatAmount(scheduleRemaining) + ' left' : formatAmount(-scheduleRemaining) + ' over') }}
+                    </span>
+                  </div>
+                  <p v-if="!scheduleDatesOk" class="text-xs text-red-600">Payment dates must be in order and within the booking period.</p>
+                  <div class="flex items-center justify-end gap-2">
+                    <Button variant="ghost" size="sm" @click="cancelEditSchedule">Cancel</Button>
+                    <Button size="sm" :disabled="!scheduleValid" @click="saveSchedule">Save schedule</Button>
+                  </div>
+                </template>
               </section>
 
               <!-- Documents -->
@@ -458,11 +567,10 @@
                 </ol>
               </section>
 
-              <!-- Notes -->
-              <section v-if="selectedBooking.notes && (selectedBooking.notes.landlord || selectedBooking.notes.tenant)" class="flex flex-col gap-2 border-t border-border pt-6">
+              <!-- Notes (current viewer's own note) -->
+              <section v-if="hasNote(selectedBooking)" class="flex flex-col gap-2 border-t border-border pt-6">
                 <h3 class="text-sm font-semibold text-foreground">Notes</h3>
-                <p v-if="selectedBooking.notes.landlord" class="text-sm leading-relaxed text-muted-foreground">{{ selectedBooking.notes.landlord }}</p>
-                <p v-if="selectedBooking.notes.tenant" class="text-sm leading-relaxed text-muted-foreground">{{ selectedBooking.notes.tenant }}</p>
+                <p class="text-sm leading-relaxed text-muted-foreground">{{ noteText(selectedBooking) }}</p>
               </section>
 
             </div>
@@ -518,6 +626,10 @@ import {
   IconX,
   IconFileText,
   IconDownload,
+  IconArrowRight,
+  IconNote,
+  IconPlus,
+  IconTrash,
 } from '@tabler/icons-vue'
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar'
 import { Button } from '@/components/ui/button'
@@ -620,7 +732,7 @@ const subtitle = computed(() =>
 const searchPlaceholder = computed(() =>
   isLandlord.value ? 'Search tenant, company or booking ID…' : 'Search centre or booking ID…',
 )
-const colspan = computed(() => (isLandlord.value ? 7 : 6))
+const colspan = computed(() => (isLandlord.value ? 8 : 7))
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -842,13 +954,129 @@ const searchCountLabel = computed(() => {
 
 const selectedBooking = ref<Booking | null>(null)
 const detailOpen = ref(false)
+const rateDraft = ref(0)
+const editingSchedule = ref(false)
 
 function openDetail(b: Booking) {
   selectedBooking.value = b
+  rateDraft.value = b.financials.rate
+  editingSchedule.value = false
   detailOpen.value = true
+}
+
+// Records an activity entry for an action the current viewer just took (prototype).
+function pushAction(b: Booking, type: string, description: string) {
+  b.actions = b.actions ?? []
+  b.actions.push({ type, actor: 'You', actorType: viewerRole.value, at: TODAY.toISOString(), description })
+}
+
+// ─── Rate negotiation (landlord, on an enquiry) ────────────────────────────────
+// The landlord can set a new rate and send the terms to the tenant (→ quoted),
+// who then accepts (→ confirmed) or declines (→ declined). VAT/fee/totals are
+// re-derived from the booking's existing ratios so the panel updates live.
+function canNegotiate(b: Booking): boolean {
+  return isLandlord.value && b.status === 'enquiry'
+}
+
+function deriveFinancials(b: Booking, rate: number) {
+  const f = b.financials
+  const vatRate = f.rate ? (f.vat ?? 0) / f.rate : 0.2
+  const feeRate = f.rate ? (f.fillitFee ?? 0) / f.rate : 0.1
+  const vat = Math.round(rate * vatRate)
+  const fee = Math.round(rate * feeRate)
+  return { rate, vat, deposit: f.deposit ?? 0, fillitFee: fee, total: rate + vat, totalLandlord: rate + vat - fee }
+}
+
+const liveFinancials = computed(() => {
+  const b = selectedBooking.value
+  if (!b) return { rate: 0, vat: 0, deposit: 0, fillitFee: 0, total: 0, totalLandlord: 0 }
+  if (canNegotiate(b)) return deriveFinancials(b, rateDraft.value || 0)
+  const f = b.financials
+  return {
+    rate: f.rate,
+    vat: f.vat ?? 0,
+    deposit: f.deposit ?? 0,
+    fillitFee: f.fillitFee ?? 0,
+    total: f.total ?? f.rate,
+    totalLandlord: f.totalLandlord ?? f.rate,
+  }
+})
+
+function sendQuote() {
+  const b = selectedBooking.value
+  if (!b) return
+  const d = deriveFinancials(b, rateDraft.value || b.financials.rate)
+  Object.assign(b.financials, { ...d, quote: d.rate })
+  b.status = 'quoted'
+  pushAction(b, 'quote_sent', `Terms sent to tenant — ${formatAmount(d.rate)}`)
+}
+
+// ─── Edit payment schedule (landlord) ──────────────────────────────────────────
+// Mirrors production rules: scheduled amounts must sum to the booking total
+// (gross, VAT-incl), dates ascending and within the booking window. Paid rows are
+// locked; unpaid rows can be edited/added/removed. Save is gated on validity.
+const scheduleDraft = ref<BookingPayment[]>([])
+const scheduleRowSeq = ref(0)
+
+function startEditSchedule() {
+  const b = selectedBooking.value
+  if (!b?.payments) return
+  scheduleDraft.value = b.payments.map(p => ({ ...p }))
+  editingSchedule.value = true
+}
+function cancelEditSchedule() {
+  editingSchedule.value = false
+  scheduleDraft.value = []
+}
+function addScheduleRow() {
+  scheduleDraft.value.push({
+    id: `new-${scheduleRowSeq.value++}`,
+    label: `Payment ${scheduleDraft.value.length + 1}`,
+    amount: 0,
+    dueDate: selectedBooking.value?.period.from ?? '',
+    status: 'pending',
+    method: null,
+    paidOn: null,
+    invoiceUrl: null,
+  })
+}
+function removeScheduleRow(i: number) {
+  scheduleDraft.value.splice(i, 1)
+}
+
+const scheduleBookingTotal = computed(() =>
+  selectedBooking.value ? (selectedBooking.value.financials.total ?? selectedBooking.value.financials.rate) : 0,
+)
+const scheduleDraftTotal = computed(() =>
+  scheduleDraft.value.reduce((s, p) => s + (Number(p.amount) || 0), 0),
+)
+const scheduleRemaining = computed(() =>
+  Math.round((scheduleBookingTotal.value - scheduleDraftTotal.value) * 100) / 100,
+)
+const scheduleDatesOk = computed(() => {
+  const b = selectedBooking.value
+  if (!b) return false
+  const dates = scheduleDraft.value.map(p => p.dueDate).filter(Boolean)
+  for (let i = 1; i < dates.length; i++) if (dates[i] < dates[i - 1]) return false
+  const start = b.createdAt ? b.createdAt.slice(0, 10) : null
+  return dates.every(d => d <= b.period.to && (!start || d >= start))
+})
+const scheduleValid = computed(() =>
+  scheduleDraft.value.length > 0 &&
+  scheduleRemaining.value === 0 &&
+  scheduleDatesOk.value &&
+  scheduleDraft.value.every(p => Number(p.amount) > 0 && !!p.dueDate),
+)
+function saveSchedule() {
+  const b = selectedBooking.value
+  if (!b || !scheduleValid.value) return
+  b.payments = scheduleDraft.value.map(p => ({ ...p, amount: Number(p.amount) }))
+  editingSchedule.value = false
+  pushAction(b, 'change_schedule', 'Payment schedule updated')
 }
 function closeDetail() {
   detailOpen.value = false
+  editingSchedule.value = false
 }
 
 function formatCategory(c?: string | null): string {
@@ -881,10 +1109,10 @@ function detailActions(b: Booking): BookingCta[] {
 
   if (role === 'landlord') {
     switch (b.status) {
-      case 'enquiry': // landlord's turn: review and respond
+      case 'enquiry': // landlord's turn: review terms, optionally adjust the rate, send to tenant
         a.push({ key: 'message', label: 'Message tenant', variant: 'ghost' })
         a.push({ key: 'decline', label: 'Decline', variant: 'outline' })
-        a.push({ key: 'accept', label: 'Accept enquiry', variant: 'default' })
+        a.push({ key: 'sendQuote', label: 'Send to tenant', variant: 'default' })
         break
       case 'quoted': // waiting on tenant to accept
         a.push({ key: 'message', label: 'Message tenant', variant: 'ghost' })
@@ -962,8 +1190,45 @@ function onCta(key: string) {
     router.push('/preview/messages')
     return
   }
-  // Prototype: terminal/destructive actions close the panel; the rest are stubs.
-  if (['cancel', 'decline', 'withdraw'].includes(key)) closeDetail()
+  const b = selectedBooking.value
+  if (!b) return
+  switch (key) {
+    case 'sendQuote': sendQuote(); break                                              // landlord: enquiry → quoted
+    case 'accept': b.status = 'confirmed'; pushAction(b, 'quote_accepted', 'Quote accepted'); break   // tenant: quoted → confirmed
+    case 'sign': b.status = 'confirmed'; pushAction(b, 'lease_signed', 'Lease signed'); break          // tenant: awaiting_signature → confirmed
+    case 'decline': b.status = 'declined'; pushAction(b, 'declined', 'Declined'); closeDetail(); break
+    case 'cancel': b.status = 'cancelled'; pushAction(b, 'cancelled', 'Booking cancelled'); closeDetail(); break
+    case 'withdraw': b.status = 'cancelled'; pushAction(b, 'cancelled', 'Enquiry withdrawn'); closeDetail(); break
+    // viewDocs / invoice / remind / pay / resend / edit / editEnquiry / browse / viewLease → prototype stubs
+  }
+}
+
+// ─── Transactions summary ────────────────────────────────────────────────────
+
+function viewTransactions(b: Booking) {
+  router.push({ path: '/preview/transactions', query: { q: b.id } })
+}
+
+function paymentSummary(b: Booking) {
+  const total = b.financials.total ?? b.financials.rate
+  const collected = (b.payments ?? [])
+    .filter(p => p.status === 'paid')
+    .reduce((s, p) => s + p.amount, 0)
+  return { collected, outstanding: Math.max(0, total - collected) }
+}
+
+// ─── Notes (per viewer role) ──────────────────────────────────────────────────
+// Landlord and tenant each keep their own note; the table icon fills yellow when
+// the current viewer has added one. Edits auto-save to the local booking.
+function noteText(b: Booking): string {
+  return b.notes?.[viewerRole.value] ?? ''
+}
+function hasNote(b: Booking): boolean {
+  return !!noteText(b).trim()
+}
+function setNote(b: Booking, value: string) {
+  if (!b.notes) b.notes = { landlord: null, tenant: null }
+  b.notes[viewerRole.value] = value.trim() ? value : null
 }
 
 // ─── Display helpers ─────────────────────────────────────────────────────────────

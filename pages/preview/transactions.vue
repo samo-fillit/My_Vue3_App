@@ -537,7 +537,7 @@
 </style>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import type { DateRange } from 'reka-ui'
 import { CalendarDate } from '@internationalized/date'
 import {
@@ -645,6 +645,12 @@ const { can } = useAppContext()
 // ─── Search ───────────────────────────────────────────────────────────────────
 
 const searchQuery = ref('')
+
+// Pre-fill the search when arriving from a booking detail ("View transactions").
+const route = useRoute()
+onMounted(() => {
+  if (route.query.q) searchQuery.value = String(route.query.q)
+})
 
 const searchCountLabel = computed(() => {
   if (!searchQuery.value.trim()) return ''
