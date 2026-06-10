@@ -604,19 +604,32 @@
 
               <!-- Manager approval (Nhood) -->
               <section v-if="selectedBooking.managerApproval" class="flex flex-col gap-3 border-t border-border pt-6">
-                <h3 class="text-sm font-semibold text-foreground">Manager approval</h3>
+                <div class="flex items-center justify-between gap-3">
+                  <h3 class="text-sm font-semibold text-foreground">Manager approval</h3>
+                  <span v-if="selectedBooking.managerApproval.status === 'approved'" class="inline-flex items-center gap-1.5 text-xs font-medium text-green-600">
+                    <IconCircleCheck :size="14" /> Approved
+                  </span>
+                  <span v-else-if="selectedBooking.managerApproval.status === 'rejected'" class="inline-flex items-center gap-1.5 text-xs font-medium text-red-600">
+                    <IconCircleX :size="14" /> Rejected
+                  </span>
+                </div>
                 <div class="flex flex-col gap-2.5">
                   <div v-for="(ap, i) in selectedBooking.managerApproval.approvers" :key="i" class="flex items-center justify-between gap-3">
                     <div class="flex flex-col gap-0.5">
                       <span class="text-sm text-foreground">{{ ap.name }}</span>
                       <span class="text-xs text-muted-foreground">{{ formatCategory(ap.role) }}</span>
                     </div>
-                    <StatusDot
-                      :label="ap.decision === 'approved' ? 'Approved' : 'Pending'"
-                      :dot-class="ap.decision === 'approved' ? 'bg-green-500' : 'bg-muted-foreground'"
-                    />
+                    <StatusDot :label="managerDecisionMeta(ap).label" :dot-class="managerDecisionMeta(ap).dotClass" />
                   </div>
                 </div>
+                <!-- Approve / reject (Nhood approver only) -->
+                <div v-if="canActOnApproval(selectedBooking)" class="flex items-center justify-end gap-2 border-t border-border pt-3">
+                  <Button variant="outline" size="sm" @click="openActionModal('rejectApproval')">Reject</Button>
+                  <Button size="sm" @click="approveManagerStep(selectedBooking)">Approve</Button>
+                </div>
+                <p v-else-if="pendingApprover(selectedBooking) && isPlatform('eleaseloop') && isLandlord && isRole('accounts')" class="border-t border-border pt-3 text-xs text-muted-foreground">
+                  Accounts can view approvals but can't approve — this needs a commercial or regional manager.
+                </p>
               </section>
 
               <!-- Activity -->
@@ -841,6 +854,8 @@ import {
   IconAlertTriangle,
   IconInfoCircle,
   IconUpload,
+  IconCircleCheck,
+  IconCircleX,
 } from '@tabler/icons-vue'
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar'
 import { Button } from '@/components/ui/button'
@@ -932,11 +947,16 @@ interface Booking {
 
 // ─── Context ──────────────────────────────────────────────────────────────────
 
-const { isUserType, isPlatform } = useAppContext()
+const { isUserType, isPlatform, isRole } = useAppContext()
 const { activeTeamId } = useTeamContext()
 
 const isLandlord = computed(() => isUserType('landlord'))
 const viewerRole = computed<'landlord' | 'tenant'>(() => (isLandlord.value ? 'landlord' : 'tenant'))
+
+// Manager approval is a Nhood (eLeaseLoop) concept. Mirrors production's
+// `can_approve_bookings?` — regional/commercial managers can approve; the
+// accountant role can view but not approve. We map "accounts" → cannot approve.
+const canApproveManager = computed(() => isPlatform('eleaseloop') && isLandlord.value && !isRole('accounts'))
 
 const subtitle = computed(() =>
   isLandlord.value
@@ -1523,7 +1543,7 @@ function cancelLocked(b: Booking): boolean {
 
 // ─── Action modal (cancel / withdraw / decline / report) ───────────────────────
 // One reusable confirm modal that collects a reason before a terminal transition.
-type ActionKind = 'cancel' | 'withdraw' | 'decline' | 'report'
+type ActionKind = 'cancel' | 'withdraw' | 'decline' | 'report' | 'rejectApproval'
 interface ActionModalConfig {
   kind: ActionKind
   title: string
@@ -1587,6 +1607,16 @@ function openActionModal(kind: ActionKind) {
       confirmLabel: 'Decline',
       confirmVariant: 'destructive',
     }
+  } else if (kind === 'rejectApproval') {
+    cfg = {
+      kind,
+      title: 'Reject approval',
+      description: "Let the team know why this booking can't be approved.",
+      reasonLabel: 'Reason for rejecting',
+      reasons: ['Pricing not approved', 'Terms need revision', 'Space allocation issue', 'Other'],
+      confirmLabel: 'Reject',
+      confirmVariant: 'destructive',
+    }
   } else {
     cfg = {
       kind,
@@ -1635,9 +1665,12 @@ function confirmActionModal() {
     case 'report':
       pushAction(b, 'reported', `Reported to support — ${reason}`)
       break
+    case 'rejectApproval':
+      rejectManagerStep(b, reason)
+      break
   }
   actionModal.value = null
-  if (cfg.kind !== 'report') closeDetail()
+  if (cfg.kind !== 'report' && cfg.kind !== 'rejectApproval') closeDetail()
 }
 
 // ─── Mark payment received (landlord, "paid to centre") ────────────────────────
@@ -1686,6 +1719,54 @@ function confirmMarkPaid() {
   recomputePaymentStatus(b)
   pushAction(b, 'mark_paid', `Marked ${p.label} as received (${formatAmount(p.amount)})`)
   closeMarkPaid()
+}
+
+// ─── Manager approval actions (Nhood) ──────────────────────────────────────────
+// The read-only approval chain becomes actionable for an approver. Approving the
+// asset-manager step escalates to a senior approver (2-stage, mirrors production's
+// ManagerApproval); approving the final step completes it. Rejecting ends the chain.
+function pendingApprover(b: Booking): ManagerApprover | null {
+  const ma = b.managerApproval
+  if (!ma || ma.status === 'approved' || ma.status === 'rejected') return null
+  return ma.approvers.find(a => !a.decision) ?? null
+}
+function canActOnApproval(b: Booking): boolean {
+  return canApproveManager.value && !!pendingApprover(b)
+}
+function managerDecisionMeta(ap: ManagerApprover): DotMeta {
+  if (ap.decision === 'approved') return { label: ap.at ? `Approved · ${formatDate(ap.at)}` : 'Approved', dotClass: 'bg-green-500' }
+  if (ap.decision === 'not_approved') return { label: ap.at ? `Not approved · ${formatDate(ap.at)}` : 'Not approved', dotClass: 'bg-red-500' }
+  return { label: 'Awaiting review', dotClass: 'bg-muted-foreground' }
+}
+function approveManagerStep(b: Booking) {
+  const ma = b.managerApproval
+  if (!ma) return
+  const ap = ma.approvers.find(a => !a.decision)
+  if (!ap) return
+  ap.decision = 'approved'
+  ap.at = TODAY.toISOString()
+  const hasSenior = ma.approvers.some(a => a.role === 'senior_asset_manager')
+  if (ap.role === 'asset_manager' && !hasSenior) {
+    ma.approvers.push({ name: 'Carlos Vidal', role: 'senior_asset_manager', decision: null, at: null })
+    ma.stage = 'senior_review'
+    ma.status = 'pending'
+    pushAction(b, 'manager_approved', 'Approved by asset manager — escalated to senior approval')
+  } else if (ma.approvers.every(a => a.decision === 'approved')) {
+    ma.status = 'approved'
+    ma.stage = 'approved'
+    pushAction(b, 'manager_approved', 'Manager approval complete')
+  } else {
+    pushAction(b, 'manager_approved', `Approved by ${formatCategory(ap.role)}`)
+  }
+}
+function rejectManagerStep(b: Booking, reason: string) {
+  const ma = b.managerApproval
+  if (!ma) return
+  const ap = ma.approvers.find(a => !a.decision)
+  if (ap) { ap.decision = 'not_approved'; ap.at = TODAY.toISOString() }
+  ma.status = 'rejected'
+  ma.stage = 'rejected'
+  pushAction(b, 'manager_rejected', `Manager approval rejected — ${reason}`)
 }
 
 // Switching team or viewer role (via the dev switcher) scopes out the current

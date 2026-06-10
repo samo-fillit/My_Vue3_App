@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-06-09 — Bookings Wave 3 (Nhood manager approval actions)
+
+- **Manager approval is now actionable** (was read-only). On eLeaseLoop (Nhood), an approver can **Approve** or **Reject** a booking's approval chain from the overlay. Mirrors production's `ManagerApproval`:
+  - **Role gate** — regional/commercial managers can approve; the accountant role can't. We map our roles: `role !== 'accounts'` can approve (`canApproveManager`). When an "accounts" user views a pending approval, the buttons are replaced with a note ("Accounts can view approvals but can't approve — needs a commercial or regional manager")
+  - **2-stage escalation** — approving the asset-manager step stamps it and escalates to a senior approver (added to the chain, awaiting); approving the senior step completes the approval (header shows a green "Approved")
+  - **Reject** opens the reason modal (Pricing not approved / Terms need revision / Space allocation issue / Other) and marks the step "Not approved", ending the chain
+  - Each step shows its decision + date ("Approved · 9 Jun 2026" / "Not approved · …" / "Awaiting review"); all actions log to the activity timeline
+  - Approvals only show on Nhood bookings (the `managerApproval` chain); Fillit bookings have none
+
 ## 2026-06-09 — Bookings Wave 2 (double-booking conflicts & price-on-application)
 
 - **Double-booking conflicts** — mirrors production's `BookingConflictsService`: detects other live bookings on the *same space* with overlapping dates. A *blocking* conflict is an overlap with a **confirmed** booking. Landlords see an amber warning triangle in the list flag column (tooltip "Dates clash with a confirmed booking") and a conflict banner at the top of the overlay listing the clashing booking(s) (#id · tenant · dates). The **confirm-time guard**: on an enquiry with a blocking conflict, "Send to tenant" is disabled with a hint to adjust the dates first (mirrors production turning Accept into Edit / `disable_submit`). Seeded a clashing enquiry (10097, overlaps confirmed 12001 on Kiosk A2)

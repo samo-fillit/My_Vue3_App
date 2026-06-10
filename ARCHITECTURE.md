@@ -283,6 +283,8 @@ Rules: an overdue payment always surfaces a payment-focused primary (landlord ch
 
 **Price on application** (`isPoa` / `rateDisplay`, booking `priceOnApplication`): a POA enquiry has no set price (rate ≤ 0). The list shows "POA" (`rateDisplay`); the overlay shows a "Price on application" badge and, when the viewer can't negotiate, a "Price on application" line instead of figures. "Send to tenant" is rate-gated (disabled until `rateDraft > 0`); `sendQuote` clears `priceOnApplication` and derives the financials.
 
+**Manager approval actions** (Nhood; `canApproveManager` / `approveManagerStep` / `rejectManagerStep` / `pendingApprover`): the `managerApproval` chain is actionable on eLeaseLoop. `canApproveManager` = eLeaseLoop landlord whose role isn't "accounts" (mirrors production `can_approve_bookings?` — regional/commercial yes, accountant no). Approve stamps the pending step and, after the asset-manager step, escalates to a senior approver (2-stage); approving the final step sets the chain to approved. Reject uses the shared reason modal (`actionModal` kind `rejectApproval`) and ends the chain. An "accounts" viewer sees a gate note instead of buttons. Each step renders its decision + date (`managerDecisionMeta`).
+
 ### Dark mode
 Handled entirely through CSS variable tokens in `assets/css/tailwind.css`. Semantic Tailwind classes (`bg-background`, `text-foreground`, etc.) adapt automatically under the `.dark` class. No `dark:` color prefixes are used in component templates.
 
