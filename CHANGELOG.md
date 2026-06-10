@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-06-09 — Bookings Wave 4 (Nhood / eLeaseLoop enterprise flow)
+
+Gated on `platform === 'eleaseloop'`. Closes out the approved gap-analysis backlog (country/tax deferred).
+
+- **DocuSign lease-signature state machine** — eLeaseLoop confirms via signature (Fillit still confirms directly). A new "Lease signature" section shows the envelope status (Not yet sent → Out for signature → Signed, plus Voided/Failed) with sent/signed dates and the envelope ID. Flow: tenant **Accept quote** → `awaiting_signature` (lease not yet sent) instead of straight to confirmed; landlord **Send for signature** → envelope sent; tenant **Sign lease** (enabled only once sent) → envelope completed → `confirmed`. The "Sign lease" button is disabled until the lease is sent, and waiting hints flip between parties accordingly
+- **Bucketing** — a landlord whose lease is accepted-but-unsent now sees the booking in **Action needed** (they own the "send" step); the tenant sees it as waiting until it's sent (`isActionNeeded` accounts for the lease sub-state)
+- **Yardi External Ref ID** — an inline editable field on the booking for Nhood landlords (the external accounting/ERP reference), seeded on a confirmed booking and editable on the rest
+- **Void on cancel** — cancelling a booking with a live envelope (sent/created) voids it (`docusign.status → 'voided'`); combined with the Wave 1 post-signature cancel lock (signed eLeaseLoop bookings can't be cancelled in-app)
+- Seeded a Nhood booking accepted-but-unsent (20020, to exercise Send for signature) and an external ref on 20001
+
 ## 2026-06-09 — Bookings Wave 3 (Nhood manager approval actions)
 
 - **Manager approval is now actionable** (was read-only). On eLeaseLoop (Nhood), an approver can **Approve** or **Reject** a booking's approval chain from the overlay. Mirrors production's `ManagerApproval`:

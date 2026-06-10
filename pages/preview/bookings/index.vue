@@ -430,6 +430,16 @@
                     <span class="text-xs text-muted-foreground">{{ selectedBooking.landlord.organisationName ?? selectedBooking.landlord.teamName }}</span>
                   </template>
                 </div>
+                <!-- Yardi / external accounting reference (Nhood landlords) -->
+                <div v-if="isPlatform('eleaseloop') && isLandlord" class="flex flex-col gap-1">
+                  <span class="text-xs font-medium text-muted-foreground">External Ref ID</span>
+                  <input
+                    :value="selectedBooking.externalRef ?? ''"
+                    placeholder="e.g. 000000000000000"
+                    class="h-9 w-full rounded-md border border-border bg-background px-2.5 text-sm tabular-nums text-foreground outline-none transition-colors focus:border-foreground placeholder:text-muted-foreground/50"
+                    @input="selectedBooking.externalRef = ($event.target as HTMLInputElement).value"
+                  />
+                </div>
               </section>
 
               <!-- Financials -->
@@ -569,6 +579,18 @@
                     <Button size="sm" :disabled="!scheduleValid" @click="saveSchedule">Save schedule</Button>
                   </div>
                 </template>
+              </section>
+
+              <!-- Lease signature (Nhood DocuSign) -->
+              <section v-if="isPlatform('eleaseloop') && showLeaseSection(selectedBooking)" class="flex flex-col gap-3 border-t border-border pt-6">
+                <h3 class="text-sm font-semibold text-foreground">Lease signature</h3>
+                <div class="flex items-center justify-between gap-3">
+                  <div class="flex flex-col gap-1">
+                    <StatusDot :label="docusignMeta(selectedBooking.docusign?.status).label" :dot-class="docusignMeta(selectedBooking.docusign?.status).dotClass" />
+                    <span v-if="leaseDateLine(selectedBooking)" class="text-xs tabular-nums text-muted-foreground">{{ leaseDateLine(selectedBooking) }}</span>
+                  </div>
+                  <span v-if="selectedBooking.docusign?.envelopeId" class="font-mono text-xs text-muted-foreground">{{ selectedBooking.docusign.envelopeId }}</span>
+                </div>
               </section>
 
               <!-- Documents -->
@@ -939,6 +961,7 @@ interface Booking {
   managerApproval?: { required: boolean; stage: string; status: string; approvers: ManagerApprover[] } | null
   autoChanged?: string
   priceOnApplication?: boolean
+  externalRef?: string | null
   cancellation?: { by: string; reason: string; refund: string; at: string }
   decline?: { by: string; reason: string; at: string }
   actions?: BookingActivity[]
@@ -1001,6 +1024,11 @@ function actionOwner(status: BookingStatus): 'landlord' | 'tenant' | null {
 }
 
 function isActionNeeded(b: Booking): boolean {
+  // Nhood lease step: before the lease is sent the landlord owns it (send for
+  // signature); once sent, the tenant owns it (sign). Fillit signs directly.
+  if (b.status === 'awaiting_signature' && isPlatform('eleaseloop')) {
+    return leaseSent(b) ? !isLandlord.value : isLandlord.value
+  }
   return actionOwner(b.status) === viewerRole.value
 }
 
@@ -1356,11 +1384,15 @@ function detailActions(b: Booking): BookingCta[] {
         a.push({ key: 'edit', label: 'Edit terms', variant: 'outline' })
         a.push({ key: 'remind', label: 'Send reminder', variant: 'outline' })
         break
-      case 'awaiting_signature': // waiting on tenant to sign
+      case 'awaiting_signature': // Nhood: send the lease; once sent, wait for the tenant to sign
         a.push({ key: 'message', label: 'Message tenant', variant: 'ghost' })
         a.push({ key: 'cancel', label: 'Cancel', variant: 'ghost' })
-        a.push({ key: 'viewLease', label: 'View lease', variant: 'outline' })
-        a.push({ key: 'resend', label: 'Resend for signature', variant: 'outline' })
+        if (isPlatform('eleaseloop') && !leaseSent(b)) {
+          a.push({ key: 'sendLease', label: 'Send for signature', variant: 'default' })
+        } else {
+          a.push({ key: 'viewLease', label: 'View lease', variant: 'outline' })
+          a.push({ key: 'resend', label: 'Resend for signature', variant: 'outline' })
+        }
         break
       case 'confirmed':
         a.push({ key: 'message', label: 'Message tenant', variant: 'ghost' })
@@ -1387,11 +1419,11 @@ function detailActions(b: Booking): BookingCta[] {
         a.push({ key: 'decline', label: 'Decline', variant: 'outline' })
         a.push({ key: 'accept', label: 'Accept quote', variant: 'default' })
         break
-      case 'awaiting_signature': // tenant's turn: sign the lease
+      case 'awaiting_signature': // tenant's turn: sign the lease (once the centre has sent it)
         a.push({ key: 'message', label: 'Message', variant: 'ghost' })
         a.push({ key: 'cancel', label: 'Cancel', variant: 'ghost' })
         a.push({ key: 'viewLease', label: 'View lease', variant: 'outline' })
-        a.push({ key: 'sign', label: 'Sign lease', variant: 'default' })
+        a.push({ key: 'sign', label: 'Sign lease', variant: 'default', disabled: isPlatform('eleaseloop') && !leaseSent(b) })
         break
       case 'confirmed':
         a.push({ key: 'message', label: 'Message', variant: 'ghost' })
@@ -1414,13 +1446,17 @@ function detailActions(b: Booking): BookingCta[] {
 
 function detailWaitingHint(b: Booking): string {
   const role = viewerRole.value
-  const owner = actionOwner(b.status)
-  if (!owner || owner === role) return ''
-  if (role === 'landlord') {
-    if (b.status === 'quoted') return 'Waiting on the tenant to accept your terms.'
-    if (b.status === 'awaiting_signature') return 'Waiting on the tenant to sign the lease.'
-  } else if (b.status === 'enquiry') {
-    return 'Waiting on the centre to review your enquiry.'
+  if (b.status === 'quoted') {
+    return role === 'landlord' ? 'Waiting on the tenant to accept your terms.' : ''
+  }
+  if (b.status === 'awaiting_signature') {
+    // On Nhood the lease must be sent before the tenant can sign — the wait
+    // sits with whichever party owns the next step.
+    if (role === 'landlord') return leaseSent(b) ? 'Waiting on the tenant to sign the lease.' : ''
+    return isPlatform('eleaseloop') && !leaseSent(b) ? 'Waiting on the centre to send the lease for signature.' : ''
+  }
+  if (b.status === 'enquiry') {
+    return role === 'tenant' ? 'Waiting on the centre to review your enquiry.' : ''
   }
   return ''
 }
@@ -1443,8 +1479,21 @@ function onCta(key: string) {
   if (!b) return
   switch (key) {
     case 'sendQuote': sendQuote(); break                                              // landlord: enquiry → quoted
-    case 'accept': b.status = 'confirmed'; pushAction(b, 'quote_accepted', 'Quote accepted'); break   // tenant: quoted → confirmed
-    case 'sign': b.status = 'confirmed'; pushAction(b, 'lease_signed', 'Lease signed'); break          // tenant: awaiting_signature → confirmed
+    case 'sendLease': sendForSignature(); break                                       // landlord (Nhood): send the lease for signature
+    case 'accept':                                                                    // tenant: accept the quote
+      if (isPlatform('eleaseloop')) {
+        b.status = 'awaiting_signature'                                               // Nhood: accept → lease must be signed
+        pushAction(b, 'quote_accepted', 'Quote accepted — lease to be sent for signature')
+      } else {
+        b.status = 'confirmed'                                                        // Fillit: accept → confirmed directly
+        pushAction(b, 'quote_accepted', 'Quote accepted')
+      }
+      break
+    case 'sign':                                                                      // tenant: sign the lease → confirmed
+      b.docusign = { status: 'completed', envelopeId: b.docusign?.envelopeId ?? `env-${b.id}`, sentAt: b.docusign?.sentAt ?? TODAY.toISOString(), completedAt: TODAY.toISOString() }
+      b.status = 'confirmed'
+      pushAction(b, 'lease_signed', 'Lease signed')
+      break
     case 'decline':  openActionModal('decline'); break
     case 'cancel':   openActionModal('cancel'); break
     case 'withdraw': openActionModal('withdraw'); break
@@ -1647,6 +1696,10 @@ function confirmActionModal() {
   switch (cfg.kind) {
     case 'cancel': {
       const rw = b.status === 'confirmed' ? refundWindow(b) : null
+      // Void a live DocuSign envelope when cancelling before signing (Nhood).
+      if (b.docusign?.status === 'sent' || b.docusign?.status === 'created') {
+        b.docusign = { ...b.docusign, status: 'voided' }
+      }
       b.status = 'cancelled'
       b.cancellation = { by: role, reason, refund: rw ? (rw.beforeCutoff ? 'full' : 'none') : 'n/a', at }
       pushAction(b, 'cancelled', `Booking cancelled — ${reason}`)
@@ -1767,6 +1820,46 @@ function rejectManagerStep(b: Booking, reason: string) {
   ma.status = 'rejected'
   ma.stage = 'rejected'
   pushAction(b, 'manager_rejected', `Manager approval rejected — ${reason}`)
+}
+
+// ─── Lease signature (DocuSign, Nhood) ──────────────────────────────────────────
+// eLeaseLoop confirms via DocuSign: an accepted booking is sent for signature
+// (envelope status → sent), then signed (completed → confirmed). The envelope is
+// voided if the booking is cancelled before signing. Fillit confirms directly.
+function leaseSent(b: Booking): boolean {
+  return b.docusign?.status === 'sent' || b.docusign?.status === 'created' || b.docusign?.status === 'completed'
+}
+function showLeaseSection(b: Booking): boolean {
+  return b.status === 'awaiting_signature' || b.status === 'confirmed' || !!b.docusign?.status
+}
+function docusignMeta(status?: string | null): DotMeta {
+  switch (status) {
+    case 'created':
+    case 'sent':      return { label: 'Out for signature', dotClass: 'bg-purple-500' }
+    case 'completed': return { label: 'Signed', dotClass: 'bg-green-500' }
+    case 'voided':    return { label: 'Voided', dotClass: 'bg-muted-foreground' }
+    case 'failed':    return { label: 'Failed to send', dotClass: 'bg-red-500' }
+    default:          return { label: 'Not yet sent', dotClass: 'bg-muted-foreground' }
+  }
+}
+function leaseDateLine(b: Booking): string {
+  const d = b.docusign
+  if (!d) return ''
+  if (d.status === 'completed' && d.completedAt) return `Signed ${formatDate(d.completedAt)}`
+  if ((d.status === 'sent' || d.status === 'created') && d.sentAt) return `Sent ${formatDate(d.sentAt)}`
+  return ''
+}
+function sendForSignature() {
+  const b = selectedBooking.value
+  if (!b) return
+  b.docusign = {
+    status: 'sent',
+    envelopeId: b.docusign?.envelopeId ?? `env-${b.id}`,
+    sentAt: TODAY.toISOString(),
+    completedAt: null,
+  }
+  if (b.status !== 'awaiting_signature') b.status = 'awaiting_signature'
+  pushAction(b, 'lease_sent', 'Lease sent for signature')
 }
 
 // Switching team or viewer role (via the dev switcher) scopes out the current

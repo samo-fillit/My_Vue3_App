@@ -654,6 +654,7 @@
       "preConfirmed": false,
       "approvalType": "pay_stages",
       "bookingLinkId": null,
+      "externalRef": "300000000045128",
       "period": { "from": "2026-06-01", "to": "2026-06-30" },
       "landlord": {
         "teamId": "team-spain",
@@ -1752,6 +1753,44 @@
       "managerApproval": null,
       "actions": [
         { "type": "enquiry_submitted", "actor": "Hannah Reid", "actorType": "tenant", "at": "2026-06-07T10:00:00Z", "description": "Enquiry submitted" }
+      ],
+      "notes": { "landlord": null, "tenant": null }
+    },
+    {
+      "id": "20020",
+      "status": "awaiting_signature",
+      "createdAt": "2026-05-30T09:00:00Z",
+      "submittedAt": "2026-05-30T09:00:00Z",
+      "respondedAt": "2026-06-02T10:00:00Z",
+      "confirmedAt": null,
+      "cancelledAt": null,
+      "preConfirmed": false,
+      "approvalType": "single",
+      "bookingLinkId": null,
+      "externalRef": null,
+      "period": { "from": "2026-07-15", "to": "2026-07-29" },
+      "landlord": { "teamId": "team-spain", "teamName": "Nhood ES", "teamColor": "#e67e22", "organisationName": "Nhood Spain", "country": "ES" },
+      "tenant": { "teamId": null, "company": "Mango", "contactName": "Isabel Soto", "email": "i.soto@mango.com", "phone": "+34 93 200 4500", "isSelfEmployed": false },
+      "space": { "id": "es-s3", "title": "Pop-up Unit X4", "type": "Pop-up", "centreId": "centre-xanadu", "centreName": "Centro Comercial Xanadú", "centreColor": "#e67e22", "dimensions": "5x4m" },
+      "enquiry": { "title": "Mango summer capsule", "category": "brand_marketing", "description": "Summer capsule collection pop-up with styling area.", "dimensions": "5x4m", "additionalInfo": null },
+      "financials": { "currency": "EUR", "rate": 2800, "vat": 588, "deposit": 400, "discount": 0, "fillitFee": 280, "total": 3388, "totalLandlord": 3108, "quote": 2800, "paymentStatus": "pending", "paidBy": null },
+      "payments": [
+        { "id": "p-20020-1", "label": "Full payment", "amount": 3388, "dueDate": "2026-07-08", "status": "pending", "method": null, "paidOn": null, "invoiceUrl": null }
+      ],
+      "documents": [],
+      "docusign": { "status": null, "envelopeId": null, "sentAt": null, "completedAt": null },
+      "managerApproval": {
+        "required": true,
+        "stage": "approved",
+        "status": "approved",
+        "approvers": [
+          { "name": "Lucía Fernández", "role": "asset_manager", "decision": "approved", "at": "2026-06-03T11:00:00Z" },
+          { "name": "Carlos Vidal", "role": "senior_asset_manager", "decision": "approved", "at": "2026-06-04T09:00:00Z" }
+        ]
+      },
+      "actions": [
+        { "type": "enquiry_submitted", "actor": "Isabel Soto", "actorType": "tenant", "at": "2026-05-30T09:00:00Z", "description": "Enquiry submitted" },
+        { "type": "quote_accepted", "actor": "Isabel Soto", "actorType": "tenant", "at": "2026-06-02T10:00:00Z", "description": "Quote accepted — lease to be sent for signature" }
       ],
       "notes": { "landlord": null, "tenant": null }
     }
