@@ -490,11 +490,11 @@
               </section>
 
               <!-- Payment schedule -->
-              <section v-if="selectedBooking.payments && selectedBooking.payments.length" class="flex flex-col gap-3 border-t border-border pt-6">
+              <section v-if="displayPayments(selectedBooking).length" class="flex flex-col gap-3 border-t border-border pt-6">
                 <div class="flex items-center justify-between gap-3">
                   <h3 class="text-sm font-semibold text-foreground">Payment schedule</h3>
                   <div v-if="!editingSchedule" class="flex items-center gap-4">
-                    <button v-if="isLandlord" type="button" class="text-xs font-medium text-foreground transition-colors hover:text-primary" @click="startEditSchedule">Edit</button>
+                    <button v-if="scheduleEditable(selectedBooking)" type="button" class="text-xs font-medium text-foreground transition-colors hover:text-primary" @click="startEditSchedule">Edit</button>
                     <button type="button" class="inline-flex items-center gap-1 text-xs font-medium text-foreground transition-colors hover:text-primary" @click="viewTransactions(selectedBooking)">
                       View transactions
                       <IconArrowRight :size="13" stroke-width="2" />
@@ -504,25 +504,24 @@
 
                 <!-- Display mode -->
                 <template v-if="!editingSchedule">
-                  <div class="flex flex-col gap-3">
-                    <div v-for="p in selectedBooking.payments" :key="p.id" class="flex items-center justify-between gap-3">
-                      <div class="flex flex-col gap-0.5">
+                  <div class="grid grid-cols-[1fr_auto_auto_auto] items-center gap-x-4 gap-y-3">
+                    <template v-for="p in displayPayments(selectedBooking)" :key="p.id">
+                      <div class="flex min-w-0 flex-col gap-0.5">
                         <span class="text-sm text-foreground">{{ p.label }}</span>
                         <span class="text-xs tabular-nums text-muted-foreground">Due {{ formatDate(p.dueDate) }}</span>
                       </div>
-                      <div class="flex items-center gap-4">
-                        <span class="text-sm font-medium tabular-nums text-foreground">{{ formatAmount(p.amount) }}</span>
-                        <StatusDot :label="paymentMeta(p.status).label" :dot-class="paymentMeta(p.status).dotClass" />
-                        <button
-                          v-if="isLandlord && selectedBooking.status === 'confirmed' && p.status !== 'paid' && p.status !== 'refunded'"
-                          type="button"
-                          class="text-xs font-medium text-foreground transition-colors hover:text-primary"
-                          @click="openMarkPaid(p)"
-                        >
-                          Mark paid
-                        </button>
-                      </div>
-                    </div>
+                      <span class="justify-self-end text-right text-sm font-medium tabular-nums text-foreground">{{ formatAmount(p.amount) }}</span>
+                      <StatusDot :label="paymentMeta(p.status).label" :dot-class="paymentMeta(p.status).dotClass" />
+                      <button
+                        v-if="isLandlord && selectedBooking.status === 'confirmed' && p.status !== 'paid' && p.status !== 'refunded'"
+                        type="button"
+                        class="text-xs font-medium text-foreground transition-colors hover:text-primary"
+                        @click="openMarkPaid(p)"
+                      >
+                        Mark paid
+                      </button>
+                      <span v-else />
+                    </template>
                   </div>
                   <div class="flex items-center justify-between border-t border-border pt-3 text-xs text-muted-foreground">
                     <span><span class="font-medium tabular-nums text-foreground">{{ formatAmount(paymentSummary(selectedBooking).collected) }}</span> collected</span>
@@ -1217,11 +1216,15 @@ const searchCountLabel = computed(() => {
 const selectedBooking = ref<Booking | null>(null)
 const detailOpen = ref(false)
 const rateDraft = ref(0)
+const originalRate = ref(0)
+const scheduleEdited = ref(false)
 const editingSchedule = ref(false)
 
 function openDetail(b: Booking) {
   selectedBooking.value = b
   rateDraft.value = b.financials.rate
+  originalRate.value = b.financials.rate
+  scheduleEdited.value = false
   editingSchedule.value = false
   detailOpen.value = true
 }
@@ -1264,14 +1267,23 @@ const liveFinancials = computed(() => {
   }
 })
 
+// True when the landlord has modified an enquiry (rate or payment schedule) before
+// sending it back — drives the "Accept enquiry" vs "Send changes to tenant" CTA.
+const enquiryChanged = computed(() => {
+  const b = selectedBooking.value
+  if (!b || b.status !== 'enquiry') return false
+  return scheduleEdited.value || (rateDraft.value || 0) !== (originalRate.value || 0)
+})
+
 function sendQuote() {
   const b = selectedBooking.value
   if (!b) return
+  const changed = enquiryChanged.value
   const d = deriveFinancials(b, rateDraft.value || b.financials.rate)
   Object.assign(b.financials, { ...d, quote: d.rate })
   b.priceOnApplication = false
   b.status = 'quoted'
-  pushAction(b, 'quote_sent', `Terms sent to tenant — ${formatAmount(d.rate)}`)
+  pushAction(b, 'quote_sent', changed ? `Changes sent to tenant — ${formatAmount(d.rate)}` : 'Enquiry accepted — sent to tenant')
 }
 
 // ─── Edit payment schedule (landlord) ──────────────────────────────────────────
@@ -1281,10 +1293,25 @@ function sendQuote() {
 const scheduleDraft = ref<BookingPayment[]>([])
 const scheduleRowSeq = ref(0)
 
+// Every booking shows a payment schedule. If none is stored yet (e.g. a new
+// enquiry), show a proposed single full payment derived from the (live) total.
+function displayPayments(b: Booking): BookingPayment[] {
+  if (b.payments && b.payments.length) return b.payments
+  const total = (b === selectedBooking.value && canNegotiate(b)) ? liveFinancials.value.total : (b.financials.total ?? b.financials.rate)
+  if (total <= 0) return []
+  return [{ id: `gen-${b.id}`, label: 'Full payment', amount: Math.round(total), dueDate: b.period.from, status: 'pending', method: null, paidOn: null, invoiceUrl: null }]
+}
+
+// The schedule can only be restructured before the booking starts; once it's under
+// way (or closed) it's locked. Paid instalments stay locked within an open edit.
+function scheduleEditable(b: Booking): boolean {
+  return isLandlord.value && b.status !== 'declined' && b.status !== 'cancelled' && b.period.from > TODAY_ISO
+}
+
 function startEditSchedule() {
   const b = selectedBooking.value
-  if (!b?.payments) return
-  scheduleDraft.value = b.payments.map(p => ({ ...p }))
+  if (!b) return
+  scheduleDraft.value = displayPayments(b).map(p => ({ ...p }))
   editingSchedule.value = true
 }
 function cancelEditSchedule() {
@@ -1307,9 +1334,12 @@ function removeScheduleRow(i: number) {
   scheduleDraft.value.splice(i, 1)
 }
 
-const scheduleBookingTotal = computed(() =>
-  selectedBooking.value ? (selectedBooking.value.financials.total ?? selectedBooking.value.financials.rate) : 0,
-)
+const scheduleBookingTotal = computed(() => {
+  const b = selectedBooking.value
+  if (!b) return 0
+  if (canNegotiate(b)) return liveFinancials.value.total
+  return b.financials.total ?? b.financials.rate
+})
 const scheduleDraftTotal = computed(() =>
   scheduleDraft.value.reduce((s, p) => s + (Number(p.amount) || 0), 0),
 )
@@ -1335,6 +1365,7 @@ function saveSchedule() {
   if (!b || !scheduleValid.value) return
   b.payments = scheduleDraft.value.map(p => ({ ...p, amount: Number(p.amount) }))
   editingSchedule.value = false
+  scheduleEdited.value = true
   pushAction(b, 'change_schedule', 'Payment schedule updated')
 }
 function closeDetail() {
@@ -1376,17 +1407,17 @@ function detailActions(b: Booking): BookingCta[] {
       case 'enquiry': // landlord's turn: review terms, optionally adjust the rate, send to tenant
         a.push({ key: 'message', label: 'Message tenant', variant: 'ghost' })
         a.push({ key: 'decline', label: 'Decline', variant: 'outline' })
-        a.push({ key: 'sendQuote', label: 'Send to tenant', variant: 'default', disabled: (rateDraft.value || 0) <= 0 || hasBlockingConflict(b) })
+        a.push({ key: 'sendQuote', label: enquiryChanged.value ? 'Send changes to tenant' : 'Accept enquiry', variant: 'default', disabled: (rateDraft.value || 0) <= 0 || hasBlockingConflict(b) })
         break
       case 'quoted': // waiting on tenant to accept
         a.push({ key: 'message', label: 'Message tenant', variant: 'ghost' })
-        a.push({ key: 'cancel', label: 'Cancel', variant: 'ghost' })
+        a.push({ key: 'cancel', label: 'Cancel booking', variant: 'ghost' })
         a.push({ key: 'edit', label: 'Edit terms', variant: 'outline' })
         a.push({ key: 'remind', label: 'Send reminder', variant: 'outline' })
         break
       case 'awaiting_signature': // Nhood: send the lease; once sent, wait for the tenant to sign
         a.push({ key: 'message', label: 'Message tenant', variant: 'ghost' })
-        a.push({ key: 'cancel', label: 'Cancel', variant: 'ghost' })
+        a.push({ key: 'cancel', label: 'Cancel booking', variant: 'ghost' })
         if (isPlatform('eleaseloop') && !leaseSent(b)) {
           a.push({ key: 'sendLease', label: 'Send for signature', variant: 'default' })
         } else {
@@ -1421,7 +1452,7 @@ function detailActions(b: Booking): BookingCta[] {
         break
       case 'awaiting_signature': // tenant's turn: sign the lease (once the centre has sent it)
         a.push({ key: 'message', label: 'Message', variant: 'ghost' })
-        a.push({ key: 'cancel', label: 'Cancel', variant: 'ghost' })
+        a.push({ key: 'cancel', label: 'Cancel booking', variant: 'ghost' })
         a.push({ key: 'viewLease', label: 'View lease', variant: 'outline' })
         a.push({ key: 'sign', label: 'Sign lease', variant: 'default', disabled: isPlatform('eleaseloop') && !leaseSent(b) })
         break
@@ -1878,7 +1909,7 @@ function viewTransactions(b: Booking) {
 
 function paymentSummary(b: Booking) {
   const total = b.financials.total ?? b.financials.rate
-  const collected = (b.payments ?? [])
+  const collected = displayPayments(b)
     .filter(p => p.status === 'paid')
     .reduce((s, p) => s + p.amount, 0)
   return { collected, outstanding: Math.max(0, total - collected) }

@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-06-10 — Bookings: payment schedule on all summaries + CTA clarity
+
+- **Payment schedule now appears on every booking** (incl. new enquiries). When no schedule is stored yet, a proposed single "Full payment" is derived from the (live) gross total via `displayPayments` — for an enquiry under negotiation it tracks the rate the landlord is setting
+- **Editable only before the booking starts** — the Edit button is gated by `scheduleEditable` (landlord, not closed, `period.from` in the future); active/started, past and closed bookings are read-only. Within an open edit, already-paid instalments stay locked (only upcoming payments can be changed) — so once the first/any payment is made it can't be altered
+- **Amounts aligned** — the schedule display is now a CSS grid so payment amounts (and statuses) line up vertically in their own columns regardless of trailing actions
+- **Landlord enquiry CTA** — now reads **"Accept enquiry"** when nothing's been changed, and **"Send changes to tenant"** once the rate or payment schedule has been edited (`enquiryChanged`); the activity log reflects which happened
+- **Copy** — the quoted/awaiting-signature "Cancel" CTAs now read **"Cancel booking"** for clarity (matching the confirmed states)
+
 ## 2026-06-09 — Bookings Wave 4 (Nhood / eLeaseLoop enterprise flow)
 
 Gated on `platform === 'eleaseloop'`. Closes out the approved gap-analysis backlog (country/tax deferred).
