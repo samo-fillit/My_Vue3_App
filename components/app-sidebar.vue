@@ -125,7 +125,7 @@ const allMainNav = [
   { id: 'create-link',  icon: IconLink,         label: 'Booking links', route: '/preview/booking-links' },
   // Enterprise (eLeaseLoop) only
   { id: 'analytics',    icon: IconChartBar,     label: 'Analytics',    route: '/preview/analytics' },
-  { id: 'crm',          icon: IconAddressBook,  label: 'CRM',          route: '/preview/crm' },
+  { id: 'crm',          icon: IconAddressBook,  label: 'Tenants',      route: '/preview/tenants' },
 ]
 
 // ── All possible org sub-items ────────────────────────────────────────────────

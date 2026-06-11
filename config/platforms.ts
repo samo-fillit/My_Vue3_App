@@ -83,7 +83,7 @@ type PlatformConfig = Record<Platform, Record<UserType, PlatformUserConfig>>
 export const platformConfig: PlatformConfig = {
   fillit: {
     landlord: {
-      nav: ['dashboard', 'bookings', 'transactions', 'calendar', 'messages', 'create-link'],
+      nav: ['dashboard', 'bookings', 'transactions', 'crm', 'calendar', 'messages', 'create-link'],
       org: ['account-profile', 'account-teams', 'account-centres', 'account-spaces', 'account-notifications'],
     },
     tenant: {
@@ -93,7 +93,7 @@ export const platformConfig: PlatformConfig = {
   },
   eleaseloop: {
     landlord: {
-      nav: ['dashboard', 'bookings', 'transactions', 'calendar', 'messages', 'create-link', 'analytics', 'crm'],
+      nav: ['dashboard', 'bookings', 'transactions', 'crm', 'calendar', 'messages', 'create-link', 'analytics'],
       org: ['account-profile', 'account-teams', 'account-centres', 'account-spaces', 'account-payments', 'account-notifications'],
     },
     tenant: {

@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-06-12 — Tenants (CRM) section v1
+
+New **landlord-specific "Tenants" section** (`/preview/tenants`) — positioned in the sidebar directly under Transactions, on both Fillit and eLeaseLoop landlord navs (renamed/repositioned the existing `crm` nav item; route `/preview/crm` → `/preview/tenants`).
+
+- **Scope decision:** CRM = *one tenant's world* (relationship, history, their numbers in context); the upcoming Analytics page owns *portfolio aggregates* (revenue trends, occupancy, funnels). So this shows tenant-scoped data, not charts.
+- **Tenant directory** — derived from `bookings.json` (grouped by company, scoped to the active landlord team) merged with seeded **prospects** from a new `server/data/tenants.json` + `/api/tenants`. Columns: company (+ contact, "Repeat" tag for ≥2 bookings), category, centres used, bookings, lifetime value (landlord net), stage. Search + stage tabs (All / Active / Leads / Prospects / Lapsed).
+- **Pipeline stage** — derived from booking activity: Active (confirmed upcoming/live), Lead (open enquiry/quote/awaiting), Prospect (no bookings yet), Lapsed (past only). Shown via `StatusDot`.
+- **Renewal prompts** — flags tenants with a confirmed booking ending within 45 days and no follow-on already booked; a "Renewals due" filter chip (with count), a row badge, and a callout in the overlay. (Direct hook into the bookings summary.)
+- **Tenant 360 overlay** (centered modal) — contact details, lifetime value / bookings / outstanding / payment reliability, their bookings & enquiries list, per-tenant notes, and quick actions: Message, **View bookings** (deep-links to `/preview/bookings?q=<company>`), **Create booking** (→ booking-links create overlay).
+- Wired the bookings page to honour `?q=` (prefills search + jumps to the tab with the most matches) so the CRM → bookings deep-link lands on the tenant's bookings.
+
 ## 2026-06-11 — Bookings: status-change highlight
 
 - After a status transition (send changes / accept quote / sign lease), the booking's **StatusDot briefly pulses its size** to draw the eye to what changed — a single-colour scale pulse (1 → 1.12 → 1), `1.36s` per cycle ×2 (`status-change-pulse` keyframe in `StatusDot.vue`, follows the existing `row-search-pulse` pattern). Added an optional `highlight` prop to `StatusDot`; the bookings page sets `statusPulseId` on transition (`pulseStatus`, auto-clears after ~2.9s) and passes `:highlight` to the list row + overlay strip dots. (Iterated from earlier colour/opacity flashes — the final effect keeps one colour and only animates size.)

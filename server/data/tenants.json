@@ -1,0 +1,9 @@
+{
+  "tenants": [
+    { "id": "tn-aesop", "company": "Aesop", "contactName": "Frances Bell", "email": "f.bell@aesop.com", "phone": "+44 20 7946 0931", "category": "brand_marketing", "teamId": "team-one", "isProspect": true, "source": "Inbound enquiry", "createdAt": "2026-06-01", "note": "Interested in a flagship pop-up for the autumn skincare launch." },
+    { "id": "tn-gymshark", "company": "Gymshark", "contactName": "Leo Marsh", "email": "l.marsh@gymshark.com", "phone": "+44 20 7946 0942", "category": "product_sales", "teamId": "team-one", "isProspect": true, "source": "Outbound", "createdAt": "2026-05-20", "note": null },
+    { "id": "tn-tonys", "company": "Tony's Chocolonely", "contactName": "Saskia Vermeer", "email": "s.vermeer@tonys.com", "phone": "+44 20 7946 0953", "category": "product_sampling", "teamId": "team-one", "isProspect": true, "source": "Referral", "createdAt": "2026-05-12", "note": "Wants weekend sampling space near the food court." },
+    { "id": "tn-polaroid", "company": "Polaroid", "contactName": "Dieter Wolff", "email": "d.wolff@polaroid.com", "phone": "+44 20 7946 0964", "category": "advertising", "teamId": "team-one", "isProspect": true, "source": "Trade show", "createdAt": "2026-04-28", "note": null },
+    { "id": "tn-desigual", "company": "Desigual", "contactName": "Núria Camps", "email": "n.camps@desigual.com", "phone": "+34 93 555 0199", "category": "brand_marketing", "teamId": "team-spain", "isProspect": true, "source": "Inbound enquiry", "createdAt": "2026-06-02", "note": "Repeat interest after last year's pop-up." }
+  ]
+}

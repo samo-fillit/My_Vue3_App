@@ -941,7 +941,7 @@
 </style>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import type { DateRange } from 'reka-ui'
 import { CalendarDate } from '@internationalized/date'
 import {
@@ -1155,6 +1155,23 @@ watch([scopedBookings, viewerRole], () => {
     activeTab.value = tabs.value.find(t => t.count > 0)?.value ?? 'upcoming'
   }
 }, { immediate: true })
+
+// Deep-link from the Tenants/CRM page (?q=Company): prefill the search and jump
+// to the tab holding the most matches, so the tenant's bookings land in view.
+const route = useRoute()
+onMounted(() => {
+  const q = route.query.q
+  if (typeof q !== 'string' || !q.trim()) return
+  searchQuery.value = q
+  const ql = q.trim().toLowerCase()
+  const matchesIn = (tab: TabValue) => scopedBookings.value.filter(b =>
+    bucket(b) === tab && (b.tenant.company.toLowerCase().includes(ql) || b.id.toLowerCase().includes(ql)),
+  ).length
+  const best = (['action', 'upcoming', 'past', 'closed'] as TabValue[])
+    .map(t => ({ t, n: matchesIn(t) }))
+    .sort((a, b) => b.n - a.n)[0]
+  if (best && best.n > 0) activeTab.value = best.t
+})
 
 const emptyTabMessage = computed(() => {
   if (searchQuery.value.trim()) return 'No bookings match your search.'
