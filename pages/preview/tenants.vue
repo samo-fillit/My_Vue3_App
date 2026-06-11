@@ -197,9 +197,15 @@
               <!-- Renewal callout -->
               <div v-if="selectedTenant.renewalDue" class="flex items-start gap-2.5 rounded-lg border border-amber-500/40 bg-amber-500/5 px-4 py-3">
                 <IconRefresh :size="16" stroke-width="1.75" class="mt-0.5 shrink-0 text-amber-600" />
-                <div class="flex flex-col gap-0.5">
+                <div class="flex flex-col gap-1">
                   <span class="text-sm font-medium text-foreground">Renewal opportunity</span>
                   <span class="text-xs text-muted-foreground">{{ renewalLine(selectedTenant) }}</span>
+                  <div class="mt-1 flex items-center gap-4">
+                    <button type="button" class="text-xs font-medium text-foreground transition-colors hover:text-primary" @click="router.push('/preview/messages')">Message tenant</button>
+                    <button type="button" class="inline-flex items-center gap-1 text-xs font-medium text-foreground transition-colors hover:text-primary" @click="viewRenewalBooking(selectedTenant)">
+                      View booking <IconArrowRight :size="12" stroke-width="2" />
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -700,11 +706,19 @@ function bookingStatusMeta(b: Booking): DotMeta {
     default:                   return { label: formatCategory(b.status), dotClass: 'bg-muted-foreground' }
   }
 }
-function renewalLine(t: TenantRecord): string {
-  const ending = t.bookings
+// The confirmed booking driving the renewal flag (soonest to end within the window).
+function renewalBooking(t: TenantRecord): Booking | undefined {
+  return t.bookings
     .filter(b => b.status === 'confirmed' && daysFromToday(b.period.to) >= 0 && daysFromToday(b.period.to) <= RENEWAL_WINDOW_DAYS)
     .sort((a, b) => a.period.to.localeCompare(b.period.to))[0]
+}
+function renewalLine(t: TenantRecord): string {
+  const ending = renewalBooking(t)
   if (!ending) return 'A booking is ending soon.'
   return `${ending.space.centreName} · ${ending.space.title} ends ${formatDate(ending.period.to)} — reach out to rebook.`
+}
+function viewRenewalBooking(t: TenantRecord) {
+  const b = renewalBooking(t)
+  router.push({ path: '/preview/bookings', query: { q: b?.id ?? t.company } })
 }
 </script>

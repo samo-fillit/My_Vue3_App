@@ -194,7 +194,7 @@
                 <TableHead class="w-[180px] pl-8">
                   <span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Status</span>
                 </TableHead>
-                <TableHead class="w-[60px]" />
+                <TableHead class="w-[120px]" />
                 <TableHead class="w-[52px]" />
               </TableRow>
             </TableHeader>
@@ -260,7 +260,7 @@
                   </div>
                 </TableCell>
 
-                <TableCell class="w-[60px]">
+                <TableCell class="w-[120px]">
                   <div class="flex items-center gap-1.5">
                     <TooltipProvider v-if="hasOverdue(b)" :delay-duration="150">
                       <Tooltip>
@@ -286,6 +286,14 @@
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
+                    <button
+                      v-if="isRenewable(b)"
+                      type="button"
+                      class="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-600 transition-colors hover:bg-amber-500/20"
+                      @click.stop="openRenew(b)"
+                    >
+                      <IconRefresh :size="12" stroke-width="2" /> Renew
+                    </button>
                   </div>
                 </TableCell>
 
@@ -927,6 +935,84 @@
       </div>
     </Transition>
   </Teleport>
+
+  <!-- Renew booking overlay -->
+  <Teleport to="body">
+    <Transition name="modal">
+      <div v-if="renewSource" class="fixed inset-0 z-50 flex items-center justify-center p-6">
+        <div class="absolute inset-0 bg-black/50" @click="closeRenew" />
+        <div class="relative z-10 flex w-full max-w-[480px] flex-col rounded-xl border border-border bg-background shadow-2xl">
+          <div class="flex items-start justify-between gap-4 border-b border-border px-6 py-5">
+            <div class="flex items-center gap-2.5">
+              <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600">
+                <IconRefresh :size="16" stroke-width="2" />
+              </span>
+              <div class="flex flex-col gap-0.5">
+                <h2 class="text-base font-semibold leading-tight text-foreground">Renew booking</h2>
+                <p class="text-xs text-muted-foreground">{{ renewSource.tenant.company }} · {{ renewSource.space.centreName }} · {{ renewSource.space.title }}</p>
+              </div>
+            </div>
+            <button type="button" class="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground" @click="closeRenew">
+              <IconX :size="18" stroke-width="1.5" />
+            </button>
+          </div>
+
+          <div class="flex flex-col gap-4 px-6 py-5">
+            <p class="text-xs text-muted-foreground">
+              Current term ends {{ formatDate(renewSource.period.to) }}. Propose a new term to send the tenant.
+            </p>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div class="flex flex-col gap-1">
+                <span class="text-xs font-medium text-muted-foreground">New term</span>
+                <Popover>
+                  <PopoverTrigger as-child>
+                    <button type="button" class="flex h-9 w-full items-center justify-between gap-2 rounded-md border border-border bg-background px-2.5 text-sm tabular-nums text-foreground transition-colors hover:bg-muted">
+                      <span class="truncate">{{ renewDatesLabel }}</span>
+                      <IconCalendar :size="14" stroke-width="1.5" class="shrink-0 text-muted-foreground" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent class="w-auto p-0" align="start" :side-offset="6">
+                    <RangeCalendar v-model="renewRange" :number-of-months="2" :is-date-unavailable="renewDateUnavailable" />
+                    <p class="border-t border-border px-5 py-2.5 text-xs text-muted-foreground">Struck-through dates are already booked for this space.</p>
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <div class="flex flex-col gap-1">
+                <span class="text-xs font-medium text-muted-foreground">Rate</span>
+                <div class="relative">
+                  <span class="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">€</span>
+                  <input
+                    v-model.number="renewRate"
+                    type="number"
+                    min="0"
+                    step="50"
+                    class="h-9 w-full rounded-md border border-border bg-background pl-6 pr-2 text-right text-sm tabular-nums text-foreground outline-none transition-colors focus:border-foreground"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <dl class="flex flex-col gap-1.5 border-t border-border pt-3 text-sm">
+              <div v-if="renewFinancials.vat" class="flex items-center justify-between">
+                <dt class="text-muted-foreground">VAT</dt>
+                <dd class="tabular-nums text-foreground">{{ formatAmount(renewFinancials.vat) }}</dd>
+              </div>
+              <div class="flex items-center justify-between">
+                <dt class="font-medium text-foreground">You receive</dt>
+                <dd class="font-semibold tabular-nums text-foreground">{{ formatAmount(renewFinancials.totalLandlord) }}</dd>
+              </div>
+            </dl>
+          </div>
+
+          <div class="flex items-center justify-end gap-2 border-t border-border px-6 py-4">
+            <Button variant="ghost" size="sm" @click="closeRenew">Cancel</Button>
+            <Button size="sm" :disabled="!renewValid" @click="confirmRenew">Send renewal to tenant</Button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
 </template>
 
 <style scoped>
@@ -954,6 +1040,7 @@ import {
   IconBuilding,
   IconCheck,
   IconFlagFilled,
+  IconRefresh,
   IconX,
   IconFileText,
   IconDownload,
@@ -1788,6 +1875,64 @@ function blockingOn(spaceId: string, period: { from: string; to: string }, exclu
   return bookings.value.filter(o =>
     o.id !== excludeId && o.space.id === spaceId && o.status === 'confirmed' && periodsOverlap(period, o.period),
   )
+}
+
+// ─── Renewals (landlord) ────────────────────────────────────────────────────────
+// A confirmed booking ending within 45 days with no later confirmed booking for
+// the same tenant — a rebooking opportunity. Mirrors the Tenants page.
+const renewalSent = ref<Set<string>>(new Set())
+function isRenewable(b: Booking): boolean {
+  if (!isLandlord.value || b.status !== 'confirmed' || renewalSent.value.has(b.id)) return false
+  const d = Math.round((new Date(b.period.to + 'T00:00:00Z').getTime() - TODAY.getTime()) / 86400000)
+  if (d < 0 || d > 45) return false
+  return !bookings.value.some(o => o.status === 'confirmed' && o.tenant.company === b.tenant.company && o.period.from > b.period.to)
+}
+
+const renewSource = ref<Booking | null>(null)
+const renewRange = ref<DateRange | undefined>(undefined)
+const renewRate = ref(0)
+function openRenew(b: Booking) {
+  renewSource.value = b
+  renewRate.value = b.financials.rate
+  const fromMs = new Date(b.period.to + 'T00:00:00Z').getTime() + 86400000
+  const durMs = new Date(b.period.to + 'T00:00:00Z').getTime() - new Date(b.period.from + 'T00:00:00Z').getTime()
+  renewRange.value = { start: isoToCal(new Date(fromMs).toISOString().slice(0, 10)), end: isoToCal(new Date(fromMs + durMs).toISOString().slice(0, 10)) }
+}
+function closeRenew() { renewSource.value = null }
+// Block dates already booked on this space (excluding the source booking).
+function renewDateUnavailable(date: { year: number; month: number; day: number }): boolean {
+  const b = renewSource.value
+  if (!b) return false
+  const iso = calToIso(date)
+  return bookings.value.some(o => o.id !== b.id && o.space.id === b.space.id && o.status !== 'declined' && o.status !== 'cancelled' && iso >= o.period.from && iso <= o.period.to)
+}
+const renewFinancials = computed(() => deriveFinancials(renewSource.value ?? ({ financials: { rate: 0 } } as Booking), renewRate.value || 0))
+const renewDatesLabel = computed(() => {
+  const r = renewRange.value
+  return r?.start && r?.end ? `${fmtCalDate(r.start)} – ${fmtCalDate(r.end)}` : 'Select dates'
+})
+const renewValid = computed(() => !!(renewRange.value?.start && renewRange.value?.end && (renewRate.value || 0) > 0))
+function confirmRenew() {
+  const b = renewSource.value
+  const r = renewRange.value
+  if (!b || !r?.start || !r?.end || !renewValid.value) return
+  const from = calToIso(r.start), to = calToIso(r.end)
+  const d = deriveFinancials(b, renewRate.value || b.financials.rate)
+  const clone: Booking = JSON.parse(JSON.stringify(b))
+  clone.id = `${b.id}-R`
+  clone.status = 'quoted'
+  clone.createdAt = TODAY.toISOString()
+  clone.period = { from, to }
+  Object.assign(clone.financials, { ...d, quote: d.rate, paymentStatus: 'pending', paidBy: null })
+  clone.payments = []
+  clone.documents = []
+  clone.docusign = { status: null, envelopeId: null, sentAt: null, completedAt: null }
+  clone.actions = [{ type: 'renewal_sent', actor: 'You', actorType: viewerRole.value, at: TODAY.toISOString(), description: `Renewal offer sent — ${formatDate(from)} – ${formatDate(to)}` }]
+  clone.notes = { landlord: null, tenant: null }
+  bookings.value.unshift(clone)
+  renewalSent.value.add(b.id)
+  pushAction(b, 'renewal_sent', `Renewal offer sent to tenant for ${formatDate(from)} – ${formatDate(to)}`)
+  closeRenew()
 }
 // Clash for the *drafted* space + dates while a landlord edits an enquiry.
 const draftBlocking = computed<Booking[]>(() => {

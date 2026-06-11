@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-06-12 — Renewals: tenant links + a renew flow on bookings
+
+- **Tenant renewal callout** now has **Message tenant** and **View booking** actions (the latter deep-links to the specific ending booking via `/bookings?q=<id>`).
+- **Renew on the bookings page** — the notifications column (2nd-last, where the overdue/clash flags live) now shows an amber **Renew** button on renewable bookings (confirmed, ending ≤45 days, no later confirmed booking for the same tenant — mirrors the Tenants logic). Clicking opens a **Renew overlay**: proposes a new term (date-range picker that blocks dates already booked on that space) prefilled to follow straight on from the current term, with an editable rate (You-receive preview). "Send renewal to tenant" creates a **quoted** renewal booking for the new term and logs it; the Renew button then clears on the original (offer sent).
+
 ## 2026-06-12 — Tenants: directory + overlay refinements
 
 - **Directory table** — gave the primary contact its **own "Primary contact" column** (name + role) in position 2, rather than crammed under the company; removed the **Centres** column. Columns are now Company · Primary contact · Category · Bookings · Lifetime value · Stage · renewal flag.
