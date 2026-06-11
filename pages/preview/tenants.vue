@@ -101,10 +101,7 @@
                     <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted text-xs font-bold text-foreground">
                       {{ t.company.charAt(0) }}
                     </div>
-                    <span class="flex items-center gap-1.5 text-sm font-medium text-foreground">
-                      {{ t.company }}
-                      <span v-if="t.confirmedCount >= 2" class="rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Repeat</span>
-                    </span>
+                    <span class="text-sm font-medium text-foreground">{{ t.company }}</span>
                   </div>
                 </TableCell>
                 <TableCell>
@@ -162,10 +159,7 @@
                 {{ selectedTenant.company.charAt(0) }}
               </div>
               <div class="flex flex-col gap-0.5">
-                <h2 class="flex items-center gap-2 text-lg font-semibold leading-tight text-foreground">
-                  {{ selectedTenant.company }}
-                  <span v-if="selectedTenant.confirmedCount >= 2" class="rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Repeat</span>
-                </h2>
+                <h2 class="text-lg font-semibold leading-tight text-foreground">{{ selectedTenant.company }}</h2>
                 <p class="text-sm text-muted-foreground">{{ formatCategory(selectedTenant.category) }}</p>
               </div>
             </div>
