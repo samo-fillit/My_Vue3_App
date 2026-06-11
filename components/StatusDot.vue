@@ -40,6 +40,6 @@ defineProps<{
   padding: 2px 6px;
   border-radius: 6px;
   transform-origin: left center;
-  animation: status-change-pulse 0.85s ease-in-out 2;
+  animation: status-change-pulse 1.5s ease-in-out 2;
 }
 </style>
