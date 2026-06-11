@@ -71,7 +71,10 @@
                 <TableHead>
                   <span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Company</span>
                 </TableHead>
-                <TableHead class="w-[170px]">
+                <TableHead class="w-[190px]">
+                  <span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Primary contact</span>
+                </TableHead>
+                <TableHead class="w-[160px]">
                   <span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Category</span>
                 </TableHead>
                 <TableHead class="w-[90px] text-right">
@@ -104,6 +107,12 @@
                     </span>
                   </div>
                 </TableCell>
+                <TableCell>
+                  <div class="flex flex-col gap-0.5">
+                    <span class="text-sm text-foreground">{{ primaryContact(t).name }}</span>
+                    <span v-if="primaryContact(t).role" class="text-xs text-muted-foreground">{{ primaryContact(t).role }}</span>
+                  </div>
+                </TableCell>
                 <TableCell class="text-sm text-muted-foreground">{{ t.category }}</TableCell>
                 <TableCell class="text-right text-sm tabular-nums text-foreground">{{ t.confirmedCount || '—' }}</TableCell>
                 <TableCell class="text-right text-sm font-medium tabular-nums text-foreground">{{ t.lifetimeValue ? formatAmount(t.lifetimeValue) : '—' }}</TableCell>
@@ -127,7 +136,7 @@
               </TableRow>
 
               <TableRow v-if="filteredTenants.length === 0">
-                <TableCell :colspan="6" class="py-16 text-center text-sm text-muted-foreground">{{ emptyMessage }}</TableCell>
+                <TableCell :colspan="7" class="py-16 text-center text-sm text-muted-foreground">{{ emptyMessage }}</TableCell>
               </TableRow>
             </TableBody>
           </Table>
