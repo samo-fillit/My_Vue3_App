@@ -890,6 +890,43 @@
       </div>
     </Transition>
   </Teleport>
+
+  <!-- Confirm: send changes to tenant -->
+  <Teleport to="body">
+    <Transition name="modal">
+      <div v-if="sendChangesOpen && selectedBooking" class="fixed inset-0 z-[60] flex items-center justify-center p-6">
+        <div class="absolute inset-0 bg-black/50" @click="sendChangesOpen = false" />
+        <div class="relative z-10 flex w-full max-w-[460px] flex-col rounded-xl border border-border bg-background shadow-2xl">
+          <div class="flex items-start justify-between gap-4 border-b border-border px-6 py-4">
+            <h2 class="text-base font-semibold text-foreground">Send changes to tenant</h2>
+            <button type="button" class="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground" @click="sendChangesOpen = false">
+              <IconX :size="18" stroke-width="1.5" />
+            </button>
+          </div>
+          <div class="flex flex-col gap-4 px-6 py-5">
+            <p class="text-sm text-muted-foreground">
+              You've made the following changes. {{ selectedBooking.tenant.company }} will need to accept the updated terms before the booking can proceed.
+            </p>
+            <div class="flex flex-col divide-y divide-border overflow-hidden rounded-lg border border-border">
+              <div v-for="c in changeSummary" :key="c.label" class="flex flex-col gap-1 px-4 py-3">
+                <span class="text-xs font-medium text-muted-foreground">{{ c.label }}</span>
+                <div v-if="c.note" class="text-sm text-foreground">{{ c.note }}</div>
+                <div v-else class="flex items-center gap-2 text-sm">
+                  <span class="text-muted-foreground line-through">{{ c.from }}</span>
+                  <IconArrowRight :size="14" stroke-width="2" class="shrink-0 text-muted-foreground" />
+                  <span class="font-medium text-foreground">{{ c.to }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center justify-end gap-2 border-t border-border px-6 py-4">
+            <Button variant="ghost" size="sm" @click="sendChangesOpen = false">Back</Button>
+            <Button size="sm" @click="sendQuote">Send to tenant</Button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
 </template>
 
 <style scoped>
@@ -1281,6 +1318,8 @@ const editingSchedule = ref(false)
 // Landlord's drafted space + dates while editing an enquiry (before sending back).
 const spaceDraft = ref<Booking['space'] | null>(null)
 const dateRangeDraft = ref<DateRange | undefined>(undefined)
+// Confirmation step shown before sending edited terms back to the tenant.
+const sendChangesOpen = ref(false)
 
 function openDetail(b: Booking) {
   selectedBooking.value = b
@@ -1343,6 +1382,32 @@ const enquiryChanged = computed(() => {
   return p.from !== b.period.from || p.to !== b.period.to
 })
 
+// A before→after summary of the landlord's edits, shown in the send-changes confirm.
+interface ChangeRow { label: string; from?: string; to?: string; note?: string }
+const changeSummary = computed<ChangeRow[]>(() => {
+  const b = selectedBooking.value
+  if (!b) return []
+  const rows: ChangeRow[] = []
+  if (spaceDraft.value && spaceDraft.value.id !== b.space.id) {
+    rows.push({ label: 'Space', from: b.space.title, to: spaceDraft.value.title })
+  }
+  const p = draftPeriod.value
+  if (p.from !== b.period.from || p.to !== b.period.to) {
+    rows.push({
+      label: 'Dates',
+      from: `${formatDate(b.period.from)} – ${formatDate(b.period.to)}`,
+      to: `${formatDate(p.from)} – ${formatDate(p.to)}`,
+    })
+  }
+  if ((rateDraft.value || 0) !== (originalRate.value || 0)) {
+    rows.push({ label: 'Rate', from: formatAmount(originalRate.value), to: formatAmount(rateDraft.value || 0) })
+  }
+  if (scheduleEdited.value) {
+    rows.push({ label: 'Payment schedule', note: 'Instalments updated' })
+  }
+  return rows
+})
+
 function sendQuote() {
   const b = selectedBooking.value
   if (!b) return
@@ -1356,6 +1421,7 @@ function sendQuote() {
   b.priceOnApplication = false
   b.status = 'quoted'
   pushAction(b, 'quote_sent', changed ? `Changes sent to tenant — ${formatAmount(d.rate)}` : 'Enquiry accepted — sent to tenant')
+  sendChangesOpen.value = false
 }
 
 // ─── Edit payment schedule (landlord) ──────────────────────────────────────────
@@ -1443,6 +1509,7 @@ function saveSchedule() {
 function closeDetail() {
   detailOpen.value = false
   editingSchedule.value = false
+  sendChangesOpen.value = false
 }
 
 function formatCategory(c?: string | null): string {
@@ -1581,7 +1648,7 @@ function onCta(key: string) {
   const b = selectedBooking.value
   if (!b) return
   switch (key) {
-    case 'sendQuote': sendQuote(); break                                              // landlord: enquiry → quoted
+    case 'sendQuote': if (enquiryChanged.value) sendChangesOpen.value = true; else sendQuote(); break  // changes → confirm first; unchanged accept → send
     case 'sendLease': sendForSignature(); break                                       // landlord (Nhood): send the lease for signature
     case 'accept':                                                                    // tenant: accept the quote
       if (isPlatform('eleaseloop')) {

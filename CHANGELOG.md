@@ -8,6 +8,7 @@ Extends enquiry editing (previously rate-only) so a landlord can also reassign t
 - **Editable space** — a popover picker of the centre's spaces (derived from the bookings dataset so availability stays consistent with the conflict logic). Each option shows a **Free / Booked** indicator for the tenant's currently-chosen dates (`spaceAvailableForDraft`)
 - **Clash flag on reassignment** — if the landlord picks a space that's already booked for the chosen dates, the amber conflict banner now reads "{space} is unavailable for these dates" and lists the clashing booking(s); "Send changes to tenant" is disabled with a hint until they pick a free space or change the dates (`draftBlocking` / `overlayBlocking`)
 - Space/date edits count as "changes" (CTA → "Send changes to tenant") and are persisted on send; `sendQuote` writes the drafted space + period back to the booking
+- **Confirm step** — "Send changes to tenant" now opens a confirmation modal with a before→after summary of the edits (space / dates / rate / payment schedule) before committing (`changeSummary`); "Back" cancels, "Send to tenant" sends. The unchanged "Accept enquiry" path still sends directly with no modal
 - Seeded enquiry 10098 (Patagonia, Westfield Pop-up Space P2, 6–20 Jul) as a clean demo: free on its own space, clashes if switched to Kiosk A2 (#12001) or Kiosk A3 (#10042)
 
 ## 2026-06-10 — Bookings: payment schedule on all summaries + CTA clarity
