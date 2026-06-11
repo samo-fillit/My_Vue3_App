@@ -27,14 +27,14 @@ defineProps<{
 </script>
 
 <style scoped>
-/* Light↔dark via the element dimming (no background fill), with a gentle scale. */
+/* Keep the single colour; just pulse the status size a couple of times. */
 @keyframes status-change-pulse {
-  0%   { transform: scale(1);    opacity: 1; }
-  50%  { transform: scale(1.09); opacity: 0.4; }
-  100% { transform: scale(1);    opacity: 1; }
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.12); }
+  100% { transform: scale(1); }
 }
 .status-change-highlight {
   transform-origin: left center;
-  animation: status-change-pulse 1.7s ease-in-out 2;
+  animation: status-change-pulse 1.36s ease-in-out 2;
 }
 </style>
