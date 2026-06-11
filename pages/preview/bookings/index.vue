@@ -1343,7 +1343,7 @@ function pushAction(b: Booking, type: string, description: string) {
 // Flag a booking's status as just-changed so its StatusDot pulses (~2 cycles).
 function pulseStatus(id: string) {
   statusPulseId.value = id
-  setTimeout(() => { if (statusPulseId.value === id) statusPulseId.value = null }, 3200)
+  setTimeout(() => { if (statusPulseId.value === id) statusPulseId.value = null }, 3600)
 }
 
 // ─── Rate negotiation (landlord, on an enquiry) ────────────────────────────────

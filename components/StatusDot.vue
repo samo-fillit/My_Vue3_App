@@ -27,19 +27,14 @@ defineProps<{
 </script>
 
 <style scoped>
+/* Light↔dark via the element dimming (no background fill), with a gentle scale. */
 @keyframes status-change-pulse {
-  0%   { transform: scale(1);    background-color: transparent; }
-  25%  { transform: scale(1.08); background-color: hsl(var(--foreground) / 0.10); }
-  50%  { transform: scale(1);    background-color: transparent; }
-  75%  { transform: scale(1.08); background-color: hsl(var(--foreground) / 0.10); }
-  100% { transform: scale(1);    background-color: transparent; }
+  0%   { transform: scale(1);    opacity: 1; }
+  50%  { transform: scale(1.09); opacity: 0.4; }
+  100% { transform: scale(1);    opacity: 1; }
 }
-/* Negative margin offsets the padding so neighbours don't shift while it pulses. */
 .status-change-highlight {
-  margin: -2px -6px;
-  padding: 2px 6px;
-  border-radius: 6px;
   transform-origin: left center;
-  animation: status-change-pulse 1.5s ease-in-out 2;
+  animation: status-change-pulse 1.7s ease-in-out 2;
 }
 </style>
