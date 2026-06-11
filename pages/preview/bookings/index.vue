@@ -394,13 +394,13 @@
               </div>
 
               <!-- Double-booking conflict (landlord) -->
-              <div v-if="hasBlockingConflict(selectedBooking)" class="flex items-start gap-2.5 rounded-lg border border-amber-500/40 bg-amber-500/5 px-4 py-3">
+              <div v-if="overlayBlocking.length" class="flex items-start gap-2.5 rounded-lg border border-amber-500/40 bg-amber-500/5 px-4 py-3">
                 <IconAlertTriangle :size="16" stroke-width="1.5" class="mt-0.5 shrink-0 text-amber-600" />
                 <div class="flex flex-col gap-1">
-                  <span class="text-sm font-medium text-foreground">Date clash with a confirmed booking</span>
-                  <span class="text-xs text-muted-foreground">This space is already booked for overlapping dates:</span>
+                  <span class="text-sm font-medium text-foreground">{{ canNegotiate(selectedBooking) ? `${spaceDraft?.title} is unavailable for these dates` : 'Date clash with a confirmed booking' }}</span>
+                  <span class="text-xs text-muted-foreground">Already booked for overlapping dates:</span>
                   <ul class="mt-0.5 flex flex-col gap-0.5">
-                    <li v-for="c in blockingConflictsFor(selectedBooking)" :key="c.id" class="text-xs tabular-nums text-muted-foreground">
+                    <li v-for="c in overlayBlocking" :key="c.id" class="text-xs tabular-nums text-muted-foreground">
                       #{{ c.id }} · {{ c.tenant.company }} · {{ formatDate(c.period.from) }} – {{ formatDate(c.period.to) }}
                     </li>
                   </ul>
@@ -409,14 +409,66 @@
 
               <!-- Key facts -->
               <section class="flex flex-col gap-4">
-                <div class="grid grid-cols-2 gap-4">
+                <!-- Editable space + dates (landlord, on an enquiry) -->
+                <div v-if="canNegotiate(selectedBooking)" class="grid grid-cols-2 gap-4">
+                  <div class="flex flex-col gap-1">
+                    <span class="text-xs font-medium text-muted-foreground">Space</span>
+                    <Popover>
+                      <PopoverTrigger as-child>
+                        <button type="button" class="flex h-9 w-full items-center justify-between gap-2 rounded-md border border-border bg-background px-2.5 text-sm text-foreground transition-colors hover:bg-muted">
+                          <span class="truncate">{{ spaceDraft?.title }}</span>
+                          <IconChevronDown :size="14" stroke-width="2" class="shrink-0 text-muted-foreground" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent class="w-[260px] p-1.5" align="start" :side-offset="6">
+                        <p class="px-2 pb-1 pt-1 text-xs font-semibold text-muted-foreground">{{ selectedBooking.space.centreName }}</p>
+                        <button
+                          v-for="s in candidateSpaces"
+                          :key="s.id"
+                          type="button"
+                          class="flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-muted"
+                          :class="spaceDraft?.id === s.id ? 'bg-muted' : ''"
+                          @click="spaceDraft = { ...s }"
+                        >
+                          <span class="flex min-w-0 flex-col">
+                            <span class="truncate text-foreground">{{ s.title }}</span>
+                            <span class="text-xs text-muted-foreground">{{ s.type }}</span>
+                          </span>
+                          <span class="flex shrink-0 items-center gap-1 text-[11px] font-medium" :class="spaceAvailableForDraft(s.id) ? 'text-green-600' : 'text-amber-600'">
+                            <span class="h-1.5 w-1.5 rounded-full" :class="spaceAvailableForDraft(s.id) ? 'bg-green-500' : 'bg-amber-500'" />
+                            {{ spaceAvailableForDraft(s.id) ? 'Free' : 'Booked' }}
+                          </span>
+                        </button>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <div class="flex flex-col gap-1">
+                    <span class="text-xs font-medium text-muted-foreground">Dates</span>
+                    <Popover>
+                      <PopoverTrigger as-child>
+                        <button type="button" class="flex h-9 w-full items-center justify-between gap-2 rounded-md border border-border bg-background px-2.5 text-sm tabular-nums text-foreground transition-colors hover:bg-muted">
+                          <span class="truncate">{{ draftDatesLabel }}</span>
+                          <IconCalendar :size="14" stroke-width="1.5" class="shrink-0 text-muted-foreground" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent class="w-auto p-0" align="start" :side-offset="6">
+                        <RangeCalendar v-model="dateRangeDraft" :number-of-months="2" :is-date-unavailable="dateUnavailable" />
+                        <p class="border-t border-border px-5 py-2.5 text-xs text-muted-foreground">
+                          Struck-through dates are already booked for {{ spaceDraft?.title }}.
+                        </p>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
+                <!-- Read-only dates + rate (everyone else) -->
+                <div v-else class="grid grid-cols-2 gap-4">
                   <div class="flex flex-col gap-0.5">
                     <span class="text-xs font-medium text-muted-foreground">Dates</span>
                     <span class="text-sm tabular-nums text-foreground">{{ formatDate(selectedBooking.period.from) }} – {{ formatDate(selectedBooking.period.to) }}</span>
                   </div>
                   <div class="flex flex-col gap-0.5">
                     <span class="text-xs font-medium text-muted-foreground">Rate</span>
-                    <span class="text-sm font-medium tabular-nums text-foreground">{{ formatAmount(selectedBooking.financials.rate) }}</span>
+                    <span class="text-sm font-medium tabular-nums text-foreground">{{ rateDisplay(selectedBooking) }}</span>
                   </div>
                 </div>
                 <div class="flex flex-col gap-0.5">
@@ -1148,6 +1200,13 @@ function isActivePreset(p: typeof presets[0]) {
 function calToIso(d: { year: number; month: number; day: number }): string {
   return `${d.year}-${String(d.month).padStart(2, '0')}-${String(d.day).padStart(2, '0')}`
 }
+function isoToCal(iso: string): CalendarDate {
+  const [y, m, d] = iso.split('-').map(Number)
+  return new CalendarDate(y, m, d)
+}
+function fmtCalDate(d: { year: number; month: number; day: number }): string {
+  return new Date(d.year, d.month - 1, d.day).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+}
 
 const dateRangeLabel = computed(() => {
   if (!dateRange.value?.start || !dateRange.value?.end) return 'All dates'
@@ -1219,11 +1278,16 @@ const rateDraft = ref(0)
 const originalRate = ref(0)
 const scheduleEdited = ref(false)
 const editingSchedule = ref(false)
+// Landlord's drafted space + dates while editing an enquiry (before sending back).
+const spaceDraft = ref<Booking['space'] | null>(null)
+const dateRangeDraft = ref<DateRange | undefined>(undefined)
 
 function openDetail(b: Booking) {
   selectedBooking.value = b
   rateDraft.value = b.financials.rate
   originalRate.value = b.financials.rate
+  spaceDraft.value = { ...b.space }
+  dateRangeDraft.value = { start: isoToCal(b.period.from), end: isoToCal(b.period.to) }
   scheduleEdited.value = false
   editingSchedule.value = false
   detailOpen.value = true
@@ -1272,13 +1336,21 @@ const liveFinancials = computed(() => {
 const enquiryChanged = computed(() => {
   const b = selectedBooking.value
   if (!b || b.status !== 'enquiry') return false
-  return scheduleEdited.value || (rateDraft.value || 0) !== (originalRate.value || 0)
+  if (scheduleEdited.value) return true
+  if ((rateDraft.value || 0) !== (originalRate.value || 0)) return true
+  if (spaceDraft.value && spaceDraft.value.id !== b.space.id) return true
+  const p = draftPeriod.value
+  return p.from !== b.period.from || p.to !== b.period.to
 })
 
 function sendQuote() {
   const b = selectedBooking.value
   if (!b) return
   const changed = enquiryChanged.value
+  // Persist the landlord's space + date edits before quoting.
+  if (spaceDraft.value) b.space = { ...spaceDraft.value }
+  const p = draftPeriod.value
+  if (p.from && p.to) b.period = { from: p.from, to: p.to }
   const d = deriveFinancials(b, rateDraft.value || b.financials.rate)
   Object.assign(b.financials, { ...d, quote: d.rate })
   b.priceOnApplication = false
@@ -1407,7 +1479,7 @@ function detailActions(b: Booking): BookingCta[] {
       case 'enquiry': // landlord's turn: review terms, optionally adjust the rate, send to tenant
         a.push({ key: 'message', label: 'Message tenant', variant: 'ghost' })
         a.push({ key: 'decline', label: 'Decline', variant: 'outline' })
-        a.push({ key: 'sendQuote', label: enquiryChanged.value ? 'Send changes to tenant' : 'Accept enquiry', variant: 'default', disabled: (rateDraft.value || 0) <= 0 || hasBlockingConflict(b) })
+        a.push({ key: 'sendQuote', label: enquiryChanged.value ? 'Send changes to tenant' : 'Accept enquiry', variant: 'default', disabled: (rateDraft.value || 0) <= 0 || draftBlocking.value.length > 0 })
         break
       case 'quoted': // waiting on tenant to accept
         a.push({ key: 'message', label: 'Message tenant', variant: 'ghost' })
@@ -1496,7 +1568,7 @@ function detailWaitingHint(b: Booking): string {
 // a confirmed-booking date clash, or a missing/zero rate (incl. price-on-application).
 function detailBlockHint(b: Booking): string {
   if (viewerRole.value !== 'landlord' || b.status !== 'enquiry') return ''
-  if (hasBlockingConflict(b)) return 'These dates clash with a confirmed booking on this space. Adjust the dates before sending terms.'
+  if (draftBlocking.value.length) return `${spaceDraft.value?.title ?? 'This space'} is unavailable for the selected dates. Choose another space or change the dates before sending.`
   if ((rateDraft.value || 0) <= 0) return isPoa(b) ? 'Set a rate to send terms to the tenant.' : 'Enter a rate above zero to send terms.'
   return ''
 }
@@ -1592,6 +1664,72 @@ function blockingConflictsFor(b: Booking): Booking[] {
 function hasBlockingConflict(b: Booking): boolean {
   return isLandlord.value && blockingConflictsFor(b).length > 0
 }
+
+// ─── Editing an enquiry's space & dates (landlord) ─────────────────────────────
+// Candidate spaces = the other spaces at the same centre that appear in the
+// bookings data (so availability checks stay consistent with the conflict logic).
+function spacesInCentre(centreId: string): Booking['space'][] {
+  const seen = new Map<string, Booking['space']>()
+  for (const o of bookings.value) {
+    if (o.space.centreId === centreId && !seen.has(o.space.id)) seen.set(o.space.id, o.space)
+  }
+  return [...seen.values()]
+}
+const candidateSpaces = computed<Booking['space'][]>(() => {
+  const b = selectedBooking.value
+  return b ? spacesInCentre(b.space.centreId) : []
+})
+
+// The landlord's drafted dates (falls back to the booking's stored period).
+const draftPeriod = computed(() => {
+  const r = dateRangeDraft.value
+  if (r?.start && r?.end) return { from: calToIso(r.start), to: calToIso(r.end) }
+  const b = selectedBooking.value
+  return b ? { from: b.period.from, to: b.period.to } : { from: '', to: '' }
+})
+
+// Confirmed bookings clashing with a given space + period (excluding self).
+function blockingOn(spaceId: string, period: { from: string; to: string }, excludeId: string): Booking[] {
+  return bookings.value.filter(o =>
+    o.id !== excludeId && o.space.id === spaceId && o.status === 'confirmed' && periodsOverlap(period, o.period),
+  )
+}
+// Clash for the *drafted* space + dates while a landlord edits an enquiry.
+const draftBlocking = computed<Booking[]>(() => {
+  const b = selectedBooking.value
+  if (!b || !canNegotiate(b) || !spaceDraft.value) return []
+  return blockingOn(spaceDraft.value.id, draftPeriod.value, b.id)
+})
+// Whichever clash set the overlay should surface: drafted (editing) or stored.
+const overlayBlocking = computed<Booking[]>(() => {
+  const b = selectedBooking.value
+  if (!b) return []
+  if (canNegotiate(b)) return draftBlocking.value
+  return hasBlockingConflict(b) ? blockingConflictsFor(b) : []
+})
+// Is a candidate space free for the currently-drafted dates?
+function spaceAvailableForDraft(spaceId: string): boolean {
+  const b = selectedBooking.value
+  if (!b) return true
+  return blockingOn(spaceId, draftPeriod.value, b.id).length === 0
+}
+// reka-ui RangeCalendar unavailable-date callback for the drafted space.
+function dateUnavailable(date: { year: number; month: number; day: number }): boolean {
+  const b = selectedBooking.value
+  const sp = spaceDraft.value
+  if (!b || !sp) return false
+  const iso = calToIso(date)
+  return bookings.value.some(o =>
+    o.id !== b.id && o.space.id === sp.id &&
+    o.status !== 'declined' && o.status !== 'cancelled' &&
+    iso >= o.period.from && iso <= o.period.to,
+  )
+}
+const draftDatesLabel = computed(() => {
+  const r = dateRangeDraft.value
+  if (r?.start && r?.end) return `${fmtCalDate(r.start)} – ${fmtCalDate(r.end)}`
+  return 'Select dates'
+})
 
 // ─── Price on application ───────────────────────────────────────────────────────
 // A POA enquiry has no set price; the landlord must quote a rate before it can

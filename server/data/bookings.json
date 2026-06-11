@@ -1793,6 +1793,32 @@
         { "type": "quote_accepted", "actor": "Isabel Soto", "actorType": "tenant", "at": "2026-06-02T10:00:00Z", "description": "Quote accepted — lease to be sent for signature" }
       ],
       "notes": { "landlord": null, "tenant": null }
+    },
+    {
+      "id": "10098",
+      "status": "enquiry",
+      "createdAt": "2026-06-09T11:00:00Z",
+      "submittedAt": "2026-06-09T11:00:00Z",
+      "respondedAt": null,
+      "confirmedAt": null,
+      "cancelledAt": null,
+      "preConfirmed": false,
+      "approvalType": "single",
+      "bookingLinkId": null,
+      "period": { "from": "2026-07-06", "to": "2026-07-20" },
+      "landlord": { "teamId": "team-one", "teamName": "Team One", "teamColor": "#059669", "organisationName": "Westfield Group Ltd", "country": "GB" },
+      "tenant": { "teamId": null, "company": "Patagonia", "contactName": "Mark Vetter", "email": "m.vetter@patagonia.com", "phone": "+44 20 7946 0820", "isSelfEmployed": false },
+      "space": { "id": "s3", "title": "Pop-up Space P2", "type": "Pop-up", "centreId": "centre-westfield", "centreName": "Westfield London", "centreColor": "#7c3aed", "dimensions": "6x5m" },
+      "enquiry": { "title": "Patagonia Worn Wear pop-up", "category": "brand_marketing", "description": "Repair-and-reuse pop-up with a worn-gear trade-in counter.", "dimensions": "6x5m", "additionalInfo": null },
+      "financials": { "currency": "EUR", "rate": 2600, "vat": 520, "deposit": 350, "discount": 0, "fillitFee": 260, "total": 3120, "totalLandlord": 2860, "quote": 2600, "paymentStatus": "pending", "paidBy": null },
+      "payments": [],
+      "documents": [],
+      "docusign": { "status": null, "envelopeId": null, "sentAt": null, "completedAt": null },
+      "managerApproval": null,
+      "actions": [
+        { "type": "enquiry_submitted", "actor": "Mark Vetter", "actorType": "tenant", "at": "2026-06-09T11:00:00Z", "description": "Enquiry submitted" }
+      ],
+      "notes": { "landlord": null, "tenant": null }
     }
   ]
 }

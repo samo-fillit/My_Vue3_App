@@ -27,8 +27,8 @@ const forwardedProps = useForwardProps(delegatedProps)
       'data-[outside-view]:text-muted-foreground data-[outside-view]:opacity-50 [&[data-outside-view][data-selected]]:text-muted-foreground [&[data-outside-view][data-selected]]:opacity-30',
       // Disabled
       'data-[disabled]:text-muted-foreground data-[disabled]:opacity-50',
-      // Unavailable
-      'data-[unavailable]:text-destructive-foreground data-[unavailable]:line-through',
+      // Unavailable (e.g. dates already booked for the selected space)
+      'data-[unavailable]:text-muted-foreground data-[unavailable]:line-through data-[unavailable]:opacity-50 data-[unavailable]:pointer-events-none',
       props.class,
     )"
     v-bind="forwardedProps"

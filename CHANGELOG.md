@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-06-11 — Bookings: landlords can change space + dates on enquiries (with availability)
+
+Extends enquiry editing (previously rate-only) so a landlord can also reassign the **space** and adjust the **dates** before sending an enquiry back — with live availability:
+
+- **Editable dates** — a `RangeCalendar` popover in the overlay (landlord + enquiry). Dates already booked for the selected space are shown struck-through and **can't be selected** (`dateUnavailable` → reka-ui `is-date-unavailable`). Fixed the shared `RangeCalendarCellTrigger` unavailable style (was `text-destructive-foreground`, ~invisible on white) to a muted struck-through style
+- **Editable space** — a popover picker of the centre's spaces (derived from the bookings dataset so availability stays consistent with the conflict logic). Each option shows a **Free / Booked** indicator for the tenant's currently-chosen dates (`spaceAvailableForDraft`)
+- **Clash flag on reassignment** — if the landlord picks a space that's already booked for the chosen dates, the amber conflict banner now reads "{space} is unavailable for these dates" and lists the clashing booking(s); "Send changes to tenant" is disabled with a hint until they pick a free space or change the dates (`draftBlocking` / `overlayBlocking`)
+- Space/date edits count as "changes" (CTA → "Send changes to tenant") and are persisted on send; `sendQuote` writes the drafted space + period back to the booking
+- Seeded enquiry 10098 (Patagonia, Westfield Pop-up Space P2, 6–20 Jul) as a clean demo: free on its own space, clashes if switched to Kiosk A2 (#12001) or Kiosk A3 (#10042)
+
 ## 2026-06-10 — Bookings: payment schedule on all summaries + CTA clarity
 
 - **Payment schedule now appears on every booking** (incl. new enquiries). When no schedule is stored yet, a proposed single "Full payment" is derived from the (live) gross total via `displayPayments` — for an enquiry under negotiation it tracks the rate the landlord is setting
