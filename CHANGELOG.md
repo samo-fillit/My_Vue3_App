@@ -4,6 +4,7 @@
 
 - **Renew now follows the standard flow** — instead of directly creating a `quoted` booking, "Send renewal to tenant" hands the prefilled details (tenant, centre, dates, rate) to the **booking-links create overlay** and navigates there (`useState('renewal-draft')` → `/booking-links?create=1`, prefilled). It goes out as a booking-link **enquiry**; once the tenant completes it, it becomes a booking — same path as a normal Create booking. (The booking's space isn't in the catalog, so the landlord picks the space on the create form; everything else is prefilled.) The Renew button stays hidden after sending (`useState('renewal-sent')`).
 - **Booking-links table is company-first** — swapped the columns so **Company** is the primary detail (bold, first) and the **Contact** (name + email) is secondary, matching the CRM company-first model.
+- **Renewal tag column** — a new "Type" column at the end tags a booking link as **Renewal**. Links created via the renew flow are auto-tagged; any link can be tagged/untagged manually (the chip shows as an amber "Renewal" pill when set, and reveals a dashed "Tag renewal" affordance on row hover when not). Seeded two existing team-one links as renewals.
 
 ## 2026-06-12 — Renewals: tenant links + a renew flow on bookings
 

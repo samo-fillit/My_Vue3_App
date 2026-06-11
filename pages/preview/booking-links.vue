@@ -154,6 +154,10 @@
                   <span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Status</span>
                 </TableHead>
 
+                <TableHead class="w-[130px]">
+                  <span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Type</span>
+                </TableHead>
+
               </TableRow>
             </TableHeader>
 
@@ -216,10 +220,25 @@
                   </TooltipProvider>
                 </TableCell>
 
+                <TableCell class="w-[130px]">
+                  <button
+                    type="button"
+                    class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium transition-all"
+                    :class="link.isRenewal
+                      ? 'bg-amber-500/10 text-amber-600 hover:bg-amber-500/20'
+                      : 'border border-dashed border-border text-muted-foreground opacity-0 group-hover:opacity-100 hover:border-foreground hover:text-foreground'"
+                    :title="link.isRenewal ? 'Renewal — click to remove tag' : 'Tag as renewal'"
+                    @click="toggleRenewal(link)"
+                  >
+                    <IconRefresh :size="11" stroke-width="2" />
+                    {{ link.isRenewal ? 'Renewal' : 'Tag renewal' }}
+                  </button>
+                </TableCell>
+
               </TableRow>
 
               <TableRow v-if="filteredLinks.length === 0">
-                <TableCell colspan="7" class="py-16 text-center text-sm text-muted-foreground">
+                <TableCell colspan="8" class="py-16 text-center text-sm text-muted-foreground">
                   No booking links found.
                 </TableCell>
               </TableRow>
@@ -382,6 +401,7 @@ import {
   IconBuilding,
   IconCheck,
   IconInbox,
+  IconRefresh,
 } from '@tabler/icons-vue'
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar'
 import { Button } from '@/components/ui/button'
@@ -437,6 +457,7 @@ interface BookingLink {
   status: BookingLinkStatus
   statusChangedAt: string
   statusChangedBy: string
+  isRenewal?: boolean
 }
 
 // ─── App context ──────────────────────────────────────────────────────────────
@@ -664,6 +685,8 @@ const availableSpaces = computed(() =>
 // ─── Form ─────────────────────────────────────────────────────────────────────
 
 const formOpen = ref(false)
+// True while the create overlay is a renewal hand-off, so the new link is tagged.
+const creatingRenewal = ref(false)
 // Track the email at the moment of autocomplete selection — suggestions hide
 // when current email matches this value, with no async watch side-effects.
 const lastSelectedEmail = ref('')
@@ -748,6 +771,7 @@ onMounted(() => {
     form.rate = d.rate
     lastSelectedEmail.value = d.tenantEmail // hide autocomplete suggestions
     if (d.periodFrom && d.periodTo) form.bookingPeriod = { start: isoToCal(d.periodFrom), end: isoToCal(d.periodTo) }
+    creatingRenewal.value = true
     formOpen.value = true
     renewalDraft.value = null // consume the hand-off
   }, 500)
@@ -780,10 +804,17 @@ function handleSend() {
     status: 'sent',
     statusChangedAt: new Date().toISOString(),
     statusChangedBy: CURRENT_USER_NAME,
+    isRenewal: creatingRenewal.value,
   }
 
   bookingLinks.value = [newLink, ...bookingLinks.value]
   formOpen.value = false
+  creatingRenewal.value = false
+}
+
+// Manually tag/untag a link as a renewal (prototype — local).
+function toggleRenewal(link: BookingLink) {
+  link.isRenewal = !link.isRenewal
 }
 
 function resetForm() {
@@ -797,6 +828,7 @@ function resetForm() {
   form.rate = ''
   form.deposit = ''
   lastSelectedEmail.value = ''
+  creatingRenewal.value = false
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
