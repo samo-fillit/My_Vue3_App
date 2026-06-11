@@ -110,7 +110,7 @@ Nav order: `transactions` (landlord) / `invoices` (tenant) sit in the 3rd slot, 
 ### `StatusDot`
 - **File:** `components/StatusDot.vue`
 - **Purpose:** Shared status indicator — coloured dot + foreground label (see "Status dot + label" under UI patterns). Replaces the old tinted-pill status badges.
-- **Props:** `label` (required), `dotClass` (required, e.g. `bg-green-500` / `bg-muted-foreground`), `pulse?: boolean` (adds an `animate-ping` halo for active states)
+- **Props:** `label` (required), `dotClass` (required, e.g. `bg-green-500` / `bg-muted-foreground`), `pulse?: boolean` (adds an `animate-ping` halo for active states), `highlight?: boolean` (briefly pulses the dot's *size* — scale 1→1.12→1, `1.36s` ×2 via the `status-change-pulse` keyframe — to flag a just-changed status)
 
 ## Composables
 
@@ -282,6 +282,8 @@ Rules: an overdue payment always surfaces a payment-focused primary (landlord ch
 **Double-booking conflicts** (`conflictsFor` / `blockingConflictsFor` / `hasBlockingConflict`): mirrors production's `BookingConflictsService`. `conflictsFor` finds other non-terminal bookings on the same `space.id` with overlapping dates; a *blocking* conflict is an overlap with a `confirmed` booking. Landlord-only: an amber warning triangle in the list flag column, a conflict banner in the overlay (lists the clashing bookings), and a **confirm-time guard** — `detailActions` disables "Send to tenant" on an enquiry with a blocking conflict (`detailBlockHint` explains why).
 
 **Editing an enquiry's space + dates** (landlord; `spaceDraft` / `dateRangeDraft` / `candidateSpaces` / `draftPeriod` / `draftBlocking`): on an enquiry the landlord can reassign the space and adjust dates in the overlay. Candidate spaces come from the bookings dataset for the same centre (`spacesInCentre`) so availability matches the conflict logic. The dates `RangeCalendar` greys out + blocks dates already booked for the drafted space (`dateUnavailable` → reka-ui `isDateUnavailable`); the space picker shows Free/Booked per option for the drafted dates (`spaceAvailableForDraft`). `draftBlocking` (confirmed overlaps for the drafted space+dates) drives the amber banner (`overlayBlocking` = drafted while editing, else stored) and disables "Send changes to tenant". `sendQuote` persists `b.space` + `b.period` from the drafts; `enquiryChanged` includes space/date diffs.
+
+**Confirm before sending changes**: when `enquiryChanged`, the "Send changes to tenant" CTA opens a confirmation modal (`sendChangesOpen`) showing a before→after summary of the edits (`changeSummary` — space / dates / rate / payment schedule); "Send to tenant" commits via `sendQuote`, "Back" cancels. The unchanged "Accept enquiry" path sends directly. After any status transition (`sendQuote` / accept / sign), `pulseStatus(id)` flags the booking so its `StatusDot` does a brief size pulse (`:highlight`) in the overlay strip and list row.
 
 **Price on application** (`isPoa` / `rateDisplay`, booking `priceOnApplication`): a POA enquiry has no set price (rate ≤ 0). The list shows "POA" (`rateDisplay`); the overlay shows a "Price on application" badge and, when the viewer can't negotiate, a "Price on application" line instead of figures. "Send to tenant" is rate-gated (disabled until `rateDraft > 0`); `sendQuote` clears `priceOnApplication` and derives the financials.
 

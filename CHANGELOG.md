@@ -2,7 +2,7 @@
 
 ## 2026-06-11 — Bookings: status-change highlight
 
-- After a status transition (send changes / accept quote / sign lease), the booking's **StatusDot now pulses briefly** to draw the eye to what changed — a short scale + light↔dark tint, ~2 cycles (`status-change-pulse` keyframe in `StatusDot.vue`, follows the existing `row-search-pulse` pattern). Added an optional `highlight` prop to `StatusDot`; the bookings page sets `statusPulseId` on transition (`pulseStatus`, auto-clears after ~1.9s) and passes `:highlight` to the list row + overlay strip dots. The tint uses `hsl(var(--foreground)/.1)` so it adapts to light/dark mode
+- After a status transition (send changes / accept quote / sign lease), the booking's **StatusDot briefly pulses its size** to draw the eye to what changed — a single-colour scale pulse (1 → 1.12 → 1), `1.36s` per cycle ×2 (`status-change-pulse` keyframe in `StatusDot.vue`, follows the existing `row-search-pulse` pattern). Added an optional `highlight` prop to `StatusDot`; the bookings page sets `statusPulseId` on transition (`pulseStatus`, auto-clears after ~2.9s) and passes `:highlight` to the list row + overlay strip dots. (Iterated from earlier colour/opacity flashes — the final effect keeps one colour and only animates size.)
 
 ## 2026-06-11 — Bookings: landlords can change space + dates on enquiries (with availability)
 
