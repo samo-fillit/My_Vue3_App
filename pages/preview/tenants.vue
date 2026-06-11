@@ -395,7 +395,7 @@ const router = useRouter()
 
 // Same simulated "today" as the bookings page — keeps derived states aligned.
 const TODAY = new Date('2026-06-09T00:00:00Z')
-const RENEWAL_WINDOW_DAYS = 45
+const RENEWAL_WINDOW_DAYS = 14
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 type Stage = 'active' | 'lead' | 'prospect' | 'lapsed'

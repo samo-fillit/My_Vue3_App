@@ -1878,13 +1878,13 @@ function blockingOn(spaceId: string, period: { from: string; to: string }, exclu
 }
 
 // ─── Renewals (landlord) ────────────────────────────────────────────────────────
-// A confirmed booking ending within 45 days with no later confirmed booking for
+// A confirmed booking ending within 14 days with no later confirmed booking for
 // the same tenant — a rebooking opportunity. Mirrors the Tenants page.
 const renewalSent = ref<Set<string>>(new Set())
 function isRenewable(b: Booking): boolean {
   if (!isLandlord.value || b.status !== 'confirmed' || renewalSent.value.has(b.id)) return false
   const d = Math.round((new Date(b.period.to + 'T00:00:00Z').getTime() - TODAY.getTime()) / 86400000)
-  if (d < 0 || d > 45) return false
+  if (d < 0 || d > 14) return false
   return !bookings.value.some(o => o.status === 'confirmed' && o.tenant.company === b.tenant.company && o.period.from > b.period.to)
 }
 
