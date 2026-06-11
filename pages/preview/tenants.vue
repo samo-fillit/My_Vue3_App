@@ -71,11 +71,8 @@
                 <TableHead>
                   <span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Company</span>
                 </TableHead>
-                <TableHead class="w-[150px]">
+                <TableHead class="w-[170px]">
                   <span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Category</span>
-                </TableHead>
-                <TableHead class="w-[120px]">
-                  <span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Centres</span>
                 </TableHead>
                 <TableHead class="w-[90px] text-right">
                   <span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Bookings</span>
@@ -101,19 +98,13 @@
                     <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted text-xs font-bold text-foreground">
                       {{ t.company.charAt(0) }}
                     </div>
-                    <div class="flex min-w-0 flex-col gap-0.5">
-                      <span class="flex items-center gap-1.5 text-sm font-medium text-foreground">
-                        {{ t.company }}
-                        <span v-if="t.confirmedCount >= 2" class="rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Repeat</span>
-                      </span>
-                      <span class="truncate text-xs text-muted-foreground">
-                        {{ primaryContact(t).name }}<template v-if="t.contacts.length > 1"> · +{{ t.contacts.length - 1 }} more</template>
-                      </span>
-                    </div>
+                    <span class="flex items-center gap-1.5 text-sm font-medium text-foreground">
+                      {{ t.company }}
+                      <span v-if="t.confirmedCount >= 2" class="rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Repeat</span>
+                    </span>
                   </div>
                 </TableCell>
-                <TableCell class="text-sm text-muted-foreground">{{ formatCategory(t.category) }}</TableCell>
-                <TableCell class="text-sm text-muted-foreground">{{ t.centresUsed.length || '—' }}</TableCell>
+                <TableCell class="text-sm text-muted-foreground">{{ t.category }}</TableCell>
                 <TableCell class="text-right text-sm tabular-nums text-foreground">{{ t.confirmedCount || '—' }}</TableCell>
                 <TableCell class="text-right text-sm font-medium tabular-nums text-foreground">{{ t.lifetimeValue ? formatAmount(t.lifetimeValue) : '—' }}</TableCell>
                 <TableCell class="pl-8">
@@ -136,7 +127,7 @@
               </TableRow>
 
               <TableRow v-if="filteredTenants.length === 0">
-                <TableCell :colspan="7" class="py-16 text-center text-sm text-muted-foreground">{{ emptyMessage }}</TableCell>
+                <TableCell :colspan="6" class="py-16 text-center text-sm text-muted-foreground">{{ emptyMessage }}</TableCell>
               </TableRow>
             </TableBody>
           </Table>
@@ -235,23 +226,50 @@
                 </button>
               </section>
 
-              <!-- Numbers -->
-              <section class="grid grid-cols-2 gap-x-4 gap-y-4 border-t border-border pt-6 sm:grid-cols-4">
-                <div class="flex flex-col gap-0.5">
-                  <span class="text-xs font-medium text-muted-foreground">Lifetime value</span>
-                  <span class="text-sm font-semibold tabular-nums text-foreground">{{ formatAmount(selectedTenant.lifetimeValue) }}</span>
+              <!-- Transactions -->
+              <section class="flex flex-col gap-4 border-t border-border pt-6">
+                <div class="flex items-center justify-between gap-3">
+                  <h3 class="text-sm font-semibold text-foreground">Transactions</h3>
+                  <button type="button" class="inline-flex items-center gap-1 text-xs font-medium text-foreground transition-colors hover:text-primary" @click="viewTransactions(selectedTenant)">
+                    View all <IconArrowRight :size="13" stroke-width="2" />
+                  </button>
                 </div>
-                <div class="flex flex-col gap-0.5">
-                  <span class="text-xs font-medium text-muted-foreground">Bookings</span>
-                  <span class="text-sm font-semibold tabular-nums text-foreground">{{ selectedTenant.confirmedCount }}</span>
+                <!-- Financial summary -->
+                <div class="grid grid-cols-2 gap-x-4 gap-y-4 sm:grid-cols-4">
+                  <div class="flex flex-col gap-0.5">
+                    <span class="text-xs font-medium text-muted-foreground">Lifetime value</span>
+                    <span class="text-sm font-semibold tabular-nums text-foreground">{{ formatAmount(selectedTenant.lifetimeValue) }}</span>
+                  </div>
+                  <div class="flex flex-col gap-0.5">
+                    <span class="text-xs font-medium text-muted-foreground">Bookings</span>
+                    <span class="text-sm font-semibold tabular-nums text-foreground">{{ selectedTenant.confirmedCount }}</span>
+                  </div>
+                  <div class="flex flex-col gap-0.5">
+                    <span class="text-xs font-medium text-muted-foreground">Outstanding</span>
+                    <span class="text-sm font-semibold tabular-nums" :class="selectedTenant.outstanding > 0 ? 'text-amber-600' : 'text-foreground'">{{ formatAmount(selectedTenant.outstanding) }}</span>
+                  </div>
+                  <div class="flex flex-col gap-0.5">
+                    <span class="text-xs font-medium text-muted-foreground">Payments</span>
+                    <span class="text-sm font-semibold" :class="selectedTenant.latePayments > 0 ? 'text-red-600' : 'text-green-600'">{{ selectedTenant.latePayments > 0 ? `${selectedTenant.latePayments} late` : 'On time' }}</span>
+                  </div>
                 </div>
-                <div class="flex flex-col gap-0.5">
-                  <span class="text-xs font-medium text-muted-foreground">Outstanding</span>
-                  <span class="text-sm font-semibold tabular-nums" :class="selectedTenant.outstanding > 0 ? 'text-amber-600' : 'text-foreground'">{{ formatAmount(selectedTenant.outstanding) }}</span>
-                </div>
-                <div class="flex flex-col gap-0.5">
-                  <span class="text-xs font-medium text-muted-foreground">Payments</span>
-                  <span class="text-sm font-semibold" :class="selectedTenant.latePayments > 0 ? 'text-red-600' : 'text-green-600'">{{ selectedTenant.latePayments > 0 ? `${selectedTenant.latePayments} late` : 'On time' }}</span>
+                <!-- Upcoming + overdue -->
+                <div class="flex flex-col gap-2.5 border-t border-border pt-3">
+                  <div class="flex items-center justify-between text-sm">
+                    <span class="text-muted-foreground">Upcoming payments</span>
+                    <span class="font-medium tabular-nums text-foreground">{{ upcomingCount(selectedTenant) }}</span>
+                  </div>
+                  <template v-if="overduePayments(selectedTenant).length">
+                    <span class="text-xs font-medium uppercase tracking-wide text-red-600">Overdue</span>
+                    <div v-for="p in overduePayments(selectedTenant)" :key="p.id" class="flex items-center justify-between gap-3">
+                      <div class="flex min-w-0 flex-col gap-0.5">
+                        <span class="truncate text-sm text-foreground">{{ p.label }} · #{{ p.bookingId }}</span>
+                        <span class="text-xs tabular-nums text-muted-foreground">Due {{ formatDate(p.dueDate) }} · {{ p.centreName }}</span>
+                      </div>
+                      <span class="shrink-0 text-sm font-semibold tabular-nums text-red-600">{{ formatAmount(p.amount) }}</span>
+                    </div>
+                  </template>
+                  <p v-else class="text-xs text-muted-foreground">No overdue payments.</p>
                 </div>
               </section>
 
@@ -383,7 +401,7 @@ interface Booking {
   space: { id: string; title: string; centreId: string; centreName: string; centreColor: string }
   enquiry?: { category: string }
   financials: { total?: number; totalLandlord?: number; rate: number; paymentStatus?: string }
-  payments?: { status: string; amount: number }[]
+  payments?: { id: string; label: string; amount: number; dueDate: string; status: string }[]
 }
 interface TenantCrm {
   id: string
@@ -433,15 +451,21 @@ const isLandlord = computed(() => isUserType('landlord'))
 
 const { data: bookingsData } = await useAsyncData<Booking[]>('bookings', () => $fetch('/api/bookings'))
 const { data: tenantsData } = await useAsyncData<TenantCrm[]>('tenants', () => $fetch('/api/tenants'))
-const { data: contactsData } = await useAsyncData<Record<string, Contact[]>>('contacts', () => $fetch('/api/contacts'))
+const { data: companiesData } = await useAsyncData<Record<string, { category?: string; contacts?: Contact[] }>>('companies', () => $fetch('/api/companies'))
 const bookings = computed(() => bookingsData.value ?? [])
 const prospects = computed(() => tenantsData.value ?? [])
-const contactsByCompany = computed(() => contactsData.value ?? {})
+const companiesByName = computed(() => companiesData.value ?? {})
+
+// The company's own category (sector) — set at company level, not derived from
+// booking types (a company can run many kinds of booking).
+function companyCategory(company: string): string {
+  return companiesByName.value[company.toLowerCase()]?.category ?? 'Other'
+}
 
 // A company's people: seeded CRM contacts if present, else derived from the
 // distinct contacts across its bookings (usually one). Primary first.
 function contactsForCompany(company: string, bs: Booking[]): Contact[] {
-  const seeded = contactsByCompany.value[company.toLowerCase()]
+  const seeded = companiesByName.value[company.toLowerCase()]?.contacts
   if (seeded?.length) return [...seeded].sort((a, b) => (b.primary ? 1 : 0) - (a.primary ? 1 : 0))
   const seen = new Map<string, Contact>()
   for (const b of bs) {
@@ -463,12 +487,6 @@ function contactBookings(t: TenantRecord, c: Contact): Booking[] {
 // ─── Derivation ───────────────────────────────────────────────────────────────
 function daysFromToday(iso: string): number {
   return Math.round((new Date(iso + 'T00:00:00Z').getTime() - TODAY.getTime()) / 86400000)
-}
-function mostCommon(values: string[]): string {
-  const counts: Record<string, number> = {}
-  let best = values[0] ?? '', bestN = 0
-  for (const v of values) { counts[v] = (counts[v] ?? 0) + 1; if (counts[v] > bestN) { bestN = counts[v]; best = v } }
-  return best
 }
 function bookingOutstanding(b: Booking): number {
   const total = b.financials.total ?? b.financials.rate ?? 0
@@ -521,7 +539,7 @@ const scopedTenants = computed<TenantRecord[]>(() => {
       contactName: latest.tenant.contactName,
       email: latest.tenant.email,
       phone: latest.tenant.phone,
-      category: mostCommon(bs.map(b => b.enquiry?.category ?? '').filter(Boolean)) || 'brand_marketing',
+      category: companyCategory(latest.tenant.company),
       source: crmMeta?.source,
       contacts: contactsForCompany(latest.tenant.company, bs),
       bookings: [...bs].sort((a, b) => b.period.from.localeCompare(a.period.from)),
@@ -623,8 +641,26 @@ function initials(name: string): string {
 function viewInBookings(t: TenantRecord) {
   router.push({ path: '/preview/bookings', query: { q: t.company } })
 }
+function viewTransactions(t: TenantRecord) {
+  router.push({ path: '/preview/transactions', query: { q: t.company } })
+}
 function createBooking() {
   router.push('/preview/booking-links?create=1')
+}
+
+// Payment line items across a tenant's bookings, for the overlay's Transactions section.
+interface PaymentRow { id: string; label: string; amount: number; dueDate: string; status: string; bookingId: string; centreName: string }
+function tenantPayments(t: TenantRecord): PaymentRow[] {
+  return t.bookings.flatMap(b => (b.payments ?? []).map(p => ({
+    id: `${b.id}-${p.id}`, label: p.label, amount: p.amount, dueDate: p.dueDate, status: p.status,
+    bookingId: b.id, centreName: b.space.centreName,
+  })))
+}
+function upcomingCount(t: TenantRecord): number {
+  return tenantPayments(t).filter(p => p.status === 'pending' && daysFromToday(p.dueDate) >= 0).length
+}
+function overduePayments(t: TenantRecord): PaymentRow[] {
+  return tenantPayments(t).filter(p => p.status === 'overdue' || p.status === 'failed')
 }
 
 // ─── Display helpers ──────────────────────────────────────────────────────────

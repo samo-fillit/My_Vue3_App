@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-06-12 — Tenants: directory + overlay refinements
+
+- **Directory table** — dropped the contact name from the Company column (companies have several people; the table is company-only now) and removed the **Centres** column.
+- **Category is now company-level** — a company's own sector (Sportswear, Beauty & cosmetics, Technology, Food & beverage, Luxury…) rather than a booking-type derived from its bookings (a company runs many booking types). Sourced from a new company master file: `server/data/companies.json` + `/api/companies` (keyed by company → `{ category, contacts }`), which also absorbs the contact rosters (the old `contacts.json`/`/api/contacts` is removed).
+- **Transactions section in the tenant overlay** — replaces the standalone numbers block: shows the financial summary (lifetime value / bookings / outstanding / payment reliability), the **count of upcoming payments**, a list of **overdue payments** (label · booking ref · due date · amount), and a **View all → /transactions?q=<company>** link.
+
 ## 2026-06-12 — Tenants (CRM) section v1
 
 New **landlord-specific "Tenants" section** (`/preview/tenants`) — positioned in the sidebar directly under Transactions, on both Fillit and eLeaseLoop landlord navs (renamed/repositioned the existing `crm` nav item; route `/preview/crm` → `/preview/tenants`).
