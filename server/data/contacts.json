@@ -1,0 +1,21 @@
+{
+  "contacts": {
+    "nike": [
+      { "name": "Jordan Smith", "role": "Marketing Manager", "email": "j.smith@nike.com", "phone": "+44 20 7946 0011", "primary": true },
+      { "name": "Aisha Khan", "role": "Finance", "email": "a.khan@nike.com", "phone": "+44 20 7946 0014" },
+      { "name": "Tom Reilly", "role": "Brand Activation Lead", "email": "t.reilly@nike.com", "phone": "+44 20 7946 0016" }
+    ],
+    "glossier": [
+      { "name": "Maya Cohen", "role": "Retail Marketing", "email": "m.cohen@glossier.com", "phone": "+44 20 7946 0033", "primary": true },
+      { "name": "Erin Walsh", "role": "Finance", "email": "e.walsh@glossier.com", "phone": "+44 20 7946 0034" }
+    ],
+    "samsung": [
+      { "name": "David Park", "role": "Brand Experience", "email": "d.park@samsung.com", "phone": "+44 20 7946 0055", "primary": true },
+      { "name": "Hannah Lee", "role": "Procurement", "email": "h.lee@samsung.com", "phone": "+44 20 7946 0056" }
+    ],
+    "fresh co.": [
+      { "name": "Sophie Turner", "role": "Events Manager", "email": "sophie.turner@freshco.com", "phone": "+44 20 7946 0077", "primary": true },
+      { "name": "Marcus Webb", "role": "Accounts Payable", "email": "m.webb@freshco.com", "phone": "+44 20 7946 0078" }
+    ]
+  }
+}

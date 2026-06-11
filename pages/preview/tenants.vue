@@ -106,7 +106,9 @@
                         {{ t.company }}
                         <span v-if="t.confirmedCount >= 2" class="rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Repeat</span>
                       </span>
-                      <span class="truncate text-xs text-muted-foreground">{{ t.contactName }}</span>
+                      <span class="truncate text-xs text-muted-foreground">
+                        {{ primaryContact(t).name }}<template v-if="t.contacts.length > 1"> · +{{ t.contacts.length - 1 }} more</template>
+                      </span>
                     </div>
                   </div>
                 </TableCell>
@@ -173,13 +175,29 @@
           </div>
 
           <!-- Stage strip -->
-          <div class="flex shrink-0 items-center justify-between gap-3 border-b border-border px-6 py-3">
+          <div class="flex shrink-0 items-center justify-between gap-3 px-6 py-3">
             <StatusDot :label="stageMeta(selectedTenant.stage).label" :dot-class="stageMeta(selectedTenant.stage).dotClass" />
             <span v-if="selectedTenant.source" class="text-xs text-muted-foreground">Source: {{ selectedTenant.source }}</span>
           </div>
 
-          <!-- Body -->
-          <div class="flex-1 overflow-y-auto px-6 py-6">
+          <!-- Tabs -->
+          <div class="flex shrink-0 items-center gap-1 border-b border-border px-4">
+            <button
+              type="button"
+              class="-mb-px border-b-2 px-3 py-2.5 text-sm font-medium transition-colors"
+              :class="detailTab === 'overview' ? 'border-foreground text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground'"
+              @click="detailTab = 'overview'"
+            >Overview</button>
+            <button
+              type="button"
+              class="-mb-px border-b-2 px-3 py-2.5 text-sm font-medium transition-colors"
+              :class="detailTab === 'people' ? 'border-foreground text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground'"
+              @click="detailTab = 'people'"
+            >People <span class="ml-1 text-xs tabular-nums text-muted-foreground">{{ selectedTenant.contacts.length }}</span></button>
+          </div>
+
+          <!-- Body: Overview -->
+          <div v-if="detailTab === 'overview'" class="flex-1 overflow-y-auto px-6 py-6">
             <div class="flex flex-col gap-7">
 
               <!-- Renewal callout -->
@@ -191,12 +209,13 @@
                 </div>
               </div>
 
-              <!-- Contact -->
+              <!-- Contact (primary) -->
               <section class="flex flex-col gap-3">
                 <div class="grid grid-cols-2 gap-4">
                   <div class="flex flex-col gap-0.5">
                     <span class="text-xs font-medium text-muted-foreground">Primary contact</span>
-                    <span class="text-sm font-medium text-foreground">{{ selectedTenant.contactName }}</span>
+                    <span class="text-sm font-medium text-foreground">{{ primaryContact(selectedTenant).name }}</span>
+                    <span v-if="primaryContact(selectedTenant).role" class="text-xs text-muted-foreground">{{ primaryContact(selectedTenant).role }}</span>
                   </div>
                   <div class="flex flex-col gap-0.5">
                     <span class="text-xs font-medium text-muted-foreground">Member since</span>
@@ -204,13 +223,16 @@
                   </div>
                 </div>
                 <div class="flex flex-wrap gap-x-6 gap-y-1 text-sm">
-                  <a :href="`mailto:${selectedTenant.email}`" class="inline-flex items-center gap-1.5 text-foreground transition-colors hover:text-primary" @click.stop>
-                    <IconMail :size="14" stroke-width="1.5" class="text-muted-foreground" /> {{ selectedTenant.email }}
+                  <a :href="`mailto:${primaryContact(selectedTenant).email}`" class="inline-flex items-center gap-1.5 text-foreground transition-colors hover:text-primary" @click.stop>
+                    <IconMail :size="14" stroke-width="1.5" class="text-muted-foreground" /> {{ primaryContact(selectedTenant).email }}
                   </a>
-                  <span v-if="selectedTenant.phone" class="inline-flex items-center gap-1.5 text-muted-foreground">
-                    <IconPhone :size="14" stroke-width="1.5" /> {{ selectedTenant.phone }}
+                  <span v-if="primaryContact(selectedTenant).phone" class="inline-flex items-center gap-1.5 text-muted-foreground">
+                    <IconPhone :size="14" stroke-width="1.5" /> {{ primaryContact(selectedTenant).phone }}
                   </span>
                 </div>
+                <button v-if="selectedTenant.contacts.length > 1" type="button" class="inline-flex w-fit items-center gap-1 text-xs font-medium text-foreground transition-colors hover:text-primary" @click="detailTab = 'people'">
+                  See all {{ selectedTenant.contacts.length }} people <IconArrowRight :size="13" stroke-width="2" />
+                </button>
               </section>
 
               <!-- Numbers -->
@@ -269,6 +291,35 @@
                 <p v-if="selectedTenant.crmNote" class="text-xs text-muted-foreground">{{ selectedTenant.crmNote }}</p>
               </section>
 
+            </div>
+          </div>
+
+          <!-- Body: People -->
+          <div v-else class="flex-1 overflow-y-auto px-6 py-6">
+            <div class="flex flex-col gap-3">
+              <div v-for="c in selectedTenant.contacts" :key="c.email" class="flex items-start justify-between gap-3 rounded-lg border border-border px-4 py-3">
+                <div class="flex items-start gap-3">
+                  <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-semibold text-foreground">{{ initials(c.name) }}</div>
+                  <div class="flex flex-col gap-0.5">
+                    <span class="flex items-center gap-1.5 text-sm font-medium text-foreground">
+                      {{ c.name }}
+                      <span v-if="c.primary" class="rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Primary</span>
+                    </span>
+                    <span v-if="c.role" class="text-xs text-muted-foreground">{{ c.role }}</span>
+                    <div class="mt-1 flex flex-col gap-0.5 text-xs">
+                      <a :href="`mailto:${c.email}`" class="inline-flex w-fit items-center gap-1.5 text-foreground transition-colors hover:text-primary" @click.stop>
+                        <IconMail :size="13" stroke-width="1.5" class="text-muted-foreground" /> {{ c.email }}
+                      </a>
+                      <span v-if="c.phone" class="inline-flex items-center gap-1.5 text-muted-foreground">
+                        <IconPhone :size="13" stroke-width="1.5" /> {{ c.phone }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <span v-if="contactBookings(selectedTenant, c).length" class="shrink-0 whitespace-nowrap text-xs text-muted-foreground">
+                  {{ contactBookings(selectedTenant, c).length }} booking{{ contactBookings(selectedTenant, c).length === 1 ? '' : 's' }}
+                </span>
+              </div>
             </div>
           </div>
 
@@ -347,6 +398,13 @@ interface TenantCrm {
   createdAt?: string
   note?: string | null
 }
+interface Contact {
+  name: string
+  role?: string
+  email: string
+  phone?: string
+  primary?: boolean
+}
 interface TenantRecord {
   id: string
   company: string
@@ -355,6 +413,7 @@ interface TenantRecord {
   phone?: string
   category: string
   source?: string
+  contacts: Contact[]
   bookings: Booking[]
   confirmedCount: number
   lifetimeValue: number
@@ -374,8 +433,32 @@ const isLandlord = computed(() => isUserType('landlord'))
 
 const { data: bookingsData } = await useAsyncData<Booking[]>('bookings', () => $fetch('/api/bookings'))
 const { data: tenantsData } = await useAsyncData<TenantCrm[]>('tenants', () => $fetch('/api/tenants'))
+const { data: contactsData } = await useAsyncData<Record<string, Contact[]>>('contacts', () => $fetch('/api/contacts'))
 const bookings = computed(() => bookingsData.value ?? [])
 const prospects = computed(() => tenantsData.value ?? [])
+const contactsByCompany = computed(() => contactsData.value ?? {})
+
+// A company's people: seeded CRM contacts if present, else derived from the
+// distinct contacts across its bookings (usually one). Primary first.
+function contactsForCompany(company: string, bs: Booking[]): Contact[] {
+  const seeded = contactsByCompany.value[company.toLowerCase()]
+  if (seeded?.length) return [...seeded].sort((a, b) => (b.primary ? 1 : 0) - (a.primary ? 1 : 0))
+  const seen = new Map<string, Contact>()
+  for (const b of bs) {
+    const key = b.tenant.email.toLowerCase()
+    if (!seen.has(key)) seen.set(key, { name: b.tenant.contactName, email: b.tenant.email, phone: b.tenant.phone })
+  }
+  const list = [...seen.values()]
+  if (list[0]) list[0].primary = true
+  return list
+}
+function primaryContact(t: TenantRecord): Contact {
+  return t.contacts.find(c => c.primary) ?? t.contacts[0]
+}
+// Bookings where a given contact is the booker (matched by email).
+function contactBookings(t: TenantRecord, c: Contact): Booking[] {
+  return t.bookings.filter(b => b.tenant.email.toLowerCase() === c.email.toLowerCase())
+}
 
 // ─── Derivation ───────────────────────────────────────────────────────────────
 function daysFromToday(iso: string): number {
@@ -440,6 +523,7 @@ const scopedTenants = computed<TenantRecord[]>(() => {
       phone: latest.tenant.phone,
       category: mostCommon(bs.map(b => b.enquiry?.category ?? '').filter(Boolean)) || 'brand_marketing',
       source: crmMeta?.source,
+      contacts: contactsForCompany(latest.tenant.company, bs),
       bookings: [...bs].sort((a, b) => b.period.from.localeCompare(a.period.from)),
       confirmedCount: confirmed.length,
       lifetimeValue: confirmed.reduce((s, b) => s + (b.financials.totalLandlord ?? b.financials.total ?? b.financials.rate ?? 0), 0),
@@ -466,6 +550,9 @@ const scopedTenants = computed<TenantRecord[]>(() => {
       phone: p.phone,
       category: p.category,
       source: p.source,
+      contacts: contactsForCompany(p.company, []).length
+        ? contactsForCompany(p.company, [])
+        : [{ name: p.contactName, email: p.email, phone: p.phone, primary: true }],
       bookings: [],
       confirmedCount: 0,
       lifetimeValue: 0,
@@ -524,7 +611,14 @@ const emptyMessage = computed(() => {
 
 // ─── Tenant overlay ─────────────────────────────────────────────────────────
 const selectedTenant = ref<TenantRecord | null>(null)
-function openTenant(t: TenantRecord) { selectedTenant.value = t }
+const detailTab = ref<'overview' | 'people'>('overview')
+function openTenant(t: TenantRecord) {
+  selectedTenant.value = t
+  detailTab.value = 'overview'
+}
+function initials(name: string): string {
+  return name.split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase()
+}
 
 function viewInBookings(t: TenantRecord) {
   router.push({ path: '/preview/bookings', query: { q: t.company } })
