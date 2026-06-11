@@ -1,9 +1,14 @@
 # Changelog
 
+## 2026-06-12 — Renew creates a booking-link enquiry; booking-links company-first
+
+- **Renew now follows the standard flow** — instead of directly creating a `quoted` booking, "Send renewal to tenant" hands the prefilled details (tenant, centre, dates, rate) to the **booking-links create overlay** and navigates there (`useState('renewal-draft')` → `/booking-links?create=1`, prefilled). It goes out as a booking-link **enquiry**; once the tenant completes it, it becomes a booking — same path as a normal Create booking. (The booking's space isn't in the catalog, so the landlord picks the space on the create form; everything else is prefilled.) The Renew button stays hidden after sending (`useState('renewal-sent')`).
+- **Booking-links table is company-first** — swapped the columns so **Company** is the primary detail (bold, first) and the **Contact** (name + email) is secondary, matching the CRM company-first model.
+
 ## 2026-06-12 — Renewals: tenant links + a renew flow on bookings
 
 - **Tenant renewal callout** now has **Message tenant** and **View booking** actions (the latter deep-links to the specific ending booking via `/bookings?q=<id>`).
-- **Renew on the bookings page** — the notifications column (2nd-last, where the overdue/clash flags live) now shows an amber **Renew** button on renewable bookings (confirmed, ending ≤14 days, no later confirmed booking for the same tenant — mirrors the Tenants logic). Clicking opens a **Renew overlay**: proposes a new term (date-range picker that blocks dates already booked on that space) prefilled to follow straight on from the current term, with an editable rate (You-receive preview). "Send renewal to tenant" creates a **quoted** renewal booking for the new term and logs it; the Renew button then clears on the original (offer sent).
+- **Renew on the bookings page** — the notifications column (2nd-last, where the overdue/clash flags live) now shows an amber **Renew** button on renewable bookings (confirmed, ending ≤14 days, no later confirmed booking for the same tenant — mirrors the Tenants logic). Clicking opens a **Renew overlay**: proposes a new term (date-range picker that blocks dates already booked on that space) prefilled to follow straight on from the current term, with an editable rate (You-receive preview). "Send renewal to tenant" sends it out as a renewal (see the later entry — this was subsequently changed to create a booking-link enquiry rather than a direct quoted booking).
 
 ## 2026-06-12 — Tenants: directory + overlay refinements
 

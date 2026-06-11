@@ -119,16 +119,16 @@
                 </TableHead>
 
                 <TableHead>
-                  <button type="button" class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort('tenantEmail')">
-                    Tenant
-                    <component :is="sortIcon('tenantEmail')" :size="12" stroke-width="2" />
+                  <button type="button" class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort('tenantCompany')">
+                    Company
+                    <component :is="sortIcon('tenantCompany')" :size="12" stroke-width="2" />
                   </button>
                 </TableHead>
 
                 <TableHead>
-                  <button type="button" class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort('tenantCompany')">
-                    Company
-                    <component :is="sortIcon('tenantCompany')" :size="12" stroke-width="2" />
+                  <button type="button" class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground" @click="toggleSort('tenantEmail')">
+                    Contact
+                    <component :is="sortIcon('tenantEmail')" :size="12" stroke-width="2" />
                   </button>
                 </TableHead>
 
@@ -169,14 +169,14 @@
                 </TableCell>
 
                 <TableCell>
-                  <div class="flex flex-col gap-0.5">
-                    <span v-if="link.tenantFirstName || link.tenantLastName" class="text-sm font-medium text-foreground">{{ [link.tenantFirstName, link.tenantLastName].filter(Boolean).join(' ') }}</span>
-                    <span class="text-xs text-muted-foreground">{{ link.tenantEmail }}</span>
-                  </div>
+                  <span class="text-sm font-medium text-foreground">{{ link.tenantCompany || '—' }}</span>
                 </TableCell>
 
-                <TableCell class="text-sm text-muted-foreground">
-                  {{ link.tenantCompany || '—' }}
+                <TableCell>
+                  <div class="flex flex-col gap-0.5">
+                    <span v-if="link.tenantFirstName || link.tenantLastName" class="text-sm text-foreground">{{ [link.tenantFirstName, link.tenantLastName].filter(Boolean).join(' ') }}</span>
+                    <span class="text-xs text-muted-foreground">{{ link.tenantEmail }}</span>
+                  </div>
                 </TableCell>
 
                 <TableCell>
@@ -371,6 +371,7 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
 import type { DateRange } from 'reka-ui'
+import { CalendarDate } from '@internationalized/date'
 import {
   IconCalendar,
   IconChevronDown,
@@ -725,12 +726,31 @@ function openForm() {
 }
 
 // Auto-open the Create booking overlay when arriving from the bookings page
-// (?create=1), with a short delay so the page change registers first.
+// (?create=1), with a short delay so the page change registers first. If a
+// renewal hand-off is waiting (from the bookings Renew flow), prefill it.
 const route = useRoute()
+const renewalDraft = useState<Record<string, string> | null>('renewal-draft', () => null)
+function isoToCal(iso: string): CalendarDate {
+  const [y, m, d] = iso.split('-').map(Number)
+  return new CalendarDate(y, m, d)
+}
 onMounted(() => {
-  if (route.query.create !== undefined) {
-    setTimeout(openForm, 500)
-  }
+  if (route.query.create === undefined) return
+  setTimeout(() => {
+    const d = renewalDraft.value
+    if (!d) { openForm(); return }
+    resetForm()
+    form.tenantEmail = d.tenantEmail
+    form.tenantFirstName = d.tenantFirstName
+    form.tenantLastName = d.tenantLastName
+    form.tenantCompany = d.tenantCompany
+    form.centreId = d.centreId
+    form.rate = d.rate
+    lastSelectedEmail.value = d.tenantEmail // hide autocomplete suggestions
+    if (d.periodFrom && d.periodTo) form.bookingPeriod = { start: isoToCal(d.periodFrom), end: isoToCal(d.periodTo) }
+    formOpen.value = true
+    renewalDraft.value = null // consume the hand-off
+  }, 500)
 })
 
 function handleSend() {

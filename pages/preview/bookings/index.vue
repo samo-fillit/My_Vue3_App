@@ -1880,7 +1880,10 @@ function blockingOn(spaceId: string, period: { from: string; to: string }, exclu
 // ─── Renewals (landlord) ────────────────────────────────────────────────────────
 // A confirmed booking ending within 14 days with no later confirmed booking for
 // the same tenant — a rebooking opportunity. Mirrors the Tenants page.
-const renewalSent = ref<Set<string>>(new Set())
+// Shared across pages (within the session) so the renewal hand-off survives the
+// nav to /booking-links and the Renew button stays hidden after sending.
+const renewalSent = useState<Set<string>>('renewal-sent', () => new Set())
+const renewalDraft = useState<Record<string, string> | null>('renewal-draft', () => null)
 function isRenewable(b: Booking): boolean {
   if (!isLandlord.value || b.status !== 'confirmed' || renewalSent.value.has(b.id)) return false
   const d = Math.round((new Date(b.period.to + 'T00:00:00Z').getTime() - TODAY.getTime()) / 86400000)
@@ -1912,27 +1915,29 @@ const renewDatesLabel = computed(() => {
   return r?.start && r?.end ? `${fmtCalDate(r.start)} – ${fmtCalDate(r.end)}` : 'Select dates'
 })
 const renewValid = computed(() => !!(renewRange.value?.start && renewRange.value?.end && (renewRate.value || 0) > 0))
+// Renewing creates a booking-link enquiry (the existing "create booking link →
+// tenant completes → becomes a booking" flow): hand the prefilled details to the
+// booking-links create overlay and navigate there. The booking's space.id doesn't
+// map to the spaces catalog, so the landlord picks the space there (centre + dates
+// + rate + tenant are prefilled).
 function confirmRenew() {
   const b = renewSource.value
   const r = renewRange.value
   if (!b || !r?.start || !r?.end || !renewValid.value) return
-  const from = calToIso(r.start), to = calToIso(r.end)
-  const d = deriveFinancials(b, renewRate.value || b.financials.rate)
-  const clone: Booking = JSON.parse(JSON.stringify(b))
-  clone.id = `${b.id}-R`
-  clone.status = 'quoted'
-  clone.createdAt = TODAY.toISOString()
-  clone.period = { from, to }
-  Object.assign(clone.financials, { ...d, quote: d.rate, paymentStatus: 'pending', paidBy: null })
-  clone.payments = []
-  clone.documents = []
-  clone.docusign = { status: null, envelopeId: null, sentAt: null, completedAt: null }
-  clone.actions = [{ type: 'renewal_sent', actor: 'You', actorType: viewerRole.value, at: TODAY.toISOString(), description: `Renewal offer sent — ${formatDate(from)} – ${formatDate(to)}` }]
-  clone.notes = { landlord: null, tenant: null }
-  bookings.value.unshift(clone)
+  const parts = b.tenant.contactName.split(' ')
+  renewalDraft.value = {
+    tenantEmail: b.tenant.email,
+    tenantFirstName: parts[0] ?? '',
+    tenantLastName: parts.slice(1).join(' '),
+    tenantCompany: b.tenant.company,
+    centreId: b.space.centreId,
+    rate: String(renewRate.value || b.financials.rate),
+    periodFrom: calToIso(r.start),
+    periodTo: calToIso(r.end),
+  }
   renewalSent.value.add(b.id)
-  pushAction(b, 'renewal_sent', `Renewal offer sent to tenant for ${formatDate(from)} – ${formatDate(to)}`)
   closeRenew()
+  router.push('/preview/booking-links?create=1')
 }
 // Clash for the *drafted* space + dates while a landlord edits an enquiry.
 const draftBlocking = computed<Booking[]>(() => {
