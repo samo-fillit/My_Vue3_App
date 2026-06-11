@@ -246,7 +246,7 @@
 
                 <TableCell class="pl-8">
                   <div class="flex flex-col items-start gap-1">
-                    <StatusDot :label="statusMeta(b).label" :dot-class="statusMeta(b).dotClass" :pulse="statusMeta(b).live" />
+                    <StatusDot :label="statusMeta(b).label" :dot-class="statusMeta(b).dotClass" :pulse="statusMeta(b).live" :highlight="statusPulseId === b.id" />
                     <TooltipProvider v-if="b.autoChanged" :delay-duration="150">
                       <Tooltip>
                         <TooltipTrigger as-child>
@@ -371,7 +371,7 @@
           <!-- Status + ID strip -->
           <div class="flex shrink-0 items-center justify-between gap-3 border-b border-border px-6 py-3">
             <div class="inline-flex items-center gap-3">
-              <StatusDot :label="statusMeta(selectedBooking).label" :dot-class="statusMeta(selectedBooking).dotClass" :pulse="statusMeta(selectedBooking).live" />
+              <StatusDot :label="statusMeta(selectedBooking).label" :dot-class="statusMeta(selectedBooking).dotClass" :pulse="statusMeta(selectedBooking).live" :highlight="statusPulseId === selectedBooking.id" />
               <span v-if="hasOverdue(selectedBooking)" class="inline-flex items-center gap-1 text-xs font-medium text-red-600">
                 <IconFlagFilled :size="13" /> Overdue
               </span>
@@ -1320,6 +1320,8 @@ const spaceDraft = ref<Booking['space'] | null>(null)
 const dateRangeDraft = ref<DateRange | undefined>(undefined)
 // Confirmation step shown before sending edited terms back to the tenant.
 const sendChangesOpen = ref(false)
+// Briefly flags a booking whose status just changed, so its StatusDot pulses.
+const statusPulseId = ref<string | null>(null)
 
 function openDetail(b: Booking) {
   selectedBooking.value = b
@@ -1336,6 +1338,12 @@ function openDetail(b: Booking) {
 function pushAction(b: Booking, type: string, description: string) {
   b.actions = b.actions ?? []
   b.actions.push({ type, actor: 'You', actorType: viewerRole.value, at: TODAY.toISOString(), description })
+}
+
+// Flag a booking's status as just-changed so its StatusDot pulses (~2 cycles).
+function pulseStatus(id: string) {
+  statusPulseId.value = id
+  setTimeout(() => { if (statusPulseId.value === id) statusPulseId.value = null }, 1900)
 }
 
 // ─── Rate negotiation (landlord, on an enquiry) ────────────────────────────────
@@ -1422,6 +1430,7 @@ function sendQuote() {
   b.status = 'quoted'
   pushAction(b, 'quote_sent', changed ? `Changes sent to tenant — ${formatAmount(d.rate)}` : 'Enquiry accepted — sent to tenant')
   sendChangesOpen.value = false
+  pulseStatus(b.id)
 }
 
 // ─── Edit payment schedule (landlord) ──────────────────────────────────────────
@@ -1658,11 +1667,13 @@ function onCta(key: string) {
         b.status = 'confirmed'                                                        // Fillit: accept → confirmed directly
         pushAction(b, 'quote_accepted', 'Quote accepted')
       }
+      pulseStatus(b.id)
       break
     case 'sign':                                                                      // tenant: sign the lease → confirmed
       b.docusign = { status: 'completed', envelopeId: b.docusign?.envelopeId ?? `env-${b.id}`, sentAt: b.docusign?.sentAt ?? TODAY.toISOString(), completedAt: TODAY.toISOString() }
       b.status = 'confirmed'
       pushAction(b, 'lease_signed', 'Lease signed')
+      pulseStatus(b.id)
       break
     case 'decline':  openActionModal('decline'); break
     case 'cancel':   openActionModal('cancel'); break
