@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-06-12 — Company-first booking creation (bookings belong to the tenant company)
+
+Dev team confirmed the model: a booking belongs to the tenant **company/team**, not an individual — so the landlord can use **any email associated with that company** when creating one. The Create booking overlay (booking-links) is now company-first:
+
+- **Company** is the primary field — autocompletes against the company master (`/api/companies`, now carrying a proper-case `name`), and accepts a brand-new company.
+- Once a company is set, its **contacts** appear as quick-pick chips (any of the company's emails) and the **email** field accepts a new address — i.e. any email under that company. Picking a contact fills the name; a new email is captured as a new contact.
+- Replaced the old email-first autocomplete (`mockTenants` removed); `handleSend` is unchanged. The renewal hand-off prefill still works (company + contact + dates + rate).
+
+(Conceptual model only on the data side — the deeper `companyId`/`contactId` refactor of bookings stays with the backend team; nothing in `bookings.json` changed.)
+
 ## 2026-06-12 — Renew creates a booking-link enquiry; booking-links company-first
 
 - **Renew now follows the standard flow** — instead of directly creating a `quoted` booking, "Send renewal to tenant" hands the prefilled details (tenant, centre, dates, rate) to the **booking-links create overlay** and navigates there (`useState('renewal-draft')` → `/booking-links?create=1`, prefilled). It goes out as a booking-link **enquiry**; once the tenant completes it, it becomes a booking — same path as a normal Create booking. (The booking's space isn't in the catalog, so the landlord picks the space on the create form; everything else is prefilled.) The Renew button stays hidden after sending (`useState('renewal-sent')`).

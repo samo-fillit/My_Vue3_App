@@ -274,42 +274,58 @@
           <!-- Form body -->
           <form class="flex flex-col gap-8 overflow-y-auto px-6 py-5" @submit.prevent="handleSend">
 
-            <!-- Tenant -->
+            <!-- Tenant — the booking belongs to the company; any company email can be used -->
             <div class="flex flex-col gap-4">
               <h3 class="text-sm font-semibold text-foreground">Tenant</h3>
+
+              <!-- Company (primary) -->
               <div class="relative">
                 <FloatingLabelInput
-                  v-model="form.tenantEmail"
-                  label="Email address"
+                  v-model="form.tenantCompany"
+                  label="Company"
                   :required="true"
                   autocomplete="off"
                 />
-                <!-- Autocomplete suggestions -->
                 <div
-                  v-if="showSuggestions"
+                  v-if="companySuggestions.length"
                   class="absolute left-0 right-0 top-full z-10 mt-1 overflow-hidden rounded-lg border border-border bg-background shadow-lg"
                 >
                   <button
-                    v-for="tenant in tenantSuggestions"
-                    :key="tenant.email"
+                    v-for="c in companySuggestions"
+                    :key="c.name"
                     type="button"
-                    class="flex w-full flex-col gap-0.5 px-4 py-3 text-left transition-colors hover:bg-muted"
-                    @click="selectTenant(tenant)"
+                    class="flex w-full items-center justify-between gap-2 px-4 py-3 text-left transition-colors hover:bg-muted"
+                    @click="selectCompany(c)"
                   >
-                    <span class="text-sm font-medium text-foreground">{{ tenant.firstName }} {{ tenant.lastName }}</span>
-                    <span class="text-xs text-muted-foreground">{{ tenant.email }}</span>
+                    <span class="text-sm font-medium text-foreground">{{ c.name }}</span>
+                    <span v-if="c.category" class="text-xs text-muted-foreground">{{ c.category }}</span>
                   </button>
                 </div>
               </div>
 
-              <!-- Name + company — shown once a valid email is entered -->
+              <!-- Contact — pick any email at the company, or add a new one -->
               <Transition name="fields">
-                <div v-if="isValidEmail" class="flex flex-col gap-4">
+                <div v-if="form.tenantCompany.trim()" class="flex flex-col gap-4">
+                  <div v-if="companyContacts.length" class="flex flex-col gap-2">
+                    <span class="text-xs font-medium text-muted-foreground">Contact at {{ form.tenantCompany }}</span>
+                    <div class="flex flex-wrap gap-2">
+                      <button
+                        v-for="ct in companyContacts"
+                        :key="ct.email"
+                        type="button"
+                        class="rounded-lg border px-3 py-1.5 text-left text-xs font-medium transition-colors"
+                        :class="form.tenantEmail === ct.email ? 'border-foreground bg-muted text-foreground' : 'border-border text-muted-foreground hover:border-foreground'"
+                        @click="selectContact(ct)"
+                      >
+                        {{ ct.name }}<span v-if="ct.role" class="font-normal text-muted-foreground"> · {{ ct.role }}</span>
+                      </button>
+                    </div>
+                  </div>
+                  <FloatingLabelInput v-model="form.tenantEmail" label="Email address" :required="true" autocomplete="off" />
                   <div class="grid grid-cols-2 gap-4">
                     <FloatingLabelInput v-model="form.tenantFirstName" label="First name" :required="true" />
                     <FloatingLabelInput v-model="form.tenantLastName" label="Last name" :required="true" />
                   </div>
-                  <FloatingLabelInput v-model="form.tenantCompany" label="Company name" :required="true" />
                 </div>
               </Transition>
             </div>
@@ -465,17 +481,17 @@ interface BookingLink {
 const { context: appContext, can } = useAppContext()
 const { activeTeamId } = useTeamContext()
 
-// ─── Mock tenants (for autocomplete) ─────────────────────────────────────────
-
-const mockTenants = [
-  { firstName: 'Alice',   lastName: 'Johnson',   email: 'alice@brandco.com',            company: 'Brand Co.' },
-  { firstName: 'Marcus',  lastName: 'Lee',        email: 'm.lee@popupbrands.io',          company: 'Pop-up Brands' },
-  { firstName: 'Sophie',  lastName: 'Turner',     email: 'sophie.turner@freshco.com',     company: 'Fresh Co.' },
-  { firstName: 'David',   lastName: 'Chen',       email: 'd.chen@retailgroup.com',        company: 'Retail Group' },
-  { firstName: 'Emma',    lastName: 'Wilson',     email: 'ewilson@brandstudio.co.uk',     company: 'Brand Studio' },
-  { firstName: 'James',   lastName: 'Rodriguez',  email: 'james@launchpad.co',            company: 'Launchpad' },
-  { firstName: 'Priya',   lastName: 'Patel',      email: 'priya.patel@kiosks.io',         company: 'Kiosks.io' },
-]
+// ─── Companies (tenant master — company-first booking creation) ─────────────────
+// A booking belongs to the tenant *company*; the landlord can use any email
+// associated with that company. Companies + their contacts come from /api/companies.
+interface Contact { name: string; role?: string; email: string; phone?: string; primary?: boolean }
+const { data: companiesData } = await useAsyncData<Record<string, { name: string; category?: string; contacts?: Contact[] }>>(
+  'companies',
+  () => $fetch('/api/companies'),
+)
+const companyList = computed(() =>
+  Object.values(companiesData.value ?? {}).map(c => ({ name: c.name, category: c.category ?? '', contacts: c.contacts ?? [] })),
+)
 
 // ─── Booking links data ───────────────────────────────────────────────────────
 
@@ -687,9 +703,6 @@ const availableSpaces = computed(() =>
 const formOpen = ref(false)
 // True while the create overlay is a renewal hand-off, so the new link is tagged.
 const creatingRenewal = ref(false)
-// Track the email at the moment of autocomplete selection — suggestions hide
-// when current email matches this value, with no async watch side-effects.
-const lastSelectedEmail = ref('')
 
 const form = reactive({
   tenantEmail: '',
@@ -703,32 +716,32 @@ const form = reactive({
   deposit: '',
 })
 
-const isValidEmail = computed(() =>
-  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.tenantEmail)
-)
 
-const tenantSuggestions = computed(() => {
-  if (form.tenantEmail.length < 2) return []
-  const q = form.tenantEmail.toLowerCase()
-  return mockTenants
-    .filter(t =>
-      t.email.toLowerCase().includes(q) ||
-      `${t.firstName} ${t.lastName}`.toLowerCase().includes(q) ||
-      t.company.toLowerCase().includes(q)
-    )
-    .slice(0, 5)
+// Company-first: suggest known companies as the landlord types.
+const lastSelectedCompany = ref('')
+const companySuggestions = computed(() => {
+  const q = form.tenantCompany.trim().toLowerCase()
+  if (!q || form.tenantCompany === lastSelectedCompany.value) return []
+  return companyList.value.filter(c => c.name.toLowerCase().includes(q)).slice(0, 6)
 })
-
-const showSuggestions = computed(() =>
-  form.tenantEmail !== lastSelectedEmail.value && tenantSuggestions.value.length > 0
-)
-
-function selectTenant(tenant: typeof mockTenants[0]) {
-  form.tenantEmail = tenant.email
-  form.tenantFirstName = tenant.firstName
-  form.tenantLastName = tenant.lastName
-  form.tenantCompany = tenant.company
-  lastSelectedEmail.value = tenant.email
+// Existing contacts at the chosen company — any of these emails can be used.
+const companyContacts = computed<Contact[]>(() => {
+  const m = companyList.value.find(c => c.name.toLowerCase() === form.tenantCompany.trim().toLowerCase())
+  return m?.contacts ?? []
+})
+function selectCompany(c: { name: string }) {
+  form.tenantCompany = c.name
+  lastSelectedCompany.value = c.name
+  // Reset the contact when the company changes.
+  form.tenantEmail = ''
+  form.tenantFirstName = ''
+  form.tenantLastName = ''
+}
+function selectContact(ct: Contact) {
+  form.tenantEmail = ct.email
+  const parts = ct.name.split(/\s+/)
+  form.tenantFirstName = parts[0] ?? ''
+  form.tenantLastName = parts.slice(1).join(' ')
 }
 
 const bookingDateLabel = computed(() => {
@@ -769,7 +782,7 @@ onMounted(() => {
     form.tenantCompany = d.tenantCompany
     form.centreId = d.centreId
     form.rate = d.rate
-    lastSelectedEmail.value = d.tenantEmail // hide autocomplete suggestions
+    lastSelectedCompany.value = d.tenantCompany // skip the company dropdown for the prefilled company
     if (d.periodFrom && d.periodTo) form.bookingPeriod = { start: isoToCal(d.periodFrom), end: isoToCal(d.periodTo) }
     creatingRenewal.value = true
     formOpen.value = true
@@ -827,7 +840,7 @@ function resetForm() {
   form.spaceId = ''
   form.rate = ''
   form.deposit = ''
-  lastSelectedEmail.value = ''
+  lastSelectedCompany.value = ''
   creatingRenewal.value = false
 }
 

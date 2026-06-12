@@ -1,45 +1,134 @@
 {
   "companies": {
     "nike": {
+      "name": "Nike",
       "category": "Sportswear",
       "contacts": [
-        { "name": "Jordan Smith", "role": "Marketing Manager", "email": "j.smith@nike.com", "phone": "+44 20 7946 0011", "primary": true },
-        { "name": "Aisha Khan", "role": "Finance", "email": "a.khan@nike.com", "phone": "+44 20 7946 0014" },
-        { "name": "Tom Reilly", "role": "Brand Activation Lead", "email": "t.reilly@nike.com", "phone": "+44 20 7946 0016" }
+        {
+          "name": "Jordan Smith",
+          "role": "Marketing Manager",
+          "email": "j.smith@nike.com",
+          "phone": "+44 20 7946 0011",
+          "primary": true
+        },
+        {
+          "name": "Aisha Khan",
+          "role": "Finance",
+          "email": "a.khan@nike.com",
+          "phone": "+44 20 7946 0014"
+        },
+        {
+          "name": "Tom Reilly",
+          "role": "Brand Activation Lead",
+          "email": "t.reilly@nike.com",
+          "phone": "+44 20 7946 0016"
+        }
       ]
     },
     "glossier": {
+      "name": "Glossier",
       "category": "Beauty & cosmetics",
       "contacts": [
-        { "name": "Maya Cohen", "role": "Retail Marketing", "email": "m.cohen@glossier.com", "phone": "+44 20 7946 0033", "primary": true },
-        { "name": "Erin Walsh", "role": "Finance", "email": "e.walsh@glossier.com", "phone": "+44 20 7946 0034" }
+        {
+          "name": "Maya Cohen",
+          "role": "Retail Marketing",
+          "email": "m.cohen@glossier.com",
+          "phone": "+44 20 7946 0033",
+          "primary": true
+        },
+        {
+          "name": "Erin Walsh",
+          "role": "Finance",
+          "email": "e.walsh@glossier.com",
+          "phone": "+44 20 7946 0034"
+        }
       ]
     },
     "samsung": {
+      "name": "Samsung",
       "category": "Technology",
       "contacts": [
-        { "name": "David Park", "role": "Brand Experience", "email": "d.park@samsung.com", "phone": "+44 20 7946 0055", "primary": true },
-        { "name": "Hannah Lee", "role": "Procurement", "email": "h.lee@samsung.com", "phone": "+44 20 7946 0056" }
+        {
+          "name": "David Park",
+          "role": "Brand Experience",
+          "email": "d.park@samsung.com",
+          "phone": "+44 20 7946 0055",
+          "primary": true
+        },
+        {
+          "name": "Hannah Lee",
+          "role": "Procurement",
+          "email": "h.lee@samsung.com",
+          "phone": "+44 20 7946 0056"
+        }
       ]
     },
     "fresh co.": {
+      "name": "Fresh Co.",
       "category": "Food & beverage",
       "contacts": [
-        { "name": "Sophie Turner", "role": "Events Manager", "email": "sophie.turner@freshco.com", "phone": "+44 20 7946 0077", "primary": true },
-        { "name": "Marcus Webb", "role": "Accounts Payable", "email": "m.webb@freshco.com", "phone": "+44 20 7946 0078" }
+        {
+          "name": "Sophie Turner",
+          "role": "Events Manager",
+          "email": "sophie.turner@freshco.com",
+          "phone": "+44 20 7946 0077",
+          "primary": true
+        },
+        {
+          "name": "Marcus Webb",
+          "role": "Accounts Payable",
+          "email": "m.webb@freshco.com",
+          "phone": "+44 20 7946 0078"
+        }
       ]
     },
-    "apple": { "category": "Technology" },
-    "allbirds": { "category": "Footwear" },
-    "lululemon": { "category": "Activewear" },
-    "patagonia": { "category": "Outdoor apparel" },
-    "oatly": { "category": "Food & beverage" },
-    "peloton": { "category": "Fitness tech" },
-    "rolex": { "category": "Luxury watches" },
-    "zara": { "category": "Fashion & apparel" },
-    "pull&bear": { "category": "Fashion & apparel" },
-    "mango": { "category": "Fashion & apparel" },
-    "moda group": { "category": "Fashion & apparel" },
-    "hermès": { "category": "Luxury" }
+    "apple": {
+      "name": "Apple",
+      "category": "Technology"
+    },
+    "allbirds": {
+      "name": "Allbirds",
+      "category": "Footwear"
+    },
+    "lululemon": {
+      "name": "Lululemon",
+      "category": "Activewear"
+    },
+    "patagonia": {
+      "name": "Patagonia",
+      "category": "Outdoor apparel"
+    },
+    "oatly": {
+      "name": "Oatly",
+      "category": "Food & beverage"
+    },
+    "peloton": {
+      "name": "Peloton",
+      "category": "Fitness tech"
+    },
+    "rolex": {
+      "name": "Rolex",
+      "category": "Luxury watches"
+    },
+    "zara": {
+      "name": "Zara",
+      "category": "Fashion & apparel"
+    },
+    "pull&bear": {
+      "name": "Pull&Bear",
+      "category": "Fashion & apparel"
+    },
+    "mango": {
+      "name": "Mango",
+      "category": "Fashion & apparel"
+    },
+    "moda group": {
+      "name": "Moda Group",
+      "category": "Fashion & apparel"
+    },
+    "hermès": {
+      "name": "Hermès",
+      "category": "Luxury"
+    }
   }
 }
